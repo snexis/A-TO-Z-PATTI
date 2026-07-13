@@ -21,33 +21,26 @@
     <div id="admin-auth-gateway" class="auth-container">
         <div class="auth-box">
             <h2 class="neon-title">MASTER ADMIN ACCESS</h2>
-            <p class="auth-subtitle">লগইন অপশনটি সিলেক্ট করুন</p>
             
-            <div id="admin-phone-section">
-                <p class="info-text" style="color: var(--neon-cyan);">📞 Option 1: Live SMS OTP</p>
-                <input type="text" id="admin-phone-input" placeholder="Enter Phone with Country Code (+91...)" autocomplete="off">
+            <div class="login-form-block" style="margin-top: 20px;">
+                
+                <div class="input-phone-wrapper" style="display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: 4px; margin-bottom: 15px; padding: 0 10px;">
+                    <span style="color: var(--neon-cyan); font-weight: bold; margin-right: 5px;">+91</span>
+                    <input type="text" id="master-phone-input" placeholder="XXXXXXXXXX" maxlength="10" autocomplete="off" style="border: none; background: transparent; width: 100%; padding: 12px 5px; color: #fff; outline: none;">
+                </div>
+
+                <div class="input-code-wrapper" style="margin-bottom: 20px;">
+                    <input type="password" id="master-code-input" placeholder="Enter Pin / Code" maxlength="6" autocomplete="off" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: 4px; color: #fff; box-sizing: border-box;">
+                </div>
+
                 <div id="recaptcha-container"></div>
-                <button id="send-otp-btn" class="cyber-btn" style="margin-bottom: 25px;">Send Verification OTP</button>
-            </div>
 
-            <div id="admin-otp-section" class="hidden-section">
-                <input type="text" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6" autocomplete="off">
-                <button id="verify-otp-btn" class="cyber-btn success-btn" style="margin-bottom: 25px;">Verify & Enter Dashboard</button>
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin-bottom: 20px;">
-
-            <div id="admin-direct-section">
-                <p class="info-text" style="color: var(--neon-gold);">🔒 Option 2: Direct Bypass Login</p>
-                <input type="text" id="direct-phone-input" placeholder="Enter Registered Phone (+91...)" autocomplete="off">
-                <input type="text" id="direct-code-input" placeholder="Enter Fixed Test Code" maxlength="6" autocomplete="off">
-                <button id="direct-login-btn" class="cyber-btn success-btn" style="background: linear-gradient(135deg, #7928CA, #FF0080);">Direct Fast Login</button>
+                <button id="master-login-btn" class="cyber-btn success-btn" style="width: 100%; padding: 14px; font-weight: bold; background: linear-gradient(135deg, #7928CA, #FF0080);">Enter Dashboard</button>
             </div>
         </div>
     </div>
 
     <div id="admin-main-dashboard" class="game-container hidden-section">
-        
         <header class="game-header">
             <h1 class="main-title">🚀 MASTER CONTROL PANEL</h1>
             <div class="system-status">Role: <span class="highlight-text">Main Admin</span></div>
@@ -64,7 +57,7 @@
                     </select>
                 </div>
                 <div class="control-group">
-                    <label>Game Logo URL (স্পিনিং লোগো পরিবর্তন):</label>
+                    <label>Game Logo URL:</label>
                     <input type="text" id="logo-url-input" placeholder="ইমেজের লিংক পেস্ট করুন" class="admin-input">
                     <button id="update-settings-btn" class="cyber-btn small-btn">Update Settings</button>
                 </div>
@@ -72,10 +65,10 @@
         </section>
 
         <section class="game-card">
-            <h3>Create New Bazi Round (নতুন বাজি তৈরি করুন)</h3>
+            <h3>Create New Bazi Round</h3>
             <div class="bazi-creator-row">
                 <input type="text" id="new-bazi-name" placeholder="Bazis Name (উদা: Bazi 1)">
-                <input type="time" id="new-bazi-time" title="বাজি বন্ধ হওয়ার সময়">
+                <input type="time" id="new-bazi-time">
                 <button id="create-bazi-btn" class="cyber-btn success-btn">Add Active Bazi</button>
             </div>
         </section>
@@ -113,7 +106,7 @@
                             <th>Win Points</th>
                             <th>Status</th>
                             <th>Today's Auth Code</th>
-                            <th>Actions (Point / Approve)</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="admin-user-list-body">
@@ -122,7 +115,6 @@
                 </table>
             </div>
         </section>
-
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
