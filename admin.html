@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A to Z Patti - Master Admin</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <div id="admin-auth-gateway" class="auth-container">
+        <div class="auth-box">
+            <h2 class="neon-title">MASTER ADMIN ACCESS</h2>
+            <p class="auth-subtitle">সুরক্ষিত লগইনের জন্য আপনার নিবন্ধিত ফোন নম্বরটি দিন</p>
+            
+            <div id="admin-phone-section">
+                <input type="tel" id="admin-phone-input" placeholder="+91XXXXXXXXXX (কান্ট্রি কোডসহ)" required>
+                <div id="recaptcha-container"></div>
+                <button id="send-otp-btn" class="cyber-btn">Send Verification OTP</button>
+            </div>
+
+            <div id="admin-otp-section" class="hidden-section">
+                <input type="text" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6">
+                <button id="verify-otp-btn" class="cyber-btn success-btn">Verify & Enter Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-main-dashboard" class="game-container hidden-section">
+        
+        <header class="game-header">
+            <h1 class="main-title">🚀 MASTER CONTROL PANEL</h1>
+            <div class="system-status">Role: <span class="highlight-text">Main Admin</span></div>
+        </header>
+
+        <section class="game-card">
+            <h3>System Settings (সিস্টেম কনফিগারেশন)</h3>
+            <div class="settings-grid">
+                <div class="control-group">
+                    <label>Game Calculation Mode:</label>
+                    <select id="game-mode-select" class="admin-input">
+                        <option value="auto">Automatic (Low Investment Wins)</option>
+                        <option value="manual">Manual (Admin Direct Input)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Game Logo URL (স্পিনিং লোগো পরিবর্তন):</label>
+                    <input type="text" id="logo-url-input" placeholder="ইমেজের লিংক পেস্ট করুন" class="admin-input">
+                    <button id="update-settings-btn" class="cyber-btn small-btn">Update Settings</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="game-card">
+            <h3>Create New Bazi Round (নতুন বাজি তৈরি করুন)</h3>
+            <div class="bazi-creator-row">
+                <input type="text" id="new-bazi-name" placeholder="Bazis Name (উদা: Bazi 1)">
+                <input type="time" id="new-bazi-time" title="বাজি বন্ধ হওয়ার সময়">
+                <button id="create-bazi-btn" class="cyber-btn success-btn">Add Active Bazi</button>
+            </div>
+        </section>
+
+        <section class="game-card">
+            <h3>Live Bazi & Results Management</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bazi Name</th>
+                            <th>Lock Time</th>
+                            <th>Status</th>
+                            <th>Total Bets Point</th>
+                            <th>Manual Result (Patti - Single)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-bazi-list-body">
+                        <tr><td colspan="6" class="text-center">Loading active rounds data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="game-card">
+            <h3>Player Verification & Points Manager</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Player ID</th>
+                            <th>Pin</th>
+                            <th>Play Points</th>
+                            <th>Win Points</th>
+                            <th>Status</th>
+                            <th>Today's Auth Code</th>
+                            <th>Actions (Point / Approve)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-user-list-body">
+                        <tr><td colspan="7" class="text-center">Loading player accounts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="firebase-config.js"></script>
+    
+    <script src="admin-app.js"></script>
+</body>
+</html>
