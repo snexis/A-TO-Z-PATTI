@@ -1,9 +1,3 @@
-/**
- * A to Z Patti - Firebase Configuration & Security Core
- * ⚠️ সিকিউরিটি অ্যালার্ট: এই ফাইলটি আপনার .gitignore ফাইলে যুক্ত থাকবে।
- * এটি ভুলেও গিটহাবে (GitHub) পুশ বা আপলোড করবেন না।
- */
-
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyB0HO_fnRt3FMjykq7Lo_Z0sAYy3kee2W4",
@@ -15,9 +9,13 @@ const firebaseConfig = {
   appId: "1:71546188781:web:19bfea6537335132c86de4",
   measurementId: "G-8ENRFZRWLP"
 };
-window.firebaseConfig = firebaseConfig;
-// গ্লোবাল উইন্ডো অবজেক্টে কনফিগারেশন এক্সপোজ করা
-// এর ফলে আমাদের প্রোজেক্টের app.js বা অন্য যেকোনো স্ক্রিপ্ট সরাসরি এই কানেকশনটি ব্যবহার করতে পারবে
-window.firebaseConfig = firebaseConfig;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
 
-console.log("🔒 [Security Mode]: Firebase Config securely initialized locally.");
+// আমাদের সেই স্পেশাল আইডি-টু-ইমেইল কনভার্টার লজিক
+function getEmailFromId(userId, role) {
+    if (role === 'master_admin') return userId + "@master.admin";
+    if (role === 'sub_admin') return userId + "@sub.admin";
+    return userId + "@game.player";
+}
