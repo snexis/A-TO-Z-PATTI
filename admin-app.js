@@ -1,6 +1,6 @@
 /**
  * A to Z Patti - Master Admin Application Engine
- * FEATURES: Dual Login System (SMS + Direct Bypass), Invisible Captcha, Real-time Dashboard
+ * Clean Single Form Submission with Fixed Country Code Verification
  */
 
 (function() {
@@ -8,68 +8,36 @@
     if (!firebase.apps.length) firebase.initializeApp(window.firebaseConfig);
     
     const db = firebase.database();
-    let authConfirmationResult = null;
 
     const adminAuthGateway = document.getElementById('admin-auth-gateway');
-    const adminPhoneSection = document.getElementById('admin-phone-section');
-    const adminOtpSection = document.getElementById('admin-otp-section');
     const adminMainDashboard = document.getElementById('admin-main-dashboard');
 
-    // 🛡️ ফায়ারবেস রিক্যাপচা ইনিশিয়ালাইজেশন (ইনভিসিবল মোড)
+    // 🛡️ রিক্যাপচা অদৃশ্য কনফিগারেশন
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'invisible'
     });
 
     // ==========================================================================
-    // 🔑 লগইন মেকানিজম (অপশন ১: লাইভ এসএমএস ওটিপি)
+    // 🔑 সিঙ্গেল ইন্টারফেস লগইন লজিক (আপনার নোট অনুসারে)
     // ==========================================================================
-    if (document.getElementById('send-otp-btn')) {
-        document.getElementById('send-otp-btn').addEventListener('click', () => {
-            const phoneNumber = document.getElementById('admin-phone-input').value.trim();
-            if (!phoneNumber) return alert("অনুগ্রহ করে কান্ট্রি কোডসহ মোবাইল নম্বর দিন (+91...)");
+    if (document.getElementById('master-login-btn')) {
+        document.getElementById('master-login-btn').addEventListener('click', () => {
+            const rawPhone = document.getElementById('master-phone-input').value.trim();
+            const code = document.getElementById('master-code-input').value.trim();
 
-            const appVerifier = window.recaptchaVerifier;
-            firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-                .then((confirmationResult) => {
-                    authConfirmationResult = confirmationResult;
-                    if (adminPhoneSection) adminPhoneSection.classList.add('hidden-section');
-                    if (adminOtpSection) adminOtpSection.classList.remove('hidden-section');
-                    alert("আপনার মোবাইলে ওটিপি পাঠানো হয়েছে!");
-                }).catch((error) => {
-                    console.error("SMS Error:", error);
-                    alert("ওটিপি পাঠানো যায়নি। ফায়ারবেস সেটিংস চেক করুন।");
-                });
-        });
-    }
+            if (!rawPhone || rawPhone.length !== 10) {
+                return alert("অনুগ্রহ করে আপনার ১০ ডিজিটের মোবাইল নম্বরটি সঠিকভাবে দিন।");
+            }
+            if (!code) {
+                return alert("দয়া করে পিন বা কোডটি ইনপুট করুন।");
+            }
 
-    if (document.getElementById('verify-otp-btn')) {
-        document.getElementById('verify-otp-btn').addEventListener('click', () => {
-            const code = document.getElementById('admin-otp-input').value.trim();
-            if (code.length !== 6) return alert("৬ ডিজিটের ওটিপি কোডটি দিন।");
-
-            if (!authConfirmationResult) return alert("আগে ওটিপি রিকোয়েস্ট পাঠান!");
-
-            authConfirmationResult.confirm(code).then((result) => {
-                enterDashboard();
-            }).catch((error) => {
-                alert("ভুল ওটিপি কোড! আবার চেষ্টা করুন।");
-            });
-        });
-    }
-
-    // ==========================================================================
-    // 🔑 লগইন মেকানিজম (অপশন ২: ডিরেক্ট ফিক্সড কোড বাইপাস)
-    // ==========================================================================
-    if (document.getElementById('direct-login-btn')) {
-        document.getElementById('direct-login-btn').addEventListener('click', () => {
-            const phone = document.getElementById('direct-phone-input').value.trim();
-            const code = document.getElementById('direct-code-input').value.trim();
-
-            if (!phone || !code) return alert("ফোন নম্বর এবং ফিক্সড টেস্ট কোড দুটিই দিন।");
-
+            // ফিক্সড কান্ট্রি কোড +91 যুক্ত করে পূর্ণ নম্বর তৈরি
+            const fullPhoneNumber = "+91" + rawPhone;
             const appVerifier = window.recaptchaVerifier;
 
-            firebase.auth().signInWithPhoneNumber(phone, appVerifier)
+            // ফায়ারবেস অথেনটিকেশন সাবমিশন
+            firebase.auth().signInWithPhoneNumber(fullPhoneNumber, appVerifier)
                 .then((confirmationResult) => {
                     return confirmationResult.confirm(code);
                 })
@@ -77,8 +45,12 @@
                     enterDashboard();
                 })
                 .catch((error) => {
-                    console.error("Direct Login Error:", error);
-                    alert("লগইন ব্যর্থ! ফায়ারবেসে এই নম্বর ও কোডটি 'Test numbers' হিসেবে যুক্ত করা আছে তো?");
+                    console.error("Login Engine Error:", error);
+                    if(error.code === "auth/too-many-requests") {
+                        alert("ফায়ারবেস সিকিউরিটি ব্লক! অতিরিক্ত চেষ্টার কারণে সাময়িক ব্লক করা হয়েছে। অনুগ্রহ করে কিছু সময় পর চেষ্টা করুন অথবা অন্য কোনো টেস্ট নম্বর ফায়ারবেস কনসোলে যোগ করে ট্রাই করুন।");
+                    } else {
+                        alert("লগইন ব্যর্থ! আপনার দেওয়া নম্বর অথবা কোডটি ফায়ারবেসের 'Test numbers' এ যুক্ত করা আছে তো?");
+                    }
                 });
         });
     }
@@ -91,10 +63,9 @@
     }
 
     // ==========================================================================
-    // 🎛️ মূল এডমিন ড্যাশবোর্ড লজিক
+    // 🎛️ মূল ড্যাশবোর্ড ডেটা লুপ ও কন্ট্রোল
     // ==========================================================================
     function runMasterAdminEngine() {
-        // ১. সিস্টেম সেটিংস রিড ও আপডেট
         db.ref('game_settings').on('value', (snapshot) => {
             const settings = snapshot.val() || {};
             if (settings.mode && document.getElementById('game-mode-select')) {
@@ -109,14 +80,11 @@
             document.getElementById('update-settings-btn').addEventListener('click', () => {
                 const selectMode = document.getElementById('game-mode-select').value;
                 const logoUrl = document.getElementById('logo-url-input').value.trim();
-                db.ref('game_settings').update({
-                    mode: selectMode,
-                    logo_url: logoUrl
-                }).then(() => alert("সিস্টেম সেটিংস সফলভাবে আপডেট হয়েছে!"));
+                db.ref('game_settings').update({ mode: selectMode, logo_url: logoUrl })
+                    .then(() => alert("সিস্টেম সেটিংস সফলভাবে আপডেট হয়েছে!"));
             });
         }
 
-        // ২. নতুন বাজি রাউন্ড তৈরি
         if (document.getElementById('create-bazi-btn')) {
             document.getElementById('create-bazi-btn').addEventListener('click', () => {
                 const baziName = document.getElementById('new-bazi-name').value.trim();
@@ -138,7 +106,6 @@
             });
         }
 
-        // ৩. লাইভ বাজি ও পয়েন্ট মনিটরিং
         db.ref('bazis').on('value', (baziSnapshot) => {
             const tbody = document.getElementById('admin-bazi-list-body');
             if (!tbody) return;
@@ -161,8 +128,8 @@
                     <td style="color: ${statusColor}; font-weight:bold;">${bazi.status.toUpperCase()}</td>
                     <td id="total-points-${baziId}">Calculating...</td>
                     <td>
-                        <input type="text" id="patti-${baziId}" placeholder="Patti" style="width:70px; margin-bottom:0; padding:5px;" value="${bazi.result_patti}">
-                        <input type="text" id="single-${baziId}" placeholder="S" style="width:40px; margin-bottom:0; padding:5px;" value="${bazi.result_single}">
+                        <input type="text" id="patti-${baziId}" style="width:70px; padding:5px; margin:0;" value="${bazi.result_patti}">
+                        <input type="text" id="single-${baziId}" style="width:40px; padding:5px; margin:0;" value="${bazi.result_single}">
                     </td>
                     <td>
                         <button class="cyber-btn small-btn success-btn" onclick="declareBaziResult('${baziId}')" style="padding:6px 10px; width:auto; font-size:0.8rem;">Win</button>
@@ -187,7 +154,6 @@
             });
         });
 
-        // ৪. ইউজার এপ্রুভাল এবং পয়েন্ট ম্যানেজার
         db.ref('users').on('value', (userSnapshot) => {
             const tbody = document.getElementById('admin-user-list-body');
             if (!tbody) return;
@@ -207,13 +173,13 @@
                 tr.innerHTML = `
                     <td>${user.username}</td>
                     <td>${user.pin}</td>
-                    <td><input type="number" id="playpts-${username}" value="${user.play_points || 0}" style="width:75px; padding:5px; margin:0;"></td>
-                    <td><input type="number" id="winpts-${username}" value="${user.win_points || 0}" style="width:75px; padding:5px; margin:0;"></td>
+                    <td><input type="number" id="playpts-${username}" value="${user.play_points || 0}" style="width:65px; padding:5px; margin:0;"></td>
+                    <td><input type="number" id="winpts-${username}" value="${user.win_points || 0}" style="width:65px; padding:5px; margin:0;"></td>
                     <td><span style="color:${user.status === 'approved' ? 'var(--neon-green)' : 'var(--neon-gold)'}">${user.status}</span></td>
                     <td><b style="color:var(--neon-cyan)">${user.verification_code || '---'}</b></td>
                     <td>
                         <button class="cyber-btn success-btn" onclick="approvePlayer('${username}')" style="padding:5px 8px; width:auto; font-size:0.8rem;">Approve</button>
-                        <button class="cyber-btn" onclick="updatePlayerPoints('${username}')" style="padding:5px 8px; width:auto; font-size:0.8rem; background:linear-gradient(135deg, #7928CA, #FF0080);">Save Pts</button>
+                        <button class="cyber-btn" onclick="updatePlayerPoints('${username}')" style="padding:5px 8px; width:auto; font-size:0.8rem; background:linear-gradient(135deg, #7928CA, #FF0080);">Save</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -223,17 +189,15 @@
 
     window.approvePlayer = function(username) {
         const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
-        db.ref('users/' + username).update({
-            status: "approved",
-            verification_code: generatedCode
-        }).then(() => alert(`${username} অ্যাকাউন্টটি এপ্রুভ হয়েছে! কোড: ${generatedCode}`));
+        db.ref('users/' + username).update({ status: "approved", verification_code: generatedCode })
+            .then(() => alert(`${username} অ্যাকাউন্টটি এপ্রুভ হয়েছে!`));
     };
 
     window.updatePlayerPoints = function(username) {
         const playPts = parseInt(document.getElementById(`playpts-${username}`).value) || 0;
         const winPts = parseInt(document.getElementById(`winpts-${username}`).value) || 0;
         db.ref('users/' + username).update({ play_points: playPts, win_points: winPts })
-            .then(() => alert(`${username} এর পয়েন্ট আপডেট সফল!`));
+            .then(() => alert("পয়েন্ট আপডেট সফল!"));
     };
 
     window.toggleBaziStatus = function(baziId, currentStatus) {
@@ -242,40 +206,13 @@
     };
 
     window.declareBaziResult = function(baziId) {
-        db.ref('game_settings/mode').once('value').then((modeSnapshot) => {
-            const currentMode = modeSnapshot.val() || 'manual';
-            if (currentMode === 'manual') {
-                const patti = document.getElementById(`patti-${baziId}`).value.trim();
-                const single = document.getElementById(`single-${baziId}`).value.trim();
-                executeResultPublish(baziId, patti, single);
-            } else {
-                db.ref(`bets/${baziId}`).once('value').then((betSnapshot) => {
-                    const bets = betSnapshot.val();
-                    let winPatti = "123", winSingle = "6";
-                    if (bets) {
-                        let minPoints = Infinity;
-                        Object.keys(bets).forEach(cellId => {
-                            let cellTotal = 0;
-                            Object.keys(bets[cellId]).forEach(p => { cellTotal += parseInt(bets[cellId][p].points || 0); });
-                            if (cellTotal < minPoints) {
-                                minPoints = cellTotal;
-                                winPatti = "ABC-" + cellId; 
-                                winSingle = cellId.split('-')[1] || "0";
-                            }
-                        });
-                    }
-                    executeResultPublish(baziId, winPatti, winSingle);
-                });
-            }
-        });
-    };
-
-    function executeResultPublish(baziId, patti, single) {
+        const patti = document.getElementById(`patti-${baziId}`).value.trim();
+        const single = document.getElementById(`single-${baziId}`).value.trim();
         db.ref(`bazis/${baziId}`).update({ status: "closed", result_patti: patti, result_single: single });
         db.ref('game_settings/live_result').set({
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
             patti: patti,
             single: single
-        }).then(() => alert(`ফলাফল প্রকাশ হয়েছে! পাত্তি: ${patti}, সিঙ্গেল: ${single}`));
-    }
+        }).then(() => alert("ফলাফল প্রকাশ হয়েছে!"));
+    };
 })();
