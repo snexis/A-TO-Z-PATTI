@@ -1,339 +1,46 @@
-/* ==========================================================================
-   A to Z Patti - Next-Gen Premium Cyberpunk UI
-   FEATURES: Glassmorphism, Neon Glow, Anti-Lag Architecture for 4GB RAM & Win7
-   ========================================================================== */
-
-/* 🌌 ১. গ্লোবাল রুট কালার ও ভ্যারিয়েবল (সবচেয়ে আধুনিক কালার কম্বিনেশন) */
-:root {
-    --bg-main: #060b19;          /* গভীর মহাজাগতিক ব্যাকগ্রাউন্ড */
-    --bg-card: rgba(15, 23, 42, 0.55); /* কাঁচের মতো স্বচ্ছ ডার্ক স্লেট */
-    --neon-cyan: #00f3ff;        /* আল্ট্রা নিয়ন সায়ান */
-    --neon-gold: #ffb700;        /* প্রিমিয়াম লাক্সারি গোল্ড */
-    --neon-green: #39ff14;       /* হাই-ইন্টেনসিটি গ্রিন (সফলতা) */
-    --neon-red: #ff3131;         /* অ্যালার্ট রেড */
-    --text-main: #f1f5f9;        /* প্রিমিয়াম হোয়াইট টেক্সট */
-    --text-muted: #94a3b8;       /* হালকা গ্রে টেক্সট */
-    --border-glass: rgba(255, 255, 255, 0.08); /* কাঁচের ধারের বর্ডার */
-}
-
-/* 🧹 ২. বেসিক রিসেট ও স্ক্রোলবার কাস্টমাইজেশন */
-* {
+/* গ্লাস-মোরফিজম গ্লোবাল স্টাইল */
+body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    background: radial-gradient(circle at 50% 50%, #0d1527 0%, var(--bg-main) 100%);
-    color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-/* প্রিমিয়াম নিয়ন স্ক্রোলবার */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: var(--bg-main);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--bg-card);
-    border-radius: 10px;
-    border: 1px solid var(--neon-cyan);
-}
-
-/* 🔒 ৩. লগইন এবং এপ্রুভাল গেটওয়ে ডিজাইন (Glassmorphism Auth Box) */
-.auth-container {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
 }
 
-.auth-box {
-    background: var(--bg-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-glass);
-    padding: 40px 30px;
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
     border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    width: 350px;
+}
+
+input {
     width: 100%;
-    max-width: 420px;
-    text-align: center;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 243, 255, 0.05);
-}
-
-.neon-title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #fff;
-    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 243, 255, 0.5);
-    margin-bottom: 10px;
-    letter-spacing: 2px;
-}
-
-.auth-subtitle {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 25px;
-}
-
-/* ইনপুট ফিল্ডস (প্রিমিয়াম ডার্ক স্টাইল) */
-input[type="text"], 
-input[type="password"], 
-input[type="number"], 
-input[type="tel"],
-select.admin-input {
-    width: 100%;
-    padding: 14px 16px;
-    background: rgba(5, 5, 10, 0.6);
-    border: 1px solid var(--border-glass);
-    border-radius: 10px;
-    color: #fff;
-    font-size: 1rem;
-    margin-bottom: 15px;
-    transition: all 0.3s ease;
-}
-
-input:focus, select.admin-input:focus {
-    outline: none;
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
-}
-
-/* ⚡ ৪. সাইবারপাঙ্ক নিয়ন বোতাম (Cyber Buttons) */
-.cyber-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #00b4db, #0083b0);
+    padding: 12px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 15px rgba(0, 180, 219, 0.4);
-}
-
-.cyber-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--neon-cyan);
-}
-
-.success-btn {
-    background: linear-gradient(135deg, #11998e, #38ef7d);
-    box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
-}
-.success-btn:hover {
-    box-shadow: 0 6px 20px var(--neon-green);
-}
-
-/* 🎮 ৫. মেইন গেম ড্যাশবোর্ড লেআউট */
-.game-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.game-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
-    padding: 15px 25px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    gap: 15px;
-}
-
-.main-title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    background: linear-gradient(to right, #fff, var(--neon-cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.player-profile-bar {
-    display: flex;
-    gap: 20px;
-    font-weight: 600;
-}
-
-.player-profile-bar span {
-    color: var(--neon-gold);
-    text-shadow: 0 0 5px rgba(255, 183, 0, 0.5);
-}
-
-/* 🔄 ৬. থ্রি-ডি স্পিনিং লোগো অ্যানিমেশন */
-.logo-spinner {
-    font-size: 2.5rem;
-    display: inline-block;
-    animation: spin 4s linear infinite;
-    filter: drop-shadow(0 0 8px var(--neon-cyan));
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 🃏 ৭. প্রিমিয়াম গ্লাস কার্ডস (Cards Setup) */
-.game-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-glass);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
-
-.game-card h3 {
-    font-size: 1.1rem;
-    color: var(--neon-gold);
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* 🎛️ ৮. ডাইনামিক বাজি সিলেকশন গ্রিড */
-.bazi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px;
-}
-
-.bazi-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-glass);
-    padding: 12px;
     border-radius: 8px;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
+    color: white;
 }
 
-.bazi-btn.active {
-    border-color: var(--neon-gold);
-    background: rgba(255, 183, 0, 0.15);
-    box-shadow: 0 0 10px rgba(255, 183, 0, 0.3);
-}
-
-/* 📊 ৯. লাইভ স্ট্যাটাস ডিসপ্লে রো */
-.status-display-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.status-box {
-    flex: 1;
-    background: rgba(5, 5, 10, 0.4);
-    border: 1px solid var(--border-glass);
-    padding: 12px;
-    border-radius: 10px;
-    text-align: center;
-}
-
-.status-box h4 {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-}
-
-.status-box div {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--neon-cyan);
-}
-
-/* 🏫 ১০. ২২ লাইনের আল্ট্রা-মডার্ন ডাইনামিক গেম টেবিল */
-.table-responsive {
-    overflow-x: auto;
-    border-radius: 10px;
-}
-
-table {
+button {
     width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    background: rgba(5, 5, 10, 0.3);
-}
-
-th, td {
-    padding: 14px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 0.95rem;
-}
-
-th {
-    background: rgba(0, 243, 255, 0.08);
-    color: var(--neon-cyan);
-    font-weight: 700;
-}
-
-/* টেবিল সেলের ইন্টারেক্টিভ নিয়ন এফেক্ট */
-td.clickable-cell {
+    padding: 12px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
+    transition: 0.3s;
 }
 
-td.clickable-cell:hover {
-    background: rgba(0, 243, 255, 0.2) !important;
-    color: #fff;
-    box-shadow: inset 0 0 8px var(--neon-cyan);
-}
-
-td.selected-target {
-    background: rgba(255, 183, 0, 0.3) !important;
-    color: var(--neon-gold) !important;
-    border: 1px solid var(--neon-gold);
-}
-
-/* 🛠️ ১১. ইউটিলিটি ক্লাসেস */
-.hidden-section {
-    display: none !important;
-}
-
-.highlight-text {
-    font-weight: 700;
-    color: var(--neon-cyan);
-}
-
-.warning-text { color: var(--neon-gold); font-weight: 600; margin-bottom: 10px; }
-.danger-text { color: var(--neon-red); font-weight: 700; margin-bottom: 10px; }
-.info-text { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; }
-
-/* 📱 ১২. ছোট ডিভাইসের জন্য রেসপন্সিভ ডিজাইন অপ্টিমাইজেশন */
-@media (max-width: 600px) {
-    .game-header {
-        flex-direction: column;
-        text-align: center;
-    }
-    .player-profile-bar {
-        width: 100%;
-        justify-content: space-around;
-    }
-    th, td {
-        padding: 10px 5px;
-        font-size: 0.85rem;
-    }
-    .status-box div {
-        font-size: 1.1rem;
-    }
-}
+button:hover { background: #2563eb; }
