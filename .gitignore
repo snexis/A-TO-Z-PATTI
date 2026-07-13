@@ -1,1 +1,6 @@
+# সিক্রেট ফাইল ও ফোল্ডার যা পাবলিক হবে না
+.env
 firebase-config.js
+node_modules/
+.DS_Store
+*.log
