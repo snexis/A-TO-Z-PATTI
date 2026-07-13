@@ -25,13 +25,13 @@
             
             <div id="admin-phone-section">
                 <p class="info-text" style="color: var(--neon-cyan);">📞 Option 1: Live SMS OTP</p>
-                <input type="password" id="admin-phone-input" placeholder="Enter Phone with Country Code (+91...)" autocomplete="off">
+                <input type="text" id="admin-phone-input" placeholder="Enter Phone with Country Code (+91...)" autocomplete="off">
                 <div id="recaptcha-container"></div>
                 <button id="send-otp-btn" class="cyber-btn" style="margin-bottom: 25px;">Send Verification OTP</button>
             </div>
 
             <div id="admin-otp-section" class="hidden-section">
-                <input type="password" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6" autocomplete="off">
+                <input type="text" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6" autocomplete="off">
                 <button id="verify-otp-btn" class="cyber-btn success-btn" style="margin-bottom: 25px;">Verify & Enter Dashboard</button>
             </div>
 
@@ -39,8 +39,8 @@
 
             <div id="admin-direct-section">
                 <p class="info-text" style="color: var(--neon-gold);">🔒 Option 2: Direct Bypass Login</p>
-                <input type="password" id="direct-phone-input" placeholder="Enter Registered Phone (+91...)" autocomplete="off">
-                <input type="password" id="direct-code-input" placeholder="Enter Fixed Test Code" maxlength="6" autocomplete="off">
+                <input type="text" id="direct-phone-input" placeholder="Enter Registered Phone (+91...)" autocomplete="off">
+                <input type="text" id="direct-code-input" placeholder="Enter Fixed Test Code" maxlength="6" autocomplete="off">
                 <button id="direct-login-btn" class="cyber-btn success-btn" style="background: linear-gradient(135deg, #7928CA, #FF0080);">Direct Fast Login</button>
             </div>
         </div>
