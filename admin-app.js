@@ -1,38 +1,50 @@
-// লগইন ফাংশন: আইডি থেকে ইমেইল কনভার্ট করে ফায়ারবেসে লগইন করবে
+// লগইন ফাংশন: মাস্টার ইঞ্জিনের getEmailFromId ব্যবহার করে
 async function handleLogin() {
     const userId = document.getElementById('userId').value.trim();
     const password = document.getElementById('password').value.trim();
 
     if (!userId || !password) {
-        alert("আইডি এবং পাসওয়ার্ড দিন!");
+        alert("আইডি এবং পাসওয়ার্ড দিন!");
         return;
     }
 
-    // মাস্টার অ্যাডমিন চেক (সিস্টেমের চাবিকাঠি)
-    let role = (userId === "atoz") ? "master_admin" : "player"; 
+    // রোল ডিটেকশন লজিক
+    let role = 'player';
+    if (userId === "atoz") {
+        role = 'master_admin';
+    } else {
+        // ডেটাবেস থেকে চেক করে দেখা রোল প্লেয়ার নাকি সাব-অ্যাডমিন
+        // আপাতত ডিফল্ট প্লেয়ার হিসেবেই সেট করা আছে
+    }
     
-    // আমাদের সেই গোপন ছদ্মবেশী ইমেইল তৈরি
-    const email = getEmailFromId(userId, role);
+    // App.js-এ থাকা মাস্টার ফাংশন ব্যবহার করছি
+    const email = App.getEmailFromId(userId, role);
 
     try {
         await auth.signInWithEmailAndPassword(email, password);
-        
-        // লগইন সফল হলে ড্যাশবোর্ডে রিডাইরেক্ট
         console.log("লগইন সফল: " + role);
         window.location.href = "admin-dashboard.html"; 
     } catch (error) {
         console.error("লগইন ব্যর্থ:", error.message);
-        alert("ভুল আইডি বা পাসওয়ার্ড! ৩ বারের বেশি ভুল করলে আইডি ব্লক হয়ে যাবে।");
+        alert("ভুল আইডি বা পাসওয়ার্ড!");
     }
 }
 
-// রাত ১২টার অটো-লক লজিক (ভবিষ্যতের গেমের জন্য)
-function checkMidnightLock() {
+// অটো-লক এবং রিসেট লজিক
+function runSystemAutomation() {
+    // App.js এর মাস্টার রিসেট ফাংশন কল করা
+    App.runMidnightReset();
+    
+    // যদি রাত ১২টা বেজে যায়, গেম স্ট্যাটাস ক্লোজ করা
     const now = new Date();
     if (now.getHours() === 0 && now.getMinutes() === 0) {
-        // ডেটাবেসে গেম স্ট্যাটাস 'closed' করে দেওয়া
         database.ref('game_settings/status').set('closed');
-        alert("সিস্টেম রিস্টার্ট মোডে আছে!");
     }
 }
-setInterval(checkMidnightLock, 60000); // প্রতি ১ মিনিট অন্তর চেক করবে
+setInterval(runSystemAutomation, 60000); // প্রতি ১ মিনিটে চেক করবে
+
+// সাব-অ্যাডমিন এপ্রুভ করার জন্য অ্যাডমিন ড্যাশবোর্ড বাটন ফাংশন
+function approveSubAdminButton(subAdminId) {
+    App.handleSubAdmin(subAdminId, 'approved');
+    alert("সাব-অ্যাডমিন এপ্রুভ হয়েছে!");
+}
