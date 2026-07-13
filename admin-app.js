@@ -1,6 +1,6 @@
 /**
  * A to Z Patti - Master Admin Application Engine
- * FULL CODE - No cuts or missing parts
+ * FULL AND COMPLETE CODE
  */
 
 (function() {
@@ -11,7 +11,7 @@
     const adminAuthGateway = document.getElementById('admin-auth-gateway');
     const adminMainDashboard = document.getElementById('admin-main-dashboard');
 
-    // রিক্যাপচা ভেরিফায়ারটি বাটনের সাথে লিংক করা হলো
+    // রিক্যাপচা ভেরিফায়ার (টেস্ট নম্বরের জন্য ইনভিজিবল মোড)
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('master-login-btn', {
         'size': 'invisible'
     });
@@ -26,9 +26,8 @@
             if (!code) return alert("পিন কোড দিন।");
 
             const fullPhoneNumber = "+91" + rawPhone;
-            const appVerifier = window.recaptchaVerifier;
-
-            firebase.auth().signInWithPhoneNumber(fullPhoneNumber, appVerifier)
+            
+            firebase.auth().signInWithPhoneNumber(fullPhoneNumber, window.recaptchaVerifier)
                 .then((confirmationResult) => {
                     return confirmationResult.confirm(code);
                 })
@@ -36,8 +35,8 @@
                     enterDashboard();
                 })
                 .catch((error) => {
-                    console.error("Login Error:", error);
-                    alert("লগইন ব্যর্থ! আপনার দেওয়া টেস্ট নম্বর ও কোডটি ফায়ারবেস কনসোলে সঠিকভাবে সেভ করা আছে কি না চেক করুন।");
+                    console.error("Login Engine Error:", error);
+                    alert("লগইন ব্যর্থ! নম্বর বা কোড চেক করুন।");
                 });
         });
     }
@@ -51,6 +50,7 @@
 
     // ড্যাশবোর্ড ইঞ্জিন
     function runMasterAdminEngine() {
+        // গেম সেটিংস লোড
         db.ref('game_settings').on('value', (snapshot) => {
             const settings = snapshot.val() || {};
             if (settings.mode && document.getElementById('game-mode-select')) {
@@ -61,6 +61,7 @@
             }
         });
 
+        // সেটিংস আপডেট বাটন
         if (document.getElementById('update-settings-btn')) {
             document.getElementById('update-settings-btn').addEventListener('click', () => {
                 const selectMode = document.getElementById('game-mode-select').value;
@@ -70,79 +71,79 @@
             });
         }
 
+        // বাজি তৈরি বাটন
         if (document.getElementById('create-bazi-btn')) {
             document.getElementById('create-bazi-btn').addEventListener('click', () => {
                 const baziName = document.getElementById('new-bazi-name').value.trim();
                 const baziTime = document.getElementById('new-bazi-time').value;
-                if (!baziName || !baziTime) return alert("সব তথ্য দিন।");
+                if (!baziName || !baziTime) return alert("বাজির নাম ও সময় দিন।");
                 
                 const baziId = 'bazi_' + Date.now();
                 db.ref('bazis/' + baziId).set({
-                    name: baziName,
-                    time: baziTime,
-                    status: "open",
-                    result_patti: "---",
-                    result_single: "-"
-                }).then(() => alert("বাজি তৈরি হয়েছে!"));
+                    name: baziName, time: baziTime, status: "open",
+                    result_patti: "---", result_single: "-"
+                }).then(() => alert("নতুন বাজি তৈরি হয়েছে!"));
             });
         }
 
+        // বাজি লিস্ট লোড
         db.ref('bazis').on('value', (baziSnapshot) => {
             const tbody = document.getElementById('admin-bazi-list-body');
             if (!tbody) return;
             tbody.innerHTML = '';
             const bazis = baziSnapshot.val();
-            if (!bazis) return;
-
-            Object.keys(bazis).forEach((baziId) => {
-                const bazi = bazis[baziId];
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${bazi.name}</b></td>
-                    <td>${bazi.time}</td>
-                    <td>${bazi.status.toUpperCase()}</td>
-                    <td>Calculating...</td>
-                    <td>
-                        <input type="text" id="patti-${baziId}" value="${bazi.result_patti}" style="width:60px">
-                        <input type="text" id="single-${baziId}" value="${bazi.result_single}" style="width:30px">
-                    </td>
-                    <td>
-                        <button class="cyber-btn" onclick="declareBaziResult('${baziId}')">Win</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (bazis) {
+                Object.keys(bazis).forEach((baziId) => {
+                    const bazi = bazis[baziId];
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><b>${bazi.name}</b></td>
+                        <td>${bazi.time}</td>
+                        <td>${bazi.status.toUpperCase()}</td>
+                        <td id="total-points-${baziId}">Calculating...</td>
+                        <td>
+                            <input type="text" id="patti-${baziId}" value="${bazi.result_patti}" style="width:60px">
+                            <input type="text" id="single-${baziId}" value="${bazi.result_single}" style="width:30px">
+                        </td>
+                        <td>
+                            <button class="cyber-btn" onclick="declareBaziResult('${baziId}')">Win</button>
+                            <button class="cyber-btn" onclick="toggleBaziStatus('${baziId}', '${bazi.status}')">Lock</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
         });
 
+        // ইউজার লিস্ট লোড
         db.ref('users').on('value', (userSnapshot) => {
             const tbody = document.getElementById('admin-user-list-body');
             if (!tbody) return;
             tbody.innerHTML = '';
             const users = userSnapshot.val();
-            if (!users) return;
-
-            Object.keys(users).forEach((username) => {
-                const user = users[username];
-                if (user.role === 'admin') return;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${user.username}</td>
-                    <td>${user.pin}</td>
-                    <td><input type="number" id="playpts-${username}" value="${user.play_points || 0}" style="width:50px"></td>
-                    <td><input type="number" id="winpts-${username}" value="${user.win_points || 0}" style="width:50px"></td>
-                    <td>${user.status}</td>
-                    <td>${user.verification_code || '---'}</td>
-                    <td>
-                        <button class="cyber-btn" onclick="approvePlayer('${username}')">Approve</button>
-                        <button class="cyber-btn" onclick="updatePlayerPoints('${username}')">Save</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (users) {
+                Object.keys(users).forEach((username) => {
+                    const user = users[username];
+                    if (user.role === 'admin') return;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.username}</td>
+                        <td>${user.pin}</td>
+                        <td><input type="number" id="playpts-${username}" value="${user.play_points || 0}" style="width:50px"></td>
+                        <td><input type="number" id="winpts-${username}" value="${user.win_points || 0}" style="width:50px"></td>
+                        <td>${user.status}</td>
+                        <td>
+                            <button class="cyber-btn" onclick="approvePlayer('${username}')">Approve</button>
+                            <button class="cyber-btn" onclick="updatePlayerPoints('${username}')">Save</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
         });
     }
 
-    // হেল্পার ফাংশন
+    // গ্লোবাল হেল্পার ফাংশন (উইন্ডো অবজেক্টে সেট করা যাতে HTML থেকে কল করা যায়)
     window.approvePlayer = function(username) {
         const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
         db.ref('users/' + username).update({ status: "approved", verification_code: generatedCode })
@@ -154,6 +155,11 @@
         const winPts = parseInt(document.getElementById(`winpts-${username}`).value) || 0;
         db.ref('users/' + username).update({ play_points: playPts, win_points: winPts })
             .then(() => alert("পয়েন্ট আপডেট সফল!"));
+    };
+
+    window.toggleBaziStatus = function(baziId, currentStatus) {
+        const nextStatus = currentStatus === 'open' ? 'closed' : 'open';
+        db.ref(`bazis/${baziId}`).update({ status: nextStatus });
     };
 
     window.declareBaziResult = function(baziId) {
