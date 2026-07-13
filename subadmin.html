@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A to Z Patti - Sub Admin</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <div id="subadmin-auth-gateway" class="auth-container">
+        <div class="auth-box">
+            <h2 class="neon-title">SUB ADMIN ACCESS</h2>
+            <p class="auth-subtitle">আপনার সাব-এডমিন আইডি ও পিন দিয়ে লগইন করুন</p>
+            
+            <div id="subadmin-login-fields">
+                <input type="text" id="subadmin-username" placeholder="Sub-Admin User Name" required autocomplete="off">
+                <input type="password" id="subadmin-pin" placeholder="Enter PIN" maxlength="6" required>
+                <button id="subadmin-login-btn" class="cyber-btn">Log In</button>
+            </div>
+
+            <div id="subadmin-verification-fields" class="hidden-section">
+                <p class="warning-text">⚠️ Waiting for Master Admin Approval...</p>
+                <p class="info-text">মেইন এডমিনের থেকে আজকের সাব-এডমিন ভেরিফিকেশন কোডটি নিয়ে নিচে বসান:</p>
+                <input type="text" id="subadmin-daily-code" placeholder="Enter Verification Code" maxlength="6" autocomplete="off">
+                <button id="subadmin-verify-btn" class="cyber-btn success-btn">Unlock Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="subadmin-main-dashboard" class="game-container hidden-section">
+        
+        <header class="game-header">
+            <h1 class="main-title">🛡️ SUB-ADMIN CONTROL PANEL</h1>
+            <div class="system-status">Role: <span class="highlight-text" style="color: #ff9800;">Sub Admin</span></div>
+        </header>
+
+        <section class="game-card">
+            <h3>Live Bazi Monitor (চলতি বাজি পর্যবেক্ষণ)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bazi Name</th>
+                            <th>Lock Time</th>
+                            <th>Status</th>
+                            <th>Total Bets Point</th>
+                            <th>Current Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subadmin-bazi-list-body">
+                        <tr><td colspan="5" class="text-center">Loading active rounds data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="game-card">
+            <h3>Assigned Player Verification Board</h3>
+            <p class="info-text" style="font-size: 0.9rem; margin-bottom: 10px;">* আপনি শুধুমাত্র প্লেয়ারদের এপ্রুভ করতে পারবেন এবং আজকের অথেনটিকেশন কোড দেখতে পাবেন।</p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Player ID</th>
+                            <th>Play Points</th>
+                            <th>Win Points</th>
+                            <th>Status</th>
+                            <th>Today's Auth Code</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subadmin-user-list-body">
+                        <tr><td colspan="6" class="text-center">Loading player accounts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="firebase-config.js"></script>
+    
+    <script src="subadmin-app.js"></script>
+</body>
+</html>
