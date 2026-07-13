@@ -1,1 +1,111 @@
-<h4 halo</h4>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A to Z Patti</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        // মাউসের রাইট-ক্লিক লক করা
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // কিবোর্ডের F12, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+U (View Source) লক করা
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67)) || 
+                (e.ctrlKey && e.keyCode == 85)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <div id="auth-gateway" class="auth-container">
+        <div class="auth-box">
+            <h2 class="neon-title">A to Z PATTI LOGIN</h2>
+            <p class="auth-subtitle">সিস্টেমে প্রবেশ করতে আপনার আইডি ও পিন দিন</p>
+            
+            <div id="login-fields">
+                <input type="text" id="login-username" placeholder="User Name (ইউজার নাম)" required autocomplete="off">
+                <input type="password" id="login-pin" placeholder="4 Digit PIN (৪ সংখ্যার পিন)" maxlength="4" required>
+                <button id="action-login-btn" class="cyber-btn">Login / Request Access</button>
+            </div>
+
+            <div id="verification-fields" class="hidden-section">
+                <p class="warning-text">⚠️ Waiting for Admin Approval...</p>
+                <p class="info-text">এডমিনের দেওয়া আজকের গোপন ভেরিফিকেশন কোডটি নিচে বসান:</p>
+                <input type="text" id="daily-auth-code" placeholder="Enter Daily Verification Code" maxlength="6" autocomplete="off">
+                <button id="action-verify-btn" class="cyber-btn success-btn">Unlock Game Board</button>
+            </div>
+            
+            <div id="midnight-lock-notice" class="hidden-section">
+                <h3 class="danger-text">🔒 SYSTEM LOCKED</h3>
+                <p>রাত ১২টা বেজে গেছে। আজকের মতন খেলা শেষ হয়েছে এবং আপনার সিকিউরিটি লক করা হয়েছে। নতুন কোড পেতে সকালের জন্য অপেক্ষা করুন।</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-game-dashboard" class="game-container hidden-section">
+        
+        <header class="game-header">
+            <div class="logo-area">
+                <div id="spinning-indicator" class="logo-spinner">🎯</div>
+            </div>
+            <h1 class="main-title">A to Z PATTI</h1>
+            <div class="player-profile-bar">
+                <div>ID: <span id="display-player-name">---</span></div>
+                <div>Play: <span id="points-play">0</span></div>
+                <div>Win: <span id="points-win">0</span></div>
+            </div>
+        </header>
+
+        <section class="game-card">
+            <h3>Active Bazi Selection</h3>
+            <div id="dynamic-bazi-wrapper" class="bazi-grid">
+                <p class="loading-placeholder">Loading active rounds...</p>
+            </div>
+        </section>
+
+        <section class="game-card">
+            <h3>Live Status</h3>
+            <div class="status-display-row">
+                <div class="status-box"><h4>TIME</h4><div id="board-time">--:--</div></div>
+                <div class="status-box"><h4>PATTI</h4><div id="board-patti">---</div></div>
+                <div class="status-box"><h4>SINGLE</h4><div id="board-single">-</div></div>
+            </div>
+        </section>
+
+        <section class="game-card chart-card">
+            <h3>Game Board</h3>
+            <div class="table-responsive">
+                <table id="dynamic-alphabet-table">
+                    <thead>
+                        <tr>
+                            <th>১</th><th>২</th><th>৩</th><th>৪</th><th>৫</th><th>৬</th><th>৭</th><th>৮</th><th>৯</th><th>০</th>
+                        </tr>
+                    </thead>
+                    <tbody id="game-matrix-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="game-card bet-action-card">
+            <div class="selection-summary">
+                Selected Target: <span id="current-selected-cell" class="highlight-text">None</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="bet-amount-input" placeholder="পয়েন্ট পরিমাণ লিখুন" min="1">
+                <button id="submit-bet-btn" class="cyber-btn success-btn">Send Play / Click</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
