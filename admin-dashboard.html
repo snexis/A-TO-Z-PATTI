@@ -1,4 +1,29 @@
 <!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .user-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; display: flex; justify-content: space-between; }
+        button { cursor: pointer; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h2>Admin Control Panel</h2>
+    <div id="userList">
+        </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="admin-app.js"></script>
+    <script>
+        // ড্যাশবোর্ডে ঢোকার সাথে সাথে ইউজার লিস্ট লোড করা
+        window.onload = loadUsers;
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
