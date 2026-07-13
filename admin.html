@@ -21,17 +21,27 @@
     <div id="admin-auth-gateway" class="auth-container">
         <div class="auth-box">
             <h2 class="neon-title">MASTER ADMIN ACCESS</h2>
-            <p class="auth-subtitle">সুরক্ষিত লগইনের জন্য আপনার নিবন্ধিত ফোন নম্বরটি দিন</p>
+            <p class="auth-subtitle">লগইন অপশনটি সিলেক্ট করুন</p>
             
             <div id="admin-phone-section">
-                <input type="tel" id="admin-phone-input" placeholder="+91XXXXXXXXXX (কান্ট্রি কোডসহ)" required>
+                <p class="info-text" style="color: var(--neon-cyan);">📞 Option 1: Live SMS OTP</p>
+                <input type="password" id="admin-phone-input" placeholder="Enter Phone with Country Code (+91...)" autocomplete="off">
                 <div id="recaptcha-container"></div>
-                <button id="send-otp-btn" class="cyber-btn">Send Verification OTP</button>
+                <button id="send-otp-btn" class="cyber-btn" style="margin-bottom: 25px;">Send Verification OTP</button>
             </div>
 
             <div id="admin-otp-section" class="hidden-section">
-                <input type="text" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6">
-                <button id="verify-otp-btn" class="cyber-btn success-btn">Verify & Enter Dashboard</button>
+                <input type="password" id="admin-otp-input" placeholder="Enter 6-Digit OTP Code" maxlength="6" autocomplete="off">
+                <button id="verify-otp-btn" class="cyber-btn success-btn" style="margin-bottom: 25px;">Verify & Enter Dashboard</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin-bottom: 20px;">
+
+            <div id="admin-direct-section">
+                <p class="info-text" style="color: var(--neon-gold);">🔒 Option 2: Direct Bypass Login</p>
+                <input type="password" id="direct-phone-input" placeholder="Enter Registered Phone (+91...)" autocomplete="off">
+                <input type="password" id="direct-code-input" placeholder="Enter Fixed Test Code" maxlength="6" autocomplete="off">
+                <button id="direct-login-btn" class="cyber-btn success-btn" style="background: linear-gradient(135deg, #7928CA, #FF0080);">Direct Fast Login</button>
             </div>
         </div>
     </div>
@@ -65,7 +75,7 @@
             <h3>Create New Bazi Round (নতুন বাজি তৈরি করুন)</h3>
             <div class="bazi-creator-row">
                 <input type="text" id="new-bazi-name" placeholder="Bazis Name (উদা: Bazi 1)">
-                <input type="time" id="new-bazi-time" title="বাজি বন্ধ হওয়ার সময়">
+                <input type="time" id="new-bazi-time" title="বাজি বন্ধ হওয়ার সময়">
                 <button id="create-bazi-btn" class="cyber-btn success-btn">Add Active Bazi</button>
             </div>
         </section>
@@ -120,7 +130,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script src="firebase-config.js"></script>
-    
     <script src="admin-app.js"></script>
 </body>
 </html>
