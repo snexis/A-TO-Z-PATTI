@@ -15,7 +15,7 @@
     const adminOtpSection = document.getElementById('admin-otp-section');
     const adminMainDashboard = document.getElementById('admin-main-dashboard');
 
-    // 🛡️ ফায়ারবেস রিক্যাপচা ইনিশিয়ালাইজেশন
+    // 🛡️ ফায়ারবেস রিক্যাপচা ইনিশিয়ালাইজেশন (ক্যাপচা মুক্ত সেটিংস)
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'invisible'
     });
@@ -33,16 +33,16 @@
                 authConfirmationResult = confirmationResult;
                 adminPhoneSection.classList.add('hidden-section');
                 adminOtpSection.classList.remove('hidden-section');
-                alert("আপনার মোবাইলে ওটিপি পাঠানো হয়েছে!");
+                alert("আপনার মোবাইলে ওটিপি পাঠানো হয়েছে!");
             }).catch((error) => {
                 console.error("SMS Error:", error);
-                alert("ওটিপি পাঠানো যায়নি। ফায়ারবেস সেটিংস চেক করুন।");
+                alert("ওটিপি পাঠানো যায়নি। ফায়ারবেস সেটিংস চেক করুন।");
             });
     });
 
     document.getElementById('verify-otp-btn').addEventListener('click', () => {
         const code = document.getElementById('admin-otp-input').value.trim();
-        if (code.length !== 6) return alert("৬ ডিজিটের ওটিপি কোডটি দিন।");
+        if (code.length !== 6) return alert("৬ ডিজিটের ওটিপি কোডটি দিন。");
 
         authConfirmationResult.confirm(code).then((result) => {
             enterDashboard();
@@ -52,7 +52,7 @@
     });
 
     // ==========================================================================
-    // 🔑 লগইন মেকানিজম (অপশন ২: ডিরেক্ট ফিক্সড কোড বাইপাস)
+    // 🔑 লগইন মেকানিজম (অপশন ২: ডিরেক্ট ফিক্সড কোড বাইপাস - এরর ফ্রি)
     // ==========================================================================
     document.getElementById('direct-login-btn').addEventListener('click', () => {
         const phone = document.getElementById('direct-phone-input').value.trim();
@@ -60,8 +60,10 @@
 
         if (!phone || !code) return alert("ফোন নম্বর এবং ফিক্সড টেস্ট কোড দুটিই দিন।");
 
-        // ফায়ারবেসের অফিশিয়াল সাইন-ইন ফাংশন যা ফিক্সড টেস্ট নাম্বার রিড করে বাইপাস করবে
-        firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+        const appVerifier = window.recaptchaVerifier;
+
+        // ফায়ারবেসের অফিশিয়াল সাইন-ইন ফাংশন যা ফিক্সড টেস্ট নাম্বার রিড করে বাইপাস করবে
+        firebase.auth().signInWithPhoneNumber(phone, appVerifier)
             .then((confirmationResult) => {
                 return confirmationResult.confirm(code);
             })
@@ -70,7 +72,7 @@
             })
             .catch((error) => {
                 console.error("Direct Login Error:", error);
-                alert("লগইন ব্যর্থ! ফায়ারবেসে এই নম্বর ও কোডটি 'Test numbers' হিসেবে যুক্ত করা আছে তো?");
+                alert("লগইন ব্যর্থ! ফায়ারবেসে এই নম্বর ও কোডটি 'Test numbers' হিসেবে যুক্ত করা আছে তো?");
             });
     });
 
@@ -98,7 +100,7 @@
             db.ref('game_settings').update({
                 mode: selectMode,
                 logo_url: logoUrl
-            }).then(() => alert("সিস্টেম সেটিংস সফলভাবে আপডেট হয়েছে!"));
+            }).then(() => alert("সিস্টেম সেটিংস সফলভাবে আপডেট হয়েছে!"));
         });
 
         // ২. নতুন বাজি রাউন্ড তৈরি
@@ -106,7 +108,7 @@
             const baziName = document.getElementById('new-bazi-name').value.trim();
             const baziTime = document.getElementById('new-bazi-time').value;
 
-            if (!baziName || !baziTime) return alert("বাজির নাম এবং সময় দুটিই দিন।");
+            if (!baziName || !baziTime) return alert("বাজির নাম এবং সময় দুটিই দিন।");
             
             const baziId = 'bazi_' + Date.now();
             db.ref('bazis/' + baziId).set({
@@ -116,19 +118,19 @@
                 result_patti: "---",
                 result_single: "-"
             }).then(() => {
-                alert("নতুন বাজি সফলভাবে যোগ হয়েছে!");
+                alert("নতুন বাজি সফলভাবে যোগ হয়েছে!");
                 document.getElementById('new-bazi-name').value = '';
             });
         });
 
-        // ৩. লাইভ বাজি ও পয়েন্ট মনিটরিং
+        // ৩. লাইভ বাজি ও পয়েন্ট মনিটরিং
         db.ref('bazis').on('value', (baziSnapshot) => {
             const tbody = document.getElementById('admin-bazi-list-body');
             tbody.innerHTML = '';
             const bazis = baziSnapshot.val();
 
             if (!bazis) {
-                tbody.innerHTML = '<tr><td colspan="6">কোনো সচল বাজি নেই।</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">কোনো সচল বাজি নেই。</td></tr>';
                 return;
             }
 
@@ -168,14 +170,14 @@
             });
         });
 
-        // ৪. ইউজার এপ্রুভাল এবং পয়েন্ট ম্যানেজার
+        // ৪. ইউজার এপ্রুভাল এবং পয়েন্ট ম্যানেজার
         db.ref('users').on('value', (userSnapshot) => {
             const tbody = document.getElementById('admin-user-list-body');
             tbody.innerHTML = '';
             const users = userSnapshot.val();
 
             if (!users) {
-                tbody.innerHTML = '<tr><td colspan="7">কোনো প্লেয়ার অ্যাকাউন্ট নেই।</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">কোনো প্লেয়ার অ্যাকাউন্ট নেই。</td></tr>';
                 return;
             }
 
@@ -206,14 +208,14 @@
         db.ref('users/' + username).update({
             status: "approved",
             verification_code: generatedCode
-        }).then(() => alert(`${username} অ্যাকাউন্টটি এপ্রুভ হয়েছে! কোড: ${generatedCode}`));
+        }).then(() => alert(`${username} অ্যাকাউন্টটি এপ্রুভ হয়েছে! কোড: ${generatedCode}`));
     };
 
     window.updatePlayerPoints = function(username) {
         const playPts = parseInt(document.getElementById(`playpts-${username}`).value) || 0;
         const winPts = parseInt(document.getElementById(`winpts-${username}`).value) || 0;
         db.ref('users/' + username).update({ play_points: playPts, win_points: winPts })
-            .then(() => alert(`${username} এর পয়েন্ট আপডেট সফল!`));
+            .then(() => alert(`${username} এর পয়েন্ট আপডেট সফল!`));
     };
 
     window.toggleBaziStatus = function(baziId, currentStatus) {
@@ -256,6 +258,6 @@
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
             patti: patti,
             single: single
-        }).then(() => alert(`ফলাফল প্রকাশ হয়েছে! পাত্তি: ${patti}, সিঙ্গেল: ${single}`));
+        }).then(() => alert(`ফলাফল প্রকাশ হয়েছে! পাত্তি: ${patti}, সিঙ্গেল: ${single}`));
     }
 })();
