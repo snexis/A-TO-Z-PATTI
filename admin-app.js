@@ -15,7 +15,7 @@
     const adminOtpSection = document.getElementById('admin-otp-section');
     const adminMainDashboard = document.getElementById('admin-main-dashboard');
 
-    // 🛡️ ফায়ারবেস রিক্যাপচা ইনিশিয়ালাইজেশন (ক্যাপচা মুক্ত সেটিংস)
+    // 🛡️ ফায়ারবেস রিক্যাপচা ইনিশিয়ালাইজেশন (ক্যাপচা মুক্ত ইনভিসিবল সেটিংস)
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'invisible'
     });
@@ -42,7 +42,7 @@
 
     document.getElementById('verify-otp-btn').addEventListener('click', () => {
         const code = document.getElementById('admin-otp-input').value.trim();
-        if (code.length !== 6) return alert("৬ ডিজিটের ওটিপি কোডটি দিন。");
+        if (code.length !== 6) return alert("৬ ডিজিটের ওটিপি কোডটি দিন।");
 
         authConfirmationResult.confirm(code).then((result) => {
             enterDashboard();
@@ -52,7 +52,7 @@
     });
 
     // ==========================================================================
-    // 🔑 লগইন মেকানিজম (অপশন ২: ডিরেক্ট ফিক্সড কোড বাইপাস - এরর ফ্রি)
+    // 🔑 লগইন মেকানিজম (অপশন ২: ডিরেক্ট ফিক্সড কোড বাইপাস)
     // ==========================================================================
     document.getElementById('direct-login-btn').addEventListener('click', () => {
         const phone = document.getElementById('direct-phone-input').value.trim();
@@ -130,7 +130,7 @@
             const bazis = baziSnapshot.val();
 
             if (!bazis) {
-                tbody.innerHTML = '<tr><td colspan="6">কোনো সচল বাজি নেই。</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">কোনো সচল বাজি নেই।</td></tr>';
                 return;
             }
 
@@ -177,7 +177,7 @@
             const users = userSnapshot.val();
 
             if (!users) {
-                tbody.innerHTML = '<tr><td colspan="7">কোনো প্লেয়ার অ্যাকাউন্ট নেই。</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">কোনো প্লেয়ার অ্যাকাউন্ট নেই।</td></tr>';
                 return;
             }
 
