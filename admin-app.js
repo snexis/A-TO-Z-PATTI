@@ -1,46 +1,75 @@
 /**
  * A to Z Patti - Master Admin Application Engine
- * FULL AND COMPLETE CODE
+ * FULL AND COMPLETE CODE (100% Uncut)
  */
 
 (function() {
-    if (!window.firebaseConfig) return console.error("🔒 Security Core: Config Missing!");
-    if (!firebase.apps.length) firebase.initializeApp(window.firebaseConfig);
+    // ১. ফায়ারবেস ইনিশিয়ালাইজেশন
+    if (!window.firebaseConfig) {
+        console.error("🔒 Security Core: Config Missing!");
+        return;
+    }
+    if (!firebase.apps.length) {
+        firebase.initializeApp(window.firebaseConfig);
+    }
     
     const db = firebase.database();
     const adminAuthGateway = document.getElementById('admin-auth-gateway');
     const adminMainDashboard = document.getElementById('admin-main-dashboard');
 
-    // রিক্যাপচা ভেরিফায়ার (টেস্ট নম্বরের জন্য ইনভিজিবল মোড)
+    // ২. রিক্যাপচা সেটআপ (Invisible Mode)
+    // এটি টেস্ট নম্বরের ক্ষেত্রে অটোমেটিক ভেরিফাই করবে
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('master-login-btn', {
-        'size': 'invisible'
+        'size': 'invisible',
+        'callback': (response) => {
+            // reCAPTCHA solved automatically
+        }
     });
 
-    // লগইন লজিক
-    if (document.getElementById('master-login-btn')) {
-        document.getElementById('master-login-btn').addEventListener('click', () => {
+    // ৩. লগইন ইঞ্জিন (হাতের লেখা নোট অনুযায়ী)
+    const loginBtn = document.getElementById('master-login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
             const rawPhone = document.getElementById('master-phone-input').value.trim();
             const code = document.getElementById('master-code-input').value.trim();
 
-            if (!rawPhone || rawPhone.length !== 10) return alert("১০ ডিজিটের মোবাইল নম্বর দিন।");
-            if (!code) return alert("পিন কোড দিন।");
+            if (!rawPhone || rawPhone.length !== 10) {
+                alert("দয়া করে ১০ ডিজিটের মোবাইল নম্বর দিন।");
+                return;
+            }
+            if (!code) {
+                alert("দয়া করে পিন/কোড দিন।");
+                return;
+            }
 
+            // +91 কোডে যুক্ত করা হলো, ইউজারকে দিতে হবে না
             const fullPhoneNumber = "+91" + rawPhone;
             
+            // ফায়ারবেস সাইন-ইন প্রসেস
             firebase.auth().signInWithPhoneNumber(fullPhoneNumber, window.recaptchaVerifier)
                 .then((confirmationResult) => {
+                    // টেস্ট নম্বরের ক্ষেত্রে ফায়ারবেস সরাসরি কোড কনফার্ম করতে দেবে
                     return confirmationResult.confirm(code);
                 })
                 .then((result) => {
+                    // লগইন সফল হলে ড্যাশবোর্ড ওপেন হবে
                     enterDashboard();
                 })
                 .catch((error) => {
-                    console.error("Login Engine Error:", error);
-                    alert("লগইন ব্যর্থ! নম্বর বা কোড চেক করুন।");
+                    console.error("লগইন এরর:", error);
+                    alert("লগইন ব্যর্থ! আপনার দেওয়া নম্বর বা কোড ফায়ারবেসের সাথে মিলছে না।");
+                    
+                    // এরর হলে ক্যাপচা রিসেট করা হচ্ছে যাতে পেজ রিলোড ছাড়াই আবার ট্রাই করা যায়
+                    if(window.recaptchaVerifier) {
+                        window.recaptchaVerifier.render().then(function(widgetId) {
+                            grecaptcha.reset(widgetId);
+                        });
+                    }
                 });
         });
     }
 
+    // ৪. ড্যাশবোর্ডে প্রবেশ ফাংশন
     function enterDashboard() {
         if (adminAuthGateway) adminAuthGateway.classList.add('hidden-section');
         if (adminMainDashboard) adminMainDashboard.classList.remove('hidden-section');
@@ -48,7 +77,7 @@
         runMasterAdminEngine();
     }
 
-    // ড্যাশবোর্ড ইঞ্জিন
+    // ৫. মূল ড্যাশবোর্ড ইঞ্জিন (সম্পূর্ণ ডেটাবেস লজিক)
     function runMasterAdminEngine() {
         // গেম সেটিংস লোড
         db.ref('game_settings').on('value', (snapshot) => {
@@ -143,7 +172,7 @@
         });
     }
 
-    // গ্লোবাল হেল্পার ফাংশন (উইন্ডো অবজেক্টে সেট করা যাতে HTML থেকে কল করা যায়)
+    // ৬. গ্লোবাল হেল্পার ফাংশন (যাতে HTML থেকে সরাসরি কল করা যায়)
     window.approvePlayer = function(username) {
         const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
         db.ref('users/' + username).update({ status: "approved", verification_code: generatedCode })
@@ -168,4 +197,5 @@
         db.ref(`bazis/${baziId}`).update({ status: "closed", result_patti: patti, result_single: single })
             .then(() => alert("ফলাফল প্রকাশ হয়েছে!"));
     };
+
 })();
