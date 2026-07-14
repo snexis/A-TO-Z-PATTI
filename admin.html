@@ -4,363 +4,160 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atoz Bombay - Admin Command Center</title>
+  
   <link rel="stylesheet" href="style.css">
+  
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
+  
   <script src="firebase-config.js"></script>
-<script src="app.js"></script>
-  <style>
-    /* ==========================================
-       DASHBOARD NEON DARK THEME (BOX ARCHITECTURE)
-       ========================================== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: #0d0e12;
-      color: #ffffff;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    /* Dashboard Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 25px;
-      background: rgba(21, 24, 33, 0.9);
-      border-radius: 12px;
-      border: 1px solid rgba(0, 242, 254, 0.2);
-      margin-bottom: 25px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    header h1 {
-      font-size: 22px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-    }
-
-    header h1 span {
-      color: #00f2fe;
-    }
-
-    .logout-btn {
-      background: linear-gradient(135deg, #ff4b4b 0%, #c62828 100%);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .logout-btn:hover {
-      box-shadow: 0 0 10px rgba(255, 75, 75, 0.4);
-    }
-
-    /* 6-Box Grid System */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 25px;
-    }
-
-    .dashboard-box {
-      background: rgba(21, 24, 33, 0.85);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* Box Titles with Custom Underline Color */
-    .dashboard-box h3 {
-      font-size: 16px;
-      text-transform: uppercase;
-      color: #00f2fe;
-      margin-bottom: 15px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid rgba(0, 242, 254, 0.2);
-      letter-spacing: 0.5px;
-    }
-
-    /* Form Styles Inside Boxes */
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      color: #8f9cae;
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
-      color: white;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      border-color: #00f2fe;
-    }
-
-    /* Safety Checkboxes */
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 10px 0;
-    }
-
-    .checkbox-group input {
-      width: 16px;
-      height: 16px;
-      accent-color: #00f2fe;
-    }
-
-    .checkbox-group label {
-      color: #8f9cae;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    /* Submit Action Buttons Inside Boxes */
-    .action-btn {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      color: #0d0e12;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: 10px;
-    }
-
-    .action-btn:hover {
-      box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
-    }
-
-    .action-btn:disabled {
-      background: #2a2e38;
-      color: #636b7a;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* Lists/Tables Inside History & Withdraw */
-    .data-list {
-      max-height: 180px;
-      overflow-y: auto;
-      margin-top: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 6px;
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    .data-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 12px;
-      font-size: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .data-item:last-child {
-      border-bottom: none;
-    }
-
-    /* View Toggles for History Board */
-    .history-tabs {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-
-    .tab-small {
-      flex: 1;
-      padding: 6px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #8f9cae;
-      font-size: 10px;
-      text-transform: uppercase;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .tab-small.active {
-      background: #00f2fe;
-      color: #0d0e12;
-      border-color: #00f2fe;
-    }
-  </style>
+  <script src="app.js"></script>
+  <script src="admin.js"></script>
 </head>
-<body>
+<body class="admin-panel-body">
 
-  <header>
-    <h1>Atoz Bombay <span>Command Center</span></h1>
-    <button class="logout-btn" onclick="logout()">লগআউট</button>
+  <header class="dashboard-container dashboard-wide" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px;">
+    <h1 style="font-size: 22px; text-transform: uppercase; margin: 0;">Atoz Bombay <span style="color: #00f2fe;">Command Center</span></h1>
+    <button class="btn-danger" onclick="logout()" style="width: auto; padding: 8px 16px; margin: 0;">লগআউট</button>
   </header>
 
-  <div class="dashboard-grid">
+  <div class="dashboard-grid dashboard-wide" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; width: 100%;">
 
-    <div class="dashboard-box" id="box-user-control">
+    <div class="dashboard-container" id="box-user-control" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
       <div>
-        <h3>1. User Control</h3>
-        <div class="form-group">
-          <label>প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
-          <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()">
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">1. User Control</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
+          <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
-        <div class="form-group">
-          <label>অ্যাকশন টাইপ</label>
-          <select id="userAction">
-            <option value="player">নতুন প্লেয়ার আইডি তৈরি করুন</option>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">অ্যাকশন টাইপ</label>
+          <select id="userAction" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+            <option value="player">নতুন প্লেয়ার আইডি তৈরি করুন</option>
             <option value="subadmin">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
             <option value="approve">ইউজার আইডি Approve করুন</option>
             <option value="block">ইউজার আইডি Block করুন</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>ডিফল্ট পাসওয়ার্ড / পিন (নতুন আইডির জন্য)</label>
-          <input type="password" id="userDefaultPin" placeholder="••••••">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">ডিফল্ট পাসওয়ার্ড / পিন</label>
+          <input type="password" id="userDefaultPin" placeholder="••••••" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
-        <div class="form-group">
-          <label>প্লে মোড পারমিশন (শুধুমাত্র প্লেয়ারের জন্য)</label>
-          <select id="playerViewMode">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">প্লে মোড পারমিশন</label>
+          <select id="playerViewMode" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
             <option value="word">Word Mode (হজবরল কোড)</option>
             <option value="digit">Digit Mode (সংখ্যার পত্তি)</option>
           </select>
         </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="advanceDrawPermission">
-          <label for="advanceDrawPermission">অ্যাডভান্স ড্র পারমিশন দিন (Advance Draw)</label>
+        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <input type="checkbox" id="advanceDrawPermission" style="accent-color: #00f2fe;">
+          <label for="advanceDrawPermission" style="color: #8f9cae; font-size: 12px; cursor: pointer;">অ্যাডভান্স ড্র পারমিশন দিন (Advance Draw)</label>
         </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()">
-          <label for="userSafetyCheck">আমি এই ইউজার সেটিংস পরিবর্তন করতে রাজি আছি।</label>
-        </div>
-      </div>
-      <button class="action-btn" id="userBtn" disabled onclick="handleUserControl()">সাবমিট একশন</button>
-    </div>
-
-    <div class="dashboard-box" id="box-routine">
-      <div>
-        <h3>2. 24H Routine</h3>
-        <div class="form-group">
-          <label>নতুন বাজির নাম (যেমন: Bazi 1, Evening Bazi)</label>
-          <input type="text" id="baziName" placeholder="বাজির নাম লিখুন">
-        </div>
-        <div class="form-group">
-          <label>লক করার সময় (Lock Time - HH:MM)</label>
-          <input type="time" id="lockTime">
-        </div>
-        <label style="font-size: 12px; color: #8f9cae; display: block; margin-top: 10px;">সক্রিয় বাজির রুটিন লিস্ট:</label>
-        <div class="data-list" id="routineList">
-          <div class="data-item" style="color: #636b7a;">কোনো সক্রিয় বাজি সেট করা নেই...</div>
+        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+          <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()" style="accent-color: #00f2fe;">
+          <label for="userSafetyCheck" style="color: #8f9cae; font-size: 12px; cursor: pointer;">আমি এই ইউজার সেটিংস পরিবর্তন করতে রাজি আছি।</label>
         </div>
       </div>
-      <button class="action-btn" onclick="saveRoutine()">নতুন বাজি যুক্ত করুন</button>
+      <button class="btn-primary" id="userBtn" disabled onclick="handleUserControl()">সাবমিট একশন</button>
     </div>
 
-    <div class="dashboard-box" id="box-result">
+    <div class="dashboard-container" id="box-routine" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
       <div>
-        <h3>3. Result Box</h3>
-        <div class="form-group">
-          <label>একটি সক্রিয় বাজি সিলেক্ট করুন</label>
-          <select id="resultBaziSelect">
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">2. 24H Routine</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">নতুন বাজির নাম (যেমন: Bazi 1)</label>
+          <input type="text" id="baziName" placeholder="বাজির নাম লিখুন" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">লক করার সময় (Lock Time - HH:MM)</label>
+          <input type="time" id="lockTime" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+        </div>
+        <label style="font-size: 12px; color: #8f9cae; display: block; margin-top: 15px; margin-bottom: 5px;">সক্রিয় বাজির রুটিন লিস্ট:</label>
+        <div class="data-list" id="routineList" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">কোনো সক্রিয় বাজি সেট করা নেই...</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveRoutine()" style="margin-top: 15px;">নতুন বাজি যুক্ত করুন</button>
+    </div>
+
+    <div class="dashboard-container" id="box-result" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+      <div>
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">3. Result Box</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">একটি সক্রিয় বাজি সিলেক্ট করুন</label>
+          <select id="resultBaziSelect" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
             <option value="">লোডিং হচ্ছে...</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>পত্তির কোড বা সংখ্যা (৩-অক্ষর / ৩-ডিজিট)</label>
-          <input type="text" id="pattiResult" placeholder="যেমন: ZQR অথবা 100">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">পত্তির কোড বা সংখ্যা (৩-অক্ষর / ৩-ডিজিট)</label>
+          <input type="text" id="pattiResult" placeholder="যেমন: ZQR অথবা 100" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
-        <div class="form-group">
-          <label>সিঙ্গেল কোড বা সংখ্যা (১-অক্ষর / ১-ডিজিট)</label>
-          <input type="text" id="singleResult" placeholder="যেমন: A অথবা 1">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">সিঙ্গেল কোড বা সংখ্যা (১-অক্ষর / ১-ডিজিট)</label>
+          <input type="text" id="singleResult" placeholder="যেমন: A অথবা 1" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
       </div>
-      <button class="action-btn" onclick="publishResult()">ফলাফল প্রকাশ করুন</button>
+      <button class="btn-primary" onclick="publishResult()" style="margin-top: 15px;">ফলাফল প্রকাশ করুন</button>
     </div>
 
-    <div class="dashboard-box" id="box-point">
+    <div class="dashboard-container" id="box-point" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
       <div>
-        <h3>4. Point Master</h3>
-        <div class="form-group">
-          <label>টার্গেট প্লেয়ার আইডি</label>
-          <input type="text" id="pointUserId" placeholder="যেমন: player101" oninput="togglePointBtn()">
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">4. Point Master</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">টার্গেট প্লেয়ার আইডি</label>
+          <input type="text" id="pointUserId" placeholder="যেমন: player101" oninput="togglePointBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
-        <div class="form-group">
-          <label>অ্যাকশন টাইপ</label>
-          <select id="pointAction">
-            <option value="add">পয়েন্ট রিচার্জ করুন (Add Points)</option>
-            <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">অ্যাকশন টাইপ</label>
+          <select id="pointAction" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+            <option value="add">পয়েন্ট রিচার্জ করুন (Add Points)</option>
+            <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>পয়েন্ট পরিমাণ</label>
-          <input type="number" id="pointAmount" placeholder="পয়েন্টের সংখ্যা লিখুন" oninput="togglePointBtn()">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">পয়েন্ট পরিমাণ</label>
+          <input type="number" id="pointAmount" placeholder="পয়েন্টের সংখ্যা লিখুন" oninput="togglePointBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()">
-          <label for="pointSafetyCheck">আমি ভুল এড়াতে সঠিক আইডি ও অ্যামাউন্ট চেক করেছি।</label>
+        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+          <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()" style="accent-color: #00f2fe;">
+          <label for="pointSafetyCheck" style="color: #8f9cae; font-size: 12px; cursor: pointer;">আমি ভুল এড়াতে সঠিক আইডি ও অ্যামাউন্ট চেক করেছি।</label>
         </div>
       </div>
-      <button class="action-btn" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট করুন</button>
+      <button class="btn-primary" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট করুন</button>
     </div>
 
-    <div class="dashboard-box" id="box-withdraw">
+    <div class="dashboard-container" id="box-withdraw" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
       <div>
-        <h3>5. Withdraw OTP</h3>
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">5. Withdraw OTP</h3>
         <label style="font-size: 12px; color: #8f9cae; display: block; margin-bottom: 5px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট:</label>
-        <div class="data-list" id="withdrawList" style="max-height: 120px;">
-          <div class="data-item" style="color: #636b7a;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>
+        <div class="data-list" id="withdrawList" style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>
         </div>
         <div class="form-group" style="margin-top: 15px;">
-          <label>সিকিউর ওটিপি কোড (OTP)</label>
-          <input type="text" id="withdrawOtp" placeholder="৬-ডিজিট কোড লিখুন">
+          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">সিকিউর ওটিপি কোড (OTP)</label>
+          <input type="text" id="withdrawOtp" placeholder="৬-ডিজিট কোড লিখুন" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
         </div>
       </div>
-      <button class="action-btn" onclick="approveWithdraw()">ওটিপি মিলিয়ে রিলিজ করুন</button>
+      <button class="btn-primary" onclick="approveWithdraw()" style="margin-top: 15px;">ওটিপি মিলিয়ে রিলিজ করুন</button>
     </div>
 
-    <div class="dashboard-box" id="box-history">
+    <div class="dashboard-container" id="box-history" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
       <div>
-        <h3>6. History Board</h3>
-        <div class="history-tabs">
-          <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')">Word View</button>
-          <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')">Digit View</button>
-          <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')">Both View</button>
+        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">6. History Board</h3>
+        <div class="history-tabs" style="display: flex; gap: 5px; margin-bottom: 12px;">
+          <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Word View</button>
+          <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Digit View</button>
+          <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Both View</button>
         </div>
         <label style="font-size: 11px; color: #8f9cae; display: block; margin-bottom: 5px;">আজকের টোটাল সেলস এবং রেজাল্ট হিস্ট্রি:</label>
-        <div class="data-list" id="historyList">
-          <div class="data-item" style="color: #636b7a;">হিস্ট্রি লোড হচ্ছে...</div>
+        <div class="data-list" id="historyList" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">হিস্ট্রি লোড হচ্ছে...</div>
         </div>
       </div>
-      <button class="action-btn" onclick="archiveDay()">আজকের বেট ডিলিট/রিসেট করুন (Midnight)</button>
+      <button class="btn-danger" onclick="archiveDay()" style="margin-top: 15px;">আজকের বেট ডিলিট/রিসেট করুন (Midnight)</button>
     </div>
 
   </div>
@@ -378,7 +175,7 @@
             window.auth.signOut();
             window.location.href = 'index.html';
           } else {
-            // রিয়াল-টাইম ডেটা লিসেনার ও রেন্ডারিং রান করানো
+            // রিয়াল-টাইম ডেটা লিসেনার ও রেন্ডারিং রান করানো
             listenToDatabase();
           }
         });
@@ -416,6 +213,11 @@
             // রুটিন লিস্টে যুক্ত করা
             const div = document.createElement('div');
             div.className = 'data-item';
+            div.style.padding = "8px 12px";
+            div.style.fontSize = "12px";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
             div.innerHTML = `<span><strong>${item.name}</strong> (লক: ${item.lockTime})</span>
                              <button onclick="deleteBazi('${id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;">মুছুন</button>`;
             listDiv.appendChild(div);
@@ -427,7 +229,7 @@
             select.appendChild(opt);
           });
         } else {
-          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a;">কোনো সক্রিয় বাজি নেই...</div>';
+          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a; padding: 8px 12px;">কোনো সক্রিয় বাজি নেই...</div>';
         }
       });
 
@@ -440,17 +242,22 @@
             const req = child.val();
             const div = document.createElement('div');
             div.className = 'data-item';
+            div.style.padding = "8px 12px";
+            div.style.fontSize = "12px";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
             div.innerHTML = `<span>ID: ${req.userId.substring(0,6)}.. | Amount: ${req.amount}৳</span>
                              <span style="color:#00f2fe; font-weight:bold;">Pending OTP</span>`;
             listDiv.appendChild(div);
           });
         } else {
-          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a;">কোনো পেন্ডিং রিকোয়েস্ট নেই...</div>';
+          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a; padding: 8px 12px;">কোনো পেন্ডিং রিকোয়েস্ট নেই...</div>';
         }
       });
     }
 
-    // ৩. ইউজার ক্রিয়েশন ও কন্ট্রোল লজিক (ইমেল অটো-কনভার্সন সহ)
+    // ৩. ইউজার ক্রিয়েশন ও কন্ট্রোল লজিক (ইমেল অটো-কনভার্সন সহ)
     function handleUserControl() {
       const targetId = document.getElementById('targetUserId').value.trim();
       const action = document.getElementById('userAction').value;
@@ -462,10 +269,10 @@
 
       if (action === 'player' || action === 'subadmin') {
         if (!pin) {
-          alert('নতুন আইডি তৈরি করতে পিন/পাসওয়ার্ড দেওয়া বাধ্যতামূলক!');
+          alert('নতুন আইডি তৈরি করতে পিন/পাসওয়ার্ড দেওয়া বাধ্যতামূলক!');
           return;
         }
-        // ফায়ারবেস সেকেন্ডারি অ্যাপ দিয়ে ক্রিয়েট করা যাতে অ্যাডমিন সেশন লকআউট না হয়
+        // ফায়ারবেস সেকেন্ডারি অ্যাপ দিয়ে ক্রিয়েট করা যাতে অ্যাডমিন সেশন লকআউট না হয়
         firebase.auth().createUserWithEmailAndPassword(virtualEmail, pin)
           .then(cred => {
             const uid = cred.user.uid;
@@ -479,11 +286,11 @@
               advanceDraw: advDraw
             };
             window.db.ref('users/' + uid).set(userData).then(() => {
-              alert(`সফলভাবে ${action.toUpperCase()} আইডি তৈরি হয়েছে!`);
+              alert(`সফলভাবে ${action.toUpperCase()} আইডি তৈরি হয়েছে!`);
               resetUserControlForm();
             });
           })
-          .catch(err => alert('আইডি তৈরিতে ভুল হয়েছে: ' + err.message));
+          .catch(err => alert('আইডি তৈরিতে ভুল হয়েছে: ' + err.message));
       } else {
         // Approve বা Block অ্যাকশন
         window.db.ref('users').orderByChild('userId').equalTo(targetId).once('value', snapshot => {
@@ -491,10 +298,10 @@
             snapshot.forEach(child => {
               const uid = child.key;
               window.db.ref(`users/${uid}/status`).set(action === 'approve' ? 'approved' : 'blocked')
-                .then(() => alert(`ইউজারটি সফলভাবে ${action.toUpperCase()} করা হয়েছে।`));
+                .then(() => alert(`ইউজারটি সফলভাবে ${action.toUpperCase()} করা হয়েছে।`));
             });
           } else {
-            alert('এই আইডি বিশিষ্ট কোনো ইউজার খুঁজে পাওয়া যায়নি!');
+            alert('এই আইডি বিশিষ্ট কোনো ইউজার খুঁজে পাওয়া যায়নি!');
           }
         });
       }
@@ -511,7 +318,7 @@
         name: name,
         lockTime: time
       }).then(() => {
-        alert('নতুন বাজি সফলভাবে রুটিনে যুক্ত হয়েছে!');
+        alert('নতুন বাজি সফলভাবে রুটিনে যুক্ত হয়েছে!');
         document.getElementById('baziName').value = '';
         document.getElementById('lockTime').value = '';
       });
@@ -523,26 +330,26 @@
       }
     }
 
-    // ৫. ওয়ান-ক্লিক রেজাল্ট পাবলিশ মেকানিজম
+    // ৫. ওয়ান-ক্লিক রেজাল্ট পাবলিশ মেকানিজম
     function publishResult() {
       const baziId = document.getElementById('resultBaziSelect').value;
       const patti = document.getElementById('pattiResult').value.trim().toUpperCase();
       const single = document.getElementById('singleResult').value.trim().toUpperCase();
 
-      if (!baziId || !patti || !single) return alert('দয়া করে বাজি সিলেক্ট করুন এবং পত্তি ও সিঙ্গেল টাইপ করুন!');
+      if (!baziId || !patti || !single) return alert('দয়া করে বাজি সিলেক্ট করুন এবং পত্তি ও সিঙ্গেল টাইপ করুন!');
 
       window.db.ref(`results/${baziId}`).set({
         patti: patti,
         single: single,
         publishedAt: firebase.database.ServerValue.TIMESTAMP
       }).then(() => {
-        alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে এবং উইনারদের ক্যালকুলেশন শুরু হয়েছে!');
+        alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে এবং উইনারদের ক্যালকুলেশন শুরু হয়েছে!');
         document.getElementById('pattiResult').value = '';
         document.getElementById('singleResult').value = '';
       });
     }
 
-    // ৬. পয়েন্ট মাস্টার রিচার্জ ও ডিডাক্ট
+    // ৬. পয়েন্ট মাস্টার রিচার্জ ও ডিডাক্ট
     function handlePoints() {
       const targetId = document.getElementById('pointUserId').value.trim();
       const action = document.getElementById('pointAction').value;
@@ -556,12 +363,12 @@
             const newPoints = action === 'add' ? currentPoints + amount : currentPoints - amount;
 
             window.db.ref(`users/${uid}/playPoints`).set(newPoints).then(() => {
-              alert(`পয়েন্ট সফলভাবে আপডেট হয়েছে। নতুন ব্যালেন্স: ${newPoints}`);
+              alert(`পয়েন্ট সফলভাবে আপডেট হয়েছে। নতুন ব্যালেন্স: ${newPoints}`);
               resetPointForm();
             });
           });
         } else {
-          alert('ইউজার আইডিটি খুঁজে পাওয়া যায়নি!');
+          alert('ইউজার আইডিটি খুঁজে পাওয়া যায়নি!');
         }
       });
     }
@@ -569,10 +376,10 @@
     // ৭. উইড্রো ওটিপি প্রসেসিং
     function approveWithdraw() {
       const otp = document.getElementById('withdrawOtp').value.trim();
-      if (!otp) return alert('দয়া করে ওটিপি কোডটি টাইপ করুন!');
+      if (!otp) return alert('দয়া করে ওটিপি কোডটি টাইপ করুন!');
       
       // ওটিপি ম্যাচিং এবং এপ্রুভাল লজিক
-      alert('ওটিপি সফলভাবে ভেরিফাই করা হয়েছে এবং টাকা রিলিজ হয়েছে!');
+      alert('ওটিপি সফলভাবে ভেরিফাই করা হয়েছে এবং টাকা রিলিজ হয়েছে!');
       document.getElementById('withdrawOtp').value = '';
     }
 
@@ -584,19 +391,38 @@
       if(view === 'word') document.getElementById('tabWord').classList.add('active');
       if(view === 'digit') document.getElementById('tabDigit').classList.add('active');
       if(view === 'both') document.getElementById('tabBoth').classList.add('active');
-      
-      // রেন্ডার রিফ্রেশ লজিক এখানে কল হবে
     }
 
     // ৯. মিডনাইট ডেটা রিসেট বা পিউরিফাই মেকানিজম
     function archiveDay() {
       if (confirm('সাবধান! এটি আজকের সমস্ত লাইভ বেটিং রেকর্ড সার্ভার থেকে ডিলিট করে রিসেট করে দেবে। আপনি কি নিশ্চিত?')) {
         window.db.ref('active_bets').remove().then(() => {
-          alert('সার্ভার থেকে আজকের সমস্ত বেটিং সফলভাবে পুড়িয়ে পরিষ্কার (Cleaned) করা হয়েছে!');
+          alert('সার্ভার থেকে আজকের সমস্ত বেটিং সফলভাবে পুড়িয়ে পরিষ্কার (Cleaned) করা হয়েছে!');
         });
       }
     }
+
+    // ফর্ম রিসেট ফাংশনসমূহ
+    function resetUserControlForm() {
+      document.getElementById('targetUserId').value = '';
+      document.getElementById('userDefaultPin').value = '';
+      document.getElementById('userSafetyCheck').checked = false;
+      toggleUserBtn();
+    }
+
+    function resetPointForm() {
+      document.getElementById('pointUserId').value = '';
+      document.getElementById('pointAmount').value = '';
+      document.getElementById('pointSafetyCheck').checked = false;
+      togglePointBtn();
+    }
+
+    // লগআউট
+    function logout() {
+      window.auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
   </script>
-<script src="admin.js"></script>
 </body>
 </html>
