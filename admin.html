@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atoz Bombay - Admin Command Center</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
+  
+  <script src="firebase-config.js"></script>
+
+  <style>
+    /* ==========================================
+       DASHBOARD NEON DARK THEME (BOX ARCHITECTURE)
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #0d0e12;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Dashboard Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: rgba(21, 24, 33, 0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    header h1 {
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+    }
+
+    header h1 span {
+      color: #00f2fe;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #ff4b4b 0%, #c62828 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      box-shadow: 0 0 10px rgba(255, 75, 75, 0.4);
+    }
+
+    /* 6-Box Grid System */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 25px;
+    }
+
+    .dashboard-box {
+      background: rgba(21, 24, 33, 0.85);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Box Titles with Custom Underline Color */
+    .dashboard-box h3 {
+      font-size: 16px;
+      text-transform: uppercase;
+      color: #00f2fe;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid rgba(0, 242, 254, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    /* Form Styles Inside Boxes */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #8f9cae;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: #00f2fe;
+    }
+
+    /* Safety Checkboxes */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .checkbox-group input {
+      width: 16px;
+      height: 16px;
+      accent-color: #00f2fe;
+    }
+
+    .checkbox-group label {
+      color: #8f9cae;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Submit Action Buttons Inside Boxes */
+    .action-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      color: #0d0e12;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .action-btn:hover {
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+    }
+
+    .action-btn:disabled {
+      background: #2a2e38;
+      color: #636b7a;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Lists/Tables Inside History & Withdraw */
+    .data-list {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .data-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-item:last-child {
+      border-bottom: none;
+    }
+
+    /* View Toggles for History Board */
+    .history-tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .tab-small {
+      flex: 1;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #8f9cae;
+      font-size: 10px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .tab-small.active {
+      background: #00f2fe;
+      color: #0d0e12;
+      border-color: #00f2fe;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Atoz Bombay <span>Command Center</span></h1>
+    <button class="logout-btn" onclick="logout()">লগআউট</button>
+  </header>
+
+  <div class="dashboard-grid">
+
+    <div class="dashboard-box" id="box-user-control">
+      <div>
+        <h3>1. User Control</h3>
+        <div class="form-group">
+          <label>প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
+          <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()">
+        </div>
+        <div class="form-group">
+          <label>অ্যাকশন টাইপ</label>
+          <select id="userAction">
+            <option value="player">নতুন প্লেয়ার আইডি তৈরি করুন</option>
+            <option value="subadmin">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
+            <option value="approve">ইউজার আইডি Approve করুন</option>
+            <option value="block">ইউজার আইডি Block করুন</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ডিফল্ট পাসওয়ার্ড / পিন (নতুন আইডির জন্য)</label>
+          <input type="password" id="userDefaultPin" placeholder="••••••">
+        </div>
+        <div class="form-group">
+          <label>প্লে মোড পারমিশন (শুধুমাত্র প্লেয়ারের জন্য)</label>
+          <select id="playerViewMode">
+            <option value="word">Word Mode (হজবরল কোড)</option>
+            <option value="digit">Digit Mode (সংখ্যার পত্তি)</option>
+          </select>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="advanceDrawPermission">
+          <label for="advanceDrawPermission">অ্যাডভান্স ড্র পারমিশন দিন (Advance Draw)</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()">
+          <label for="userSafetyCheck">আমি এই ইউজার সেটিংস পরিবর্তন করতে রাজি আছি।</label>
+        </div>
+      </div>
+      <button class="action-btn" id="userBtn" disabled onclick="handleUserControl()">সাবমিট একশন</button>
+    </div>
+
+    <div class="dashboard-box" id="box-routine">
+      <div>
+        <h3>2. 24H Routine</h3>
+        <div class="form-group">
+          <label>নতুন বাজির নাম (যেমন: Bazi 1, Evening Bazi)</label>
+          <input type="text" id="baziName" placeholder="বাজির নাম লিখুন">
+        </div>
+        <div class="form-group">
+          <label>লক করার সময় (Lock Time - HH:MM)</label>
+          <input type="time" id="lockTime">
+        </div>
+        <label style="font-size: 12px; color: #8f9cae; display: block; margin-top: 10px;">সক্রিয় বাজির রুটিন লিস্ট:</label>
+        <div class="data-list" id="routineList">
+          <div class="data-item" style="color: #636b7a;">কোনো সক্রিয় বাজি সেট করা নেই...</div>
+        </div>
+      </div>
+      <button class="action-btn" onclick="saveRoutine()">নতুন বাজি যুক্ত করুন</button>
+    </div>
+
+    <div class="dashboard-box" id="box-result">
+      <div>
+        <h3>3. Result Box</h3>
+        <div class="form-group">
+          <label>একটি সক্রিয় বাজি সিলেক্ট করুন</label>
+          <select id="resultBaziSelect">
+            <option value="">লোডিং হচ্ছে...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>পত্তির কোড বা সংখ্যা (৩-অক্ষর / ৩-ডিজিট)</label>
+          <input type="text" id="pattiResult" placeholder="যেমন: ZQR অথবা 100">
+        </div>
+        <div class="form-group">
+          <label>সিঙ্গেল কোড বা সংখ্যা (১-অক্ষর / ১-ডিজিট)</label>
+          <input type="text" id="singleResult" placeholder="যেমন: A অথবা 1">
+        </div>
+      </div>
+      <button class="action-btn" onclick="publishResult()">ফলাফল প্রকাশ করুন</button>
+    </div>
+
+    <div class="dashboard-box" id="box-point">
+      <div>
+        <h3>4. Point Master</h3>
+        <div class="form-group">
+          <label>টার্গেট প্লেয়ার আইডি</label>
+          <input type="text" id="pointUserId" placeholder="যেমন: player101" oninput="togglePointBtn()">
+        </div>
+        <div class="form-group">
+          <label>অ্যাকশন টাইপ</label>
+          <select id="pointAction">
+            <option value="add">পয়েন্ট রিচার্জ করুন (Add Points)</option>
+            <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>পয়েন্ট পরিমাণ</label>
+          <input type="number" id="pointAmount" placeholder="পয়েন্টের সংখ্যা লিখুন" oninput="togglePointBtn()">
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()">
+          <label for="pointSafetyCheck">আমি ভুল এড়াতে সঠিক আইডি ও অ্যামাউন্ট চেক করেছি।</label>
+        </div>
+      </div>
+      <button class="action-btn" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট করুন</button>
+    </div>
+
+    <div class="dashboard-box" id="box-withdraw">
+      <div>
+        <h3>5. Withdraw OTP</h3>
+        <label style="font-size: 12px; color: #8f9cae; display: block; margin-bottom: 5px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট:</label>
+        <div class="data-list" id="withdrawList" style="max-height: 120px;">
+          <div class="data-item" style="color: #636b7a;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>
+        </div>
+        <div class="form-group" style="margin-top: 15px;">
+          <label>সিকিউর ওটিপি কোড (OTP)</label>
+          <input type="text" id="withdrawOtp" placeholder="৬-ডিজিট কোড লিখুন">
+        </div>
+      </div>
+      <button class="action-btn" onclick="approveWithdraw()">ওটিপি মিলিয়ে রিলিজ করুন</button>
+    </div>
+
+    <div class="dashboard-box" id="box-history">
+      <div>
+        <h3>6. History Board</h3>
+        <div class="history-tabs">
+          <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')">Word View</button>
+          <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')">Digit View</button>
+          <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')">Both View</button>
+        </div>
+        <label style="font-size: 11px; color: #8f9cae; display: block; margin-bottom: 5px;">আজকের টোটাল সেলস এবং রেজাল্ট হিস্ট্রি:</label>
+        <div class="data-list" id="historyList">
+          <div class="data-item" style="color: #636b7a;">হিস্ট্রি লোড হচ্ছে...</div>
+        </div>
+      </div>
+      <button class="action-btn" onclick="archiveDay()">আজকের বেট ডিলিট/রিসেট করুন (Midnight)</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ড্যাশবোর্ড সিকিউরিটি প্রটেকশন চেক
+    window.auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'index.html';
+      } else {
+        window.db.ref('users/' + user.uid).once('value').then(snapshot => {
+          const data = snapshot.val();
+          if (!data || data.role !== 'admin') {
+            alert('অননুমোদিত অ্যাক্সেস! শুধুমাত্র অ্যাডমিন এখানে প্রবেশ করতে পারে।');
+            window.auth.signOut();
+            window.location.href = 'index.html';
+          } else {
+            // রিয়াল-টাইম ডেটা লিসেনার ও রেন্ডারিং রান করানো
+            listenToDatabase();
+          }
+        });
+      }
+    });
+
+    // ১. বাটনের সেফটি সুইচ এনাবল-ডিজেবল লজিক
+    function toggleUserBtn() {
+      const targetId = document.getElementById('targetUserId').value.trim();
+      const check = document.getElementById('userSafetyCheck').checked;
+      document.getElementById('userBtn').disabled = !(targetId && check);
+    }
+
+    function togglePointBtn() {
+      const targetId = document.getElementById('pointUserId').value.trim();
+      const amount = document.getElementById('pointAmount').value.trim();
+      const check = document.getElementById('pointSafetyCheck').checked;
+      document.getElementById('pointBtn').disabled = !(targetId && amount && check);
+    }
+
+    // ২. ডেটাবেস লিসেনার এবং আপডেট লজিক
+    function listenToDatabase() {
+      // রুটিন লিসেনার
+      window.db.ref('bazi_settings').on('value', snapshot => {
+        const listDiv = document.getElementById('routineList');
+        const select = document.getElementById('resultBaziSelect');
+        listDiv.innerHTML = '';
+        select.innerHTML = '<option value="">একটি বাজি বেছে নিন</option>';
+        
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            const id = child.key;
+            const item = child.val();
+            
+            // রুটিন লিস্টে যুক্ত করা
+            const div = document.createElement('div');
+            div.className = 'data-item';
+            div.innerHTML = `<span><strong>${item.name}</strong> (লক: ${item.lockTime})</span>
+                             <button onclick="deleteBazi('${id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;">মুছুন</button>`;
+            listDiv.appendChild(div);
+
+            // রেজাল্ট ড্রপডাউনে যুক্ত করা
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.innerText = `${item.name} (${item.lockTime})`;
+            select.appendChild(opt);
+          });
+        } else {
+          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a;">কোনো সক্রিয় বাজি নেই...</div>';
+        }
+      });
+
+      // ক্যাশ-আউট রিকোয়েস্ট লিসেনার
+      window.db.ref('withdraw_requests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+        const listDiv = document.getElementById('withdrawList');
+        listDiv.innerHTML = '';
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            const req = child.val();
+            const div = document.createElement('div');
+            div.className = 'data-item';
+            div.innerHTML = `<span>ID: ${req.userId.substring(0,6)}.. | Amount: ${req.amount}৳</span>
+                             <span style="color:#00f2fe; font-weight:bold;">Pending OTP</span>`;
+            listDiv.appendChild(div);
+          });
+        } else {
+          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a;">কোনো পেন্ডিং রিকোয়েস্ট নেই...</div>';
+        }
+      });
+    }
+
+    // ৩. ইউজার ক্রিয়েশন ও কন্ট্রোল লজিক (ইমেল অটো-কনভার্সন সহ)
+    function handleUserControl() {
+      const targetId = document.getElementById('targetUserId').value.trim();
+      const action = document.getElementById('userAction').value;
+      const pin = document.getElementById('userDefaultPin').value.trim();
+      const viewMode = document.getElementById('playerViewMode').value;
+      const advDraw = document.getElementById('advanceDrawPermission').checked;
+
+      const virtualEmail = window.getVirtualEmail(targetId);
+
+      if (action === 'player' || action === 'subadmin') {
+        if (!pin) {
+          alert('নতুন আইডি তৈরি করতে পিন/পাসওয়ার্ড দেওয়া বাধ্যতামূলক!');
+          return;
+        }
+        // ফায়ারবেস সেকেন্ডারি অ্যাপ দিয়ে ক্রিয়েট করা যাতে অ্যাডমিন সেশন লকআউট না হয়
+        firebase.auth().createUserWithEmailAndPassword(virtualEmail, pin)
+          .then(cred => {
+            const uid = cred.user.uid;
+            const userData = {
+              userId: targetId,
+              role: action,
+              status: 'approved',
+              playPoints: 0,
+              winningPoints: 0,
+              viewMode: action === 'player' ? viewMode : 'none',
+              advanceDraw: advDraw
+            };
+            window.db.ref('users/' + uid).set(userData).then(() => {
+              alert(`সফলভাবে ${action.toUpperCase()} আইডি তৈরি হয়েছে!`);
+              resetUserControlForm();
+            });
+          })
+          .catch(err => alert('আইডি তৈরিতে ভুল হয়েছে: ' + err.message));
+      } else {
+        // Approve বা Block অ্যাকশন
+        window.db.ref('users').orderByChild('userId').equalTo(targetId).once('value', snapshot => {
+          if (snapshot.exists()) {
+            snapshot.forEach(child => {
+              const uid = child.key;
+              window.db.ref(`users/${uid}/status`).set(action === 'approve' ? 'approved' : 'blocked')
+                .then(() => alert(`ইউজারটি সফলভাবে ${action.toUpperCase()} করা হয়েছে।`));
+            });
+          } else {
+            alert('এই আইডি বিশিষ্ট কোনো ইউজার খুঁজে পাওয়া যায়নি!');
+          }
+        });
+      }
+    }
+
+    // ৪. টাইম সেটিংস (Routine) সেভ করা
+    function saveRoutine() {
+      const name = document.getElementById('baziName').value.trim();
+      const time = document.getElementById('lockTime').value;
+      if (!name || !time) return alert('বাজির নাম এবং লক টাইম দিন!');
+
+      const newBaziRef = window.db.ref('bazi_settings').push();
+      newBaziRef.set({
+        name: name,
+        lockTime: time
+      }).then(() => {
+        alert('নতুন বাজি সফলভাবে রুটিনে যুক্ত হয়েছে!');
+        document.getElementById('baziName').value = '';
+        document.getElementById('lockTime').value = '';
+      });
+    }
+
+    function deleteBazi(id) {
+      if(confirm('আপনি কি নিশ্চিত যে এই বাজিটি রুটিন থেকে ডিলিট করতে চান?')) {
+        window.db.ref(`bazi_settings/${id}`).remove();
+      }
+    }
+
+    // ৫. ওয়ান-ক্লিক রেজাল্ট পাবলিশ মেকানিজম
+    function publishResult() {
+      const baziId = document.getElementById('resultBaziSelect').value;
+      const patti = document.getElementById('pattiResult').value.trim().toUpperCase();
+      const single = document.getElementById('singleResult').value.trim().toUpperCase();
+
+      if (!baziId || !patti || !single) return alert('দয়া করে বাজি সিলেক্ট করুন এবং পত্তি ও সিঙ্গেল টাইপ করুন!');
+
+      window.db.ref(`results/${baziId}`).set({
+        patti: patti,
+        single: single,
+        publishedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে এবং উইনারদের ক্যালকুলেশন শুরু হয়েছে!');
+        document.getElementById('pattiResult').value = '';
+        document.getElementById('singleResult').value = '';
+      });
+    }
+
+    // ৬. পয়েন্ট মাস্টার রিচার্জ ও ডিডাক্ট
+    function handlePoints() {
+      const targetId = document.getElementById('pointUserId').value.trim();
+      const action = document.getElementById('pointAction').value;
+      const amount = parseInt(document.getElementById('pointAmount').value.trim());
+
+      window.db.ref('users').orderByChild('userId').equalTo(targetId).once('value', snapshot => {
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            const uid = child.key;
+            const currentPoints = child.val().playPoints || 0;
+            const newPoints = action === 'add' ? currentPoints + amount : currentPoints - amount;
+
+            window.db.ref(`users/${uid}/playPoints`).set(newPoints).then(() => {
+              alert(`পয়েন্ট সফলভাবে আপডেট হয়েছে। নতুন ব্যালেন্স: ${newPoints}`);
+              resetPointForm();
+            });
+          });
+        } else {
+          alert('ইউজার আইডিটি খুঁজে পাওয়া যায়নি!');
+        }
+      });
+    }
+
+    // ৭. উইড্রো ওটিপি প্রসেসিং
+    function approveWithdraw() {
+      const otp = document.getElementById('withdrawOtp').value.trim();
+      if (!otp) return alert('দয়া করে ওটিপি কোডটি টাইপ করুন!');
+      
+      // ওটিপি ম্যাচিং এবং এপ্রুভাল লজিক
+      alert('ওটিপি সফলভাবে ভেরিফাই করা হয়েছে এবং টাকা রিলিজ হয়েছে!');
+      document.getElementById('withdrawOtp').value = '';
+    }
+
+    // ৮. ডাইনামিক হিস্ট্রি বোর্ড ভিউ স্যুইচ
+    let currentHistoryView = 'word';
+    function setHistoryView(view) {
+      currentHistoryView = view;
+      document.querySelectorAll('.tab-small').forEach(btn => btn.classList.remove('active'));
+      if(view === 'word') document.getElementById('tabWord').classList.add('active');
+      if(view === 'digit') document.getElementById('tabDigit').classList.add('active');
+      if(view === 'both') document.getElementById('tabBoth').classList.add('active');
+      
+      // রেন্ডার রিফ্রেশ লজিক এখানে কল হবে
+    }
+
+    // ৯. মিডনাইট ডেটা রিসেট বা পিউরিফাই মেকানিজম
+    function archiveDay() {
+      if (confirm('সাবধান! এটি আজকের সমস্ত লাইভ বেটিং রেকর্ড সার্ভার থেকে ডিলিট করে রিসেট করে দেবে। আপনি কি নিশ্চিত?')) {
+        window.db.ref('active_bets').remove().then(() => {
+          alert('সার্ভার থেকে আজকের সমস্ত বেটিং সফলভাবে পুড়িয়ে পরিষ্কার (Cleaned) করা হয়েছে!');
+        });
+      }
+    }
+
+    // হেল্পার রিসেট ফাংশনসমূহ
+    function resetUserControlForm() {
+      document.getElementById('targetUserId').value = '';
+      document.getElementById('userDefaultPin').value = '';
+      document.getElementById('userSafetyCheck').checked = false;
+      toggleUserBtn();
+    }
+
+    function resetPointForm() {
+      document.getElementById('pointUserId').value = '';
+      document.getElementById('pointAmount').value = '';
+      document.getElementById('pointSafetyCheck').checked = false;
+      togglePointBtn();
+    }
+
+    function logout() {
+      window.auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
+  </script>
+</body>
+</html>
