@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atoz Bombay - Admin Command Center</title>
+  <title>Atoz Bombay - Premium Command Center</title>
   
   <link rel="stylesheet" href="style.css">
   
+  <!-- FontAwesome Icons for Iconic Look -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- ফায়ারবেস কোর SDK এবং প্রয়োজনীয় মডিউল -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -14,156 +18,368 @@
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
   <script src="admin.js"></script>
+
+  <style>
+    /* ড্যাশবোর্ড লেআউট স্ট্রাকচার */
+    .admin-layout {
+      display: flex;
+      min-height: calc(100vh - 160px);
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    /* বাম দিকের প্রফেশনাল মেনু বার */
+    .sidebar-menu {
+      width: 280px;
+      background: rgba(10, 15, 30, 0.75);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      border-radius: 16px;
+      padding: 25px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      height: fit-content;
+    }
+
+    .sidebar-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      color: #00f2fe;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      padding-left: 10px;
+      font-weight: 700;
+      opacity: 0.8;
+    }
+
+    /* আইকনিক মেনু বাটন */
+    .menu-btn {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #8f9cae;
+      padding: 14px 18px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-btn i {
+      font-size: 16px;
+      width: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-btn:hover i {
+      transform: scale(1.2);
+    }
+
+    .menu-btn:hover, .menu-btn.active {
+      background: linear-gradient(90deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.02));
+      border-color: #00f2fe;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+
+    /* ডান পাশের কন্টেন্ট এরিয়া */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-content {
+      display: none;
+      width: 100%;
+      animation: SlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-content.active-box {
+      display: block;
+    }
+
+    @keyframes SlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* রিয়েল-টাইম লাইভ স্ট্যাটস বার */
+    .live-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: rgba(16, 24, 48, 0.5);
+      border: 1px solid rgba(0, 242, 254, 0.15);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .stat-info h4 {
+      margin: 0;
+      font-size: 12px;
+      color: #8f9cae;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-info p {
+      margin: 5px 0 0 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .stat-icon {
+      font-size: 24px;
+      color: #00f2fe;
+      text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+    }
+
+    @media (max-width: 900px) {
+      .admin-layout { flex-direction: column; }
+      .sidebar-menu { width: 100%; }
+    }
+  </style>
 </head>
 <body class="admin-panel-body">
 
-  <header class="dashboard-container dashboard-wide" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px;">
-    <h1 style="font-size: 22px; text-transform: uppercase; margin: 0;">Atoz Bombay <span style="color: #00f2fe;">Command Center</span></h1>
-    <button class="btn-danger" onclick="logout()" style="width: auto; padding: 8px 16px; margin: 0;">লগআউট</button>
+  <!-- আইকনিক হেডার এরিয়া -->
+  <header class="dashboard-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: rgba(10, 15, 30, 0.8);">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <!-- ইউনিক গেমিং ব্র্যান্ড লোগো আইকন -->
+      <div style="background: linear-gradient(135deg, #00f2fe, #4364f7); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);">
+        <i class="fa-solid degrad fa-shield-halved" style="color: #fff; font-size: 20px;"></i>
+      </div>
+      <h1 style="font-size: 22px; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; text-transform: uppercase; margin: 0;">Atoz Bombay <span style="color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);">COMMAND CENTER</span></h1>
+    </div>
+    <button class="btn-danger" onclick="logout()" style="width: auto; padding: 8px 20px; margin: 0; display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-power-off"></i> লগআউট
+    </button>
   </header>
 
-  <div class="dashboard-grid dashboard-wide" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; width: 100%;">
-
-    <div class="dashboard-container" id="box-user-control" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">1. User Control</h3>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
-          <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">অ্যাকশন টাইপ</label>
-          <select id="userAction" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-            <option value="player">নতুন প্লেয়ার আইডি তৈরি করুন</option>
-            <option value="subadmin">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
-            <option value="approve">ইউজার আইডি Approve করুন</option>
-            <option value="block">ইউজার আইডি Block করুন</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">ডিফল্ট পাসওয়ার্ড / পিন</label>
-          <input type="password" id="userDefaultPin" placeholder="••••••" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">প্লে মোড পারমিশন</label>
-          <select id="playerViewMode" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-            <option value="word">Word Mode (হজবরল কোড)</option>
-            <option value="digit">Digit Mode (সংখ্যার পত্তি)</option>
-          </select>
-        </div>
-        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-          <input type="checkbox" id="advanceDrawPermission" style="accent-color: #00f2fe;">
-          <label for="advanceDrawPermission" style="color: #8f9cae; font-size: 12px; cursor: pointer;">অ্যাডভান্স ড্র পারমিশন দিন (Advance Draw)</label>
-        </div>
-        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-          <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()" style="accent-color: #00f2fe;">
-          <label for="userSafetyCheck" style="color: #8f9cae; font-size: 12px; cursor: pointer;">আমি এই ইউজার সেটিংস পরিবর্তন করতে রাজি আছি।</label>
-        </div>
+  <!-- শীর্ষ রিয়েল-টাইম লাইভ স্ট্যাটস বার (Live Analytics) -->
+  <div class="live-stats-bar">
+    <div class="stat-card">
+      <div class="stat-info">
+        <h4>রিয়েল-টাইম সময়</h4>
+        <p id="liveClock">00:00:00 PM</p>
       </div>
-      <button class="btn-primary" id="userBtn" disabled onclick="handleUserControl()">সাবমিট একশন</button>
+      <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
     </div>
-
-    <div class="dashboard-container" id="box-routine" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">2. 24H Routine</h3>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">নতুন বাজির নাম (যেমন: Bazi 1)</label>
-          <input type="text" id="baziName" placeholder="বাজির নাম লিখুন" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">লক করার সময় (Lock Time - HH:MM)</label>
-          <input type="time" id="lockTime" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <label style="font-size: 12px; color: #8f9cae; display: block; margin-top: 15px; margin-bottom: 5px;">সক্রিয় বাজির রুটিন লিস্ট:</label>
-        <div class="data-list" id="routineList" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">কোনো সক্রিয় বাজি সেট করা নেই...</div>
-        </div>
+    <div class="stat-card" style="border-color: rgba(255, 0, 127, 0.2);">
+      <div class="stat-info">
+        <h4>লাইভ প্লেয়ার ডাটাবেস</h4>
+        <p id="livePlayerCount" style="color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);">কানেক্টিং...</p>
       </div>
-      <button class="btn-primary" onclick="saveRoutine()" style="margin-top: 15px;">নতুন বাজি যুক্ত করুন</button>
+      <div class="stat-icon" style="color: #ff007f;"><i class="fa-solid fa-users"></i></div>
     </div>
-
-    <div class="dashboard-container" id="box-result" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">3. Result Box</h3>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">একটি সক্রিয় বাজি সিলেক্ট করুন</label>
-          <select id="resultBaziSelect" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-            <option value="">লোডিং হচ্ছে...</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">পত্তির কোড বা সংখ্যা (৩-অক্ষর / ৩-ডিজিট)</label>
-          <input type="text" id="pattiResult" placeholder="যেমন: ZQR অথবা 100" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">সিঙ্গেল কোড বা সংখ্যা (১-অক্ষর / ১-ডিজিট)</label>
-          <input type="text" id="singleResult" placeholder="যেমন: A অথবা 1" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
+    <div class="stat-card" style="border-color: rgba(0, 254, 150, 0.2);">
+      <div class="stat-info">
+        <h4>আজকের একটিভ বেটস</h4>
+        <p id="liveActiveBets" style="color: #00fe96; text-shadow: 0 0 10px rgba(0, 254, 150, 0.4);">0</p>
       </div>
-      <button class="btn-primary" onclick="publishResult()" style="margin-top: 15px;">ফলাফল প্রকাশ করুন</button>
+      <div class="stat-icon" style="color: #00fe96;"><i class="fa-solid fa-dice"></i></div>
     </div>
+  </div>
 
-    <div class="dashboard-container" id="box-point" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">4. Point Master</h3>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">টার্গেট প্লেয়ার আইডি</label>
-          <input type="text" id="pointUserId" placeholder="যেমন: player101" oninput="togglePointBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+  <div class="admin-layout">
+
+    <!-- বাম দিকের গ্লোবাল আইকনিক মেনু বার -->
+    <nav class="sidebar-menu">
+      <div class="sidebar-title">NAVIGATION MENU</div>
+      <button class="menu-btn active" onclick="switchTab(event, 'box-user-control')"><i class="fa-solid fa-user-gear"></i> User Control</button>
+      <button class="menu-btn" onclick="switchTab(event, 'box-routine')"><i class="fa-solid fa-calendar-clock"></i> 24H Routine</button>
+      <button class="menu-btn" onclick="switchTab(event, 'box-result')"><i class="fa-solid fa-trophy"></i> Result Box</button>
+      <button class="menu-btn" onclick="switchTab(event, 'box-point')"><i class="fa-solid fa-gem"></i> Point Master</button>
+      <button class="menu-btn" onclick="switchTab(event, 'box-withdraw')"><i class="fa-solid fa-wallet"></i> Withdraw OTP</button>
+      <button class="menu-btn" onclick="switchTab(event, 'box-history')"><i class="fa-solid fa-chart-bar"></i> History Board</button>
+    </nav>
+
+    <!-- ডান দিকের মেইন কন্টেন্ট এরিয়া -->
+    <main class="main-content">
+
+      <!-- ১. ইউজার কন্ট্রোল বক্স -->
+      <div class="dashboard-container tab-content active-box" id="box-user-control">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-user-gear"></i> 1. User Control Master</h3>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
+            <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>অ্যাকশন টাইপ</label>
+            <select id="userAction">
+              <option value="player">নতুন প্লেয়ার আইডি তৈরি করুন</option>
+              <option value="subadmin">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
+              <option value="approve">ইউজার আইডি Approve করুন</option>
+              <option value="block">ইউজার আইডি Block করুন</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>ডিফল্ট পাসওয়ার্ড / পিন</label>
+            <input type="password" id="userDefaultPin" placeholder="••••••">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>প্লে মোড পারমিশন</label>
+            <select id="playerViewMode">
+              <option value="word">Word Mode (হজবরল কোড)</option>
+              <option value="digit">Digit Mode (সংখ্যার পত্তি)</option>
+            </select>
+          </div>
+          <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <input type="checkbox" id="advanceDrawPermission" style="accent-color: #00f2fe;">
+            <label for="advanceDrawPermission">অ্যাডভান্স ড্র পারমিশন দিন (Advance Draw)</label>
+          </div>
+          <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+            <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()" style="accent-color: #00f2fe;">
+            <label for="userSafetyCheck">আমি এই ইউজার সেটিংস পরিবর্তন করতে রাজি আছি।</label>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">অ্যাকশন টাইপ</label>
-          <select id="pointAction" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-            <option value="add">পয়েন্ট রিচার্জ করুন (Add Points)</option>
-            <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">পয়েন্ট পরিমাণ</label>
-          <input type="number" id="pointAmount" placeholder="পয়েন্টের সংখ্যা লিখুন" oninput="togglePointBtn()" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
-        <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-          <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()" style="accent-color: #00f2fe;">
-          <label for="pointSafetyCheck" style="color: #8f9cae; font-size: 12px; cursor: pointer;">আমি ভুল এড়াতে সঠিক আইডি ও অ্যামাউন্ট চেক করেছি।</label>
-        </div>
+        <button class="btn-primary" id="userBtn" disabled onclick="handleUserControl()">সাবমিট একশন</button>
       </div>
-      <button class="btn-primary" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট করুন</button>
-    </div>
 
-    <div class="dashboard-container" id="box-withdraw" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">5. Withdraw OTP</h3>
-        <label style="font-size: 12px; color: #8f9cae; display: block; margin-bottom: 5px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট:</label>
-        <div class="data-list" id="withdrawList" style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>
+      <!-- ২. ২৪ ঘণ্টার রুটিন বক্স -->
+      <div class="dashboard-container tab-content" id="box-routine">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-calendar-clock"></i> 2. 24H Scheduling Routine</h3>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>নতুন বাজির নাম (যেমন: Bazi 1)</label>
+            <input type="text" id="baziName" placeholder="বাজির নাম লিখুন">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>লক করার সময় (Lock Time - HH:MM)</label>
+            <input type="time" id="lockTime">
+          </div>
+          <label style="font-size: 12px; color: #8f9cae; display: block; margin-top: 15px; margin-bottom: 5px;">সক্রিয় বাজির রুটিন লিস্ট:</label>
+          <div class="data-list" id="routineList" style="max-height: 140px; overflow-y: auto;">
+            <div class="data-item" style="color: #636b7a; padding: 8px 12px;">কোনো সক্রিয় বাজি সেট করা নেই...</div>
+          </div>
         </div>
-        <div class="form-group" style="margin-top: 15px;">
-          <label style="display: block; color: #8f9cae; font-size: 12px; margin-bottom: 5px;">সিকিউর ওটিপি কোড (OTP)</label>
-          <input type="text" id="withdrawOtp" placeholder="৬-ডিজিট কোড লিখুন" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
-        </div>
+        <button class="btn-primary" onclick="saveRoutine()" style="margin-top: 15px;">নতুন বাজি যুক্ত করুন</button>
       </div>
-      <button class="btn-primary" onclick="approveWithdraw()" style="margin-top: 15px;">ওটিপি মিলিয়ে রিলিজ করুন</button>
-    </div>
 
-    <div class="dashboard-container" id="box-history" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-      <div>
-        <h3 style="color: #00f2fe; text-transform: uppercase; border-bottom: 2px solid rgba(0,242,254,0.2); padding-bottom: 8px; margin-bottom: 15px; font-size: 16px;">6. History Board</h3>
-        <div class="history-tabs" style="display: flex; gap: 5px; margin-bottom: 12px;">
-          <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Word View</button>
-          <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Digit View</button>
-          <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')" style="flex: 1; padding: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #8f9cae; font-size: 10px; text-transform: uppercase; cursor: pointer; border-radius: 4px;">Both View</button>
+      <!-- ৩. রেজাল্ট বক্স -->
+      <div class="dashboard-container tab-content" id="box-result">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-trophy"></i> 3. Result Publishing Matrix</h3>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>একটি সক্রিয় বাজি সিলেক্ট করুন</label>
+            <select id="resultBaziSelect">
+              <option value="">লোডিং হচ্ছে...</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>পত্তির কোড বা সংখ্যা (৩-অক্ষর / ৩-ডিজিট)</label>
+            <input type="text" id="pattiResult" placeholder="যেমন: ZQR অথবা 100">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>সিঙ্গেল কোড বা সংখ্যা (১-অক্ষর / ১-ডিজিট)</label>
+            <input type="text" id="singleResult" placeholder="যেমন: A অথবা 1">
+          </div>
         </div>
-        <label style="font-size: 11px; color: #8f9cae; display: block; margin-bottom: 5px;">আজকের টোটাল সেলস এবং রেজাল্ট হিস্ট্রি:</label>
-        <div class="data-list" id="historyList" style="max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-          <div class="data-item" style="color: #636b7a; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between;">হিস্ট্রি লোড হচ্ছে...</div>
-        </div>
+        <button class="btn-primary" onclick="publishResult()" style="margin-top: 15px;">ফলাফল প্রকাশ করুন</button>
       </div>
-      <button class="btn-danger" onclick="archiveDay()" style="margin-top: 15px;">আজকের বেট ডিলিট/রিসেট করুন (Midnight)</button>
-    </div>
 
+      <!-- ৪. পয়েন্ট মাস্টার বক্স -->
+      <div class="dashboard-container tab-content" id="box-point">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-gem"></i> 4. Point Master Ledger</h3>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>টার্গেট প্লেয়ার আইডি</label>
+            <input type="text" id="pointUserId" placeholder="যেমন: player101" oninput="togglePointBtn()">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>অ্যাকশন টাইপ</label>
+            <select id="pointAction">
+              <option value="add">পয়েন্ট রিচার্জ করুন (Add Points)</option>
+              <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>পয়েন্ট পরিমাণ</label>
+            <input type="number" id="pointAmount" placeholder="পয়েন্টের সংখ্যা লিখুন" oninput="togglePointBtn()">
+          </div>
+          <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+            <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()" style="accent-color: #00f2fe;">
+            <label for="pointSafetyCheck">আমি ভুল এড়াতে সঠিক আইডি ও অ্যামাউন্ট চেক করেছি।</label>
+          </div>
+        </div>
+        <button class="btn-primary" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট করুন</button>
+      </div>
+
+      <!-- ৫. উইড্রো ওটিপি বক্স -->
+      <div class="dashboard-container tab-content" id="box-withdraw">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-wallet"></i> 5. Secure Withdraw Gateway</h3>
+          <label style="font-size: 12px; color: #8f9cae; display: block; margin-bottom: 5px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট:</label>
+          <div class="data-list" id="withdrawList" style="max-height: 120px; overflow-y: auto;">
+            <div class="data-item" style="color: #636b7a; padding: 8px 12px;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>
+          </div>
+          <div class="form-group" style="margin-top: 15px;">
+            <label>সিকিউর ওটিপি কোড (OTP)</label>
+            <input type="text" id="withdrawOtp" placeholder="৬-ডিজিট কোড লিখুন">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="approveWithdraw()" style="margin-top: 15px;">ওটিপি মিলিয়ে রিলিজ করুন</button>
+      </div>
+
+      <!-- ৬. হিস্ট্রি বোর্ড বক্স -->
+      <div class="dashboard-container tab-content" id="box-history">
+        <div>
+          <h3 style="color: #00f2fe; text-transform: uppercase; font-size: 16px;"><i class="fa-solid fa-chart-bar"></i> 6. Live Bet History Board</h3>
+          <div class="history-tabs" style="display: flex; gap: 5px; margin-bottom: 12px;">
+            <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')" style="flex: 1; padding: 6px;">Word View</button>
+            <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')" style="flex: 1; padding: 6px;">Digit View</button>
+            <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')" style="flex: 1; padding: 6px;">Both View</button>
+          </div>
+          <label style="font-size: 11px; color: #8f9cae; display: block; margin-bottom: 5px;">আজকের টোটাল সেলস এবং রেজাল্ট হিস্ট্রি:</label>
+          <div class="data-list" id="historyList" style="max-height: 140px; overflow-y: auto;">
+            <div class="data-item" style="color: #636b7a; padding: 8px 12px;">হিস্ট্রি লোড হচ্ছে...</div>
+          </div>
+        </div>
+        <button class="btn-danger" onclick="archiveDay()" style="margin-top: 15px;">আজকের বেট ডিলিট/রিসেট করুন (Midnight)</button>
+      </div>
+
+    </main>
   </div>
 
   <script>
-    // ড্যাশবোর্ড সিকিউরিটি প্রটেকশন চেক
+    // ১. মেনু বার ট্যাব স্যুইচিং লজিক
+    function switchTab(event, targetId) {
+      document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(box => box.classList.remove('active-box'));
+      event.currentTarget.classList.add('active');
+      document.getElementById(targetId).classList.add('active-box');
+    }
+
+    // ২. রিয়েল-টাইম ক্লক মেকানিজম
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+    }, 1000);
+
+    // ৩. সিকিউরিটি এবং ড্যাশবোর্ড লিসেনার
     window.auth.onAuthStateChanged(user => {
       if (!user) {
         window.location.href = 'index.html';
@@ -171,55 +387,65 @@
         window.db.ref('users/' + user.uid).once('value').then(snapshot => {
           const data = snapshot.val();
           if (!data || data.role !== 'admin') {
-            alert('অননুমোদিত অ্যাক্সেস! শুধুমাত্র অ্যাডমিন এখানে প্রবেশ করতে পারে।');
+            alert('অননুমোদিত অ্যাক্সেস!');
             window.auth.signOut();
             window.location.href = 'index.html';
           } else {
-            // রিয়াল-টাইম ডেটা লিসেনার ও রেন্ডারিং রান করানো
             listenToDatabase();
+            fetchLivePlayerCount();
           }
         });
       }
     });
 
-    // ডেটাবেস লিসেনার এবং লাইভ রেন্ডারিং লজিক
+    // ৪. লাইভ প্লেয়ার ডাটাবেস কাউন্ট লিঙ্কিং
+    function fetchLivePlayerCount() {
+      window.db.ref('users').on('value', snapshot => {
+        if (snapshot.exists()) {
+          let count = 0;
+          snapshot.forEach(child => {
+            if (child.val().role === 'player') count++;
+          });
+          document.getElementById('livePlayerCount').innerText = count + " Players";
+        } else {
+          document.getElementById('livePlayerCount').innerText = "0 Players";
+        }
+      });
+
+      // ৫. লাইভ একটিভ বেট নোড ট্র্যাকিং
+      window.db.ref('active_bets').on('value', snapshot => {
+        if(snapshot.exists()) {
+          let totalBets = 0;
+          snapshot.forEach(child => { totalBets += child.numChildren(); });
+          document.getElementById('liveActiveBets').innerText = totalBets;
+        } else {
+          document.getElementById('liveActiveBets').innerText = "0";
+        }
+      });
+    }
+
+    // আগের ডেটাবেস লিসেনার লজিক (রুটিন ও উইড্রো)
     function listenToDatabase() {
-      // ১. রুটিন লিসেনার (বাজি সেটিংস এবং ড্রপডাউন আপডেট)
       window.db.ref('bazi_settings').on('value', snapshot => {
         const listDiv = document.getElementById('routineList');
         const select = document.getElementById('resultBaziSelect');
         listDiv.innerHTML = '';
         select.innerHTML = '<option value="">একটি বাজি বেছে নিন</option>';
-        
         if (snapshot.exists()) {
           snapshot.forEach(child => {
-            const id = child.key;
-            const item = child.val();
-            
-            // রুটিন লিস্টে বাজি যুক্ত করা
+            const id = child.key; const item = child.val();
             const div = document.createElement('div');
             div.className = 'data-item';
-            div.style.padding = "8px 12px";
-            div.style.fontSize = "12px";
-            div.style.display = "flex";
-            div.style.justifyContent = "space-between";
-            div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+            div.style.display = "flex"; div.style.justifyContent = "space-between";
             div.innerHTML = `<span><strong>${item.name}</strong> (লক: ${item.lockTime})</span>
                              <button onclick="deleteBazi('${id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;">মুছুন</button>`;
             listDiv.appendChild(div);
-
-            // রেজাল্ট পাবলিশ ড্রপডাউনে বাজি যুক্ত করা
-            const opt = document.createElement('option');
-            opt.value = id;
-            opt.innerText = `${item.name} (${item.lockTime})`;
+            const opt = document.createElement('option'); opt.value = id; opt.innerText = `${item.name} (${item.lockTime})`;
             select.appendChild(opt);
           });
-        } else {
-          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a; padding: 8px 12px;">কোনো সক্রিয় বাজি নেই...</div>';
         }
       });
 
-      // ২. ক্যাশ-আউট রিকোয়েস্ট লিসেনার
       window.db.ref('withdraw_requests').orderByChild('status').equalTo('pending').on('value', snapshot => {
         const listDiv = document.getElementById('withdrawList');
         listDiv.innerHTML = '';
@@ -227,14 +453,8 @@
           snapshot.forEach(child => {
             const req = child.val();
             const div = document.createElement('div');
-            div.className = 'data-item';
-            div.style.padding = "8px 12px";
-            div.style.fontSize = "12px";
-            div.style.display = "flex";
-            div.style.justifyContent = "space-between";
-            div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
-            div.innerHTML = `<span>ID: ${req.userId.substring(0,6)}.. | Amount: ${req.amount}৳</span>
-                             <span style="color:#00f2fe; font-weight:bold;">Pending OTP</span>`;
+            div.className = 'data-item'; div.style.display = "flex"; div.style.justifyContent = "space-between";
+            div.innerHTML = `<span>ID: ${req.userId.substring(0,6)}.. | Amount: ${req.amount}৳</span><span style="color:#00f2fe; font-weight:bold;">Pending OTP</span>`;
             listDiv.appendChild(div);
           });
         } else {
