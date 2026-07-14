@@ -1,9 +1,9 @@
 // ==========================================
-// ATOZ BOMBAY - FIREBASE CONFIGURATION & CORE LOGIC
+// ATOZ BOMBAY - FIREBASE CONFIGURATION & CORE LOGIC (SYNCHRONIZED)
 // Firebase SDK Version: 8.10.0 (Namespaced API)
 // ==========================================
 
-// ১. আপনার ফায়ারবেস কনসোলের নিজস্ব ক্রেডেনশিয়াল এখানে বসান
+// ১. ফায়ারবেস কনসোলের নিজস্ব ক্রেডেনশিয়াল
 const firebaseConfig = {
   apiKey: "AIzaSyB0HO_fnRt3FMjykq7Lo_Z0sAYy3kee2W4",
   authDomain: "a-toz-patti.firebaseapp.com",
@@ -24,9 +24,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 // ২. সিক্রেট "হজবরল" কোড ও ডিজিট ম্যাপিং টেবিল (Secret Matrix)
-// কলাম ০ থেকে ৯ (অ্যালফাবেট A থেকে J) এবং ২২টি রো-এর ম্যাপ
 const SECRET_MATRIX = {
-  // Column 1 (A / 1)
   "A": {
     digit: "1",
     patti_map: {
@@ -37,7 +35,6 @@ const SECRET_MATRIX = {
       "OPA": "335", "DFG": "128"
     }
   },
-  // Column 2 (B / 2)
   "B": {
     digit: "2",
     patti_map: {
@@ -48,7 +45,6 @@ const SECRET_MATRIX = {
       "SDF": "110", "HJK": "569"
     }
   },
-  // Column 3 (C / 3)
   "C": {
     digit: "3",
     patti_map: {
@@ -59,7 +55,6 @@ const SECRET_MATRIX = {
       "GHJ": "229", "LMN": "779"
     }
   },
-  // Column 4 (D / 4)
   "D": {
     digit: "4",
     patti_map: {
@@ -70,7 +65,6 @@ const SECRET_MATRIX = {
       "KLZ": "220", "ZXC": "770"
     }
   },
-  // Column 5 (E / 5)
   "E": {
     digit: "5",
     patti_map: {
@@ -81,7 +75,6 @@ const SECRET_MATRIX = {
       "XCV": "889", "VBN": "348"
     }
   },
-  // Column 6 (F / 6)
   "F": {
     digit: "6",
     patti_map: {
@@ -92,7 +85,6 @@ const SECRET_MATRIX = {
       "BNM": "349", "MQW": "457"
     }
   },
-  // Column 7 (G / 7)
   "G": {
     digit: "7",
     patti_map: {
@@ -103,7 +95,6 @@ const SECRET_MATRIX = {
       "QWE": "133", "ERT": "188"
     }
   },
-  // Column 8 (H / 8)
   "H": {
     digit: "8",
     patti_map: {
@@ -114,7 +105,6 @@ const SECRET_MATRIX = {
       "RTY": "279", "YUI": "468"
     }
   },
-  // Column 9 (I / 9)
   "I": {
     digit: "9",
     patti_map: {
@@ -125,7 +115,6 @@ const SECRET_MATRIX = {
       "UIO": "577", "OPA": "568"
     }
   },
-  // Column 10 (J / 0)
   "J": {
     digit: "0",
     patti_map: {
@@ -138,31 +127,29 @@ const SECRET_MATRIX = {
   }
 };
 
-// ৩. সিকিউর ভার্চুয়াল ইমেইল লজিক (User ID -> Secure Email Converter)
-// প্লেয়ার বা সাব-অ্যাডমিন কোনো ইমেইল জানবে না, ব্যাকএন্ডে এটি কনভার্ট হবে
+// ৩. সিকিউর ভার্চুয়াল ইমেইল লজিক (ডোমেন কনফ্লিক্ট ঠিক করা হয়েছে)
 function getVirtualEmail(userId) {
   const cleanId = userId.trim().toLowerCase();
-  return `${cleanId}@atoz-bombay.com`;
+  return `${cleanId}@atozbombay.com`; // app.js এর সাথে সিঙ্কড ডোমেন
 }
 
-// ৪. গ্লোবাল অথেন্টিকেশন হেল্পার (Login & Auth Action)
+// ৪. গ্লোবাল অথেন্টিকেশন হেল্পার
 function loginWithUserId(userId, pin, callback) {
   const secureEmail = getVirtualEmail(userId);
   auth.signInWithEmailAndPassword(secureEmail, pin)
     .then((userCredential) => {
-      // ইউজার ডেটাবেস নোড থেকে রোল এবং পারমিশন রিড করা
       const uid = userCredential.user.uid;
       db.ref('users/' + uid).once('value')
         .then((snapshot) => {
           if (snapshot.exists()) {
             callback(null, snapshot.val());
           } else {
-            callback("ইউজার ডাটাবেস রেকর্ড খুঁজে পাওয়া যায়নি।", null);
+            callback("ইউজার ডাটাবেস রেকর্ড খুঁজে পাওয়া যায়নি।", null);
           }
         });
     })
     .catch((error) => {
-      let errorMessage = "লগইন ব্যর্থ হয়েছে। আইডি বা পাসওয়ার্ড ভুল।";
+      let errorMessage = "লগইন ব্যর্থ হয়েছে। আইডি বা পাসওয়ার্ড ভুল।";
       if (error.code === "auth/user-not-found") {
         errorMessage = "এই আইডিটি সিস্টেমে নিবন্ধিত নেই।";
       }
@@ -170,24 +157,28 @@ function loginWithUserId(userId, pin, callback) {
     });
 }
 
-// ৫. ডুয়াল মোড কনভার্সন ফাংশন (Translates code to digit and vice versa)
+// ৫. ডুয়াল মোড কনভার্সন ফাংশন (Case-insensitive সার্চ এনাবল করা হয়েছে)
 function convertCodeToDigit(wordCode) {
+  if (!wordCode) return null;
+  const upperCode = wordCode.trim().toUpperCase();
   for (const col in SECRET_MATRIX) {
-    if (SECRET_MATRIX[col].patti_map[wordCode]) {
+    if (SECRET_MATRIX[col].patti_map[upperCode]) {
       return {
         columnDigit: SECRET_MATRIX[col].digit,
-        pattiDigit: SECRET_MATRIX[col].patti_map[wordCode]
+        pattiDigit: SECRET_MATRIX[col].patti_map[upperCode]
       };
     }
   }
-  return null; // ম্যাপিং খুঁজে না পেলে
+  return null; 
 }
 
 function convertDigitToCode(digitPatti) {
+  if (!digitPatti) return null;
+  const cleanPatti = digitPatti.trim();
   for (const col in SECRET_MATRIX) {
     const map = SECRET_MATRIX[col].patti_map;
     for (const code in map) {
-      if (map[code] === digitPatti) {
+      if (map[code] === cleanPatti) {
         return {
           columnLetter: col,
           wordCode: code
@@ -195,10 +186,10 @@ function convertDigitToCode(digitPatti) {
       }
     }
   }
-  return null; // ম্যাপিং খুঁজে না পেলে
+  return null;
 }
 
-// গ্লোবাল ডিক্লেয়ারেশন (যাতে অন্য যেকোনো ফাইল থেকে সরাসরি ব্যবহার করা যায়)
+// গ্লোবাল ডিক্লেয়ারেশন
 window.db = db;
 window.auth = auth;
 window.SECRET_MATRIX = SECRET_MATRIX;
