@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,51 +20,56 @@
   <div class="login-container">
     <div class="brand-header">
       <h1>Atoz <span>Bombay</span></h1>
-    </div>
-
-    <div class="role-tabs">
-      <button class="tab-btn active" onclick="setRole('player')">Player</button>
-      <button class="tab-btn" onclick="setRole('subadmin')">Subadmin</button>
-      <button class="tab-btn" onclick="setRole('admin')">Admin</button>
+      <p style="margin-top: 5px; color: #636b7a; font-size: 11px; letter-spacing: 2px;">SECURE LOGIN PORTAL</p>
     </div>
 
     <form id="loginForm" onsubmit="handleLogin(event)">
-      <div class="form-group">
-        <label for="userId">ইউজার আইডি (User ID)</label>
-        <input type="text" id="userId" placeholder="আপনার আইডি লিখুন" required autocomplete="username">
+      
+      <div class="input-group">
+        <label for="txtUserId">User ID</label>
+        <input type="text" id="txtUserId" class="input-field" placeholder="Enter your ID" required autocomplete="username">
       </div>
 
-      <div class="form-group">
-        <label for="userPin">পাসওয়ার্ড / পিন (PIN/Password)</label>
-        <input type="password" id="userPin" placeholder="••••••" required autocomplete="current-password">
+      <div class="input-group">
+        <label for="txtPin">PIN / Password</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="password" id="txtPin" class="input-field" placeholder="••••••" required autocomplete="current-password" style="padding-right: 40px;">
+          
+          <span id="togglePin" onclick="togglePinVisibility()" style="position: absolute; right: 12px; cursor: pointer; color: #00f2fe; font-size: 18px; user-select: none;">
+            👁️
+          </span>
+        </div>
       </div>
 
-      <button type="submit" class="login-btn">লগইন করুন</button>
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">Login</button>
     </form>
 
-    <div id="errorAlert" class="error-msg"></div>
-    <div id="loader" class="loading-spinner">সার্ভারের সাথে কানেক্ট হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</div>
+    <div id="errorAlert" class="error-msg" style="display: none; color: #ff4b4b; font-size: 13px; margin-top: 15px;"></div>
+    <div id="loader" class="loading-spinner" style="display: none; color: #00f2fe; font-size: 12px; margin-top: 15px; letter-spacing: 1px;">
+      Connecting to server... Please wait.
+    </div>
   </div>
 
   <script>
-    // ইন্টারফেস ও রোল সুইচিং লজিক (যা index.html ফাইলেই থাকা দরকার)
-    let selectedRole = 'player';
-
-    function setRole(role) {
-      selectedRole = role;
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.innerText.toLowerCase() === role) {
-          btn.classList.add('active');
-        }
-      });
-      hideElements();
+    // পিন বা পাসওয়ার্ড দেখার চোখ বাটন লজিক (অনলি ইনলাইন UI অ্যাকশন)
+    function togglePinVisibility() {
+      const pinField = document.getElementById('txtPin');
+      const toggleIcon = document.getElementById('togglePin');
+      
+      if (pinField.type === 'password') {
+        pinField.type = 'text';
+        toggleIcon.innerText = '🔒'; // হাইড করার সিম্বল
+      } else {
+        pinField.type = 'password';
+        toggleIcon.innerText = '👁️'; // শো করার সিম্বল
+      }
     }
 
-    function hideElements() {
+    // প্রাথমিক লোডার এবং এরর হাইড করে রাখার লজিক
+    window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('errorAlert').style.display = 'none';
       document.getElementById('loader').style.display = 'none';
-    }
+    });
   </script>
 </body>
 </html>
