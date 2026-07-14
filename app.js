@@ -1,59 +1,73 @@
-// মাস্টার সিস্টেম ইঞ্জিন - সব লজিক এখানে ইনবিল্ড
-const App = {
-    // ১. সিকিউর রোল-বেসড ইমেইল কনভার্টার
-    getEmailFromId: function(userId, role) {
-        const roles = { 'master_admin': 'master.admin', 'sub_admin': 'sub.admin', 'player': 'game.player' };
-        return userId + "@" + (roles[role] || "game.player");
-    },
+// ==========================================
+// ATOZ BOMBAY - MAIN PORTAL & LOGIN LOGIC
+// ==========================================
 
-    // ২. ডাইনামিক টাইম-লক (অ্যাডমিনের সেট করা টাইম অনুযায়ী)
-    checkBettingStatus: function(gameId, callback) {
-        database.ref('admin_settings/games/' + gameId).once('value', (snapshot) => {
-            const settings = snapshot.val();
-            if (!settings) return callback(false);
-            
-            const now = Date.now();
-            const closingTime = new Date(settings.closingTime).getTime();
-            // অ্যাডমিন যদি 'open' রাখে এবং টাইম না পার হয় তবেই বেট সম্ভব
-            const isAllowed = settings.status === 'open' && now < closingTime;
-            callback(isAllowed);
-        });
-    },
+// ১. পেজ লোড হওয়ার সাথে সাথে চেক করা কোনো ইউজার অলরেডি লগইন আছে কিনা
+window.auth.onAuthStateChanged(user => {
+  if (user) {
+    // ইউজার লগইন থাকলে তার রোল অনুযায়ী রিডাইরেক্ট করা হবে
+    redirectUserBasedOnRole(user.uid);
+  }
+});
 
-    // ৩. রেশিও ক্যালকুলেটর (১ টাকায় ৯ বা ১১.৫০)
-    calculateWinnings: function(amount, type, adminConfig) {
-        const rate = (type === 'patti') ? adminConfig.pattiRate : adminConfig.singleRate;
-        return amount * rate;
-    },
+// ২. লগইন ফাংশন (index.html থেকে কল হবে)
+function handleLogin(event) {
+  if (event) event.preventDefault();
 
-    // ৪. অ্যাডমিন ড্যাশবোর্ড রিপোর্ট ক্যালকুলেশন
-    generateAdminReport: function(bets, adminConfig) {
-        let totalBet = 0;
-        bets.forEach(bet => totalBet += bet.amount);
-        return {
-            totalBet: totalBet,
-            netProfit: totalBet - (totalBet * adminConfig.payoutPercentage)
-        };
-    },
+  const userId = document.getElementById('txtUserId').value.trim();
+  const pin = document.getElementById('txtPin').value.trim();
 
-    // ৫. রাত ১২টার অটো-রিসেট (ব্যালেন্স বাদে বাকি সব ক্লিন)
-    runMidnightReset: function() {
-        const now = new Date();
-        if (now.getHours() === 0 && now.getMinutes() === 0) {
-            database.ref('bets').remove();
-            database.ref('bazis').remove();
-            console.log("সিস্টেম রিসেট সম্পন্ন হয়েছে।");
+  if (!userId || !pin) {
+    alert('দয়া করে আইডি এবং পিন/পাসওয়ার্ড দিন!');
+    return;
+  }
+
+  // আমাদের সিস্টেমের ভার্চুয়াল ইমেইল জেনারেট করা
+  const virtualEmail = window.getVirtualEmail(userId);
+
+  // ফায়ারবেস সাইন-ইন শুরু
+  window.auth.signInWithEmailAndPassword(virtualEmail, pin)
+    .then(cred => {
+      // লগইন সফল হলে রোল চেক করে ড্যাশবোর্ডে পাঠানো হবে
+      redirectUserBasedOnRole(cred.user.uid);
+    })
+    .catch(err => {
+      alert('ভুল আইডি অথবা পিন! আবার চেষ্টা করুন।');
+      console.error(err);
+    });
+}
+
+// ৩. রোল ভিত্তিক রিডাইরেক্ট মেকানিজম
+function redirectUserBasedOnRole(uid) {
+  window.db.ref('users/' + uid).once('value')
+    .then(snapshot => {
+      const userData = snapshot.val();
+      if (userData) {
+        // ইউজারের অবস্থা চেক করা (ব্লকড কিনা)
+        if (userData.status === 'blocked') {
+          alert('আপনার আইডিটি সাময়িকভাবে ব্লক করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।');
+          window.auth.signOut();
+          return;
         }
-    },
 
-    // ৬. সাব-অ্যাডমিন ম্যানেজমেন্ট
-    handleSubAdmin: function(subAdminId, action) {
-        // action হতে পারে 'approved' বা 'blocked'
-        database.ref('users/' + subAdminId + '/status').set(action);
-    }
-};
+        // রোল অনুযায়ী পেজ রিডাইরেকশন
+        if (userData.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else if (userData.role === 'player') {
+          window.location.href = 'player.html';
+        } else {
+          alert('আপনার আইডিতে কোনো রোল সেট করা নেই!');
+          window.auth.signOut();
+        }
+      } else {
+        alert('ইউজার ডেটাবেস রেকর্ড পাওয়া যায়নি!');
+        window.auth.signOut();
+      }
+    })
+    .catch(err => {
+      console.error("রিডাইরেক্ট করতে সমস্যা হয়েছে:", err);
+    });
+}
 
-// সিস্টেম অটোমেশন (প্রতি ১ মিনিট অন্তর চেক করবে)
-setInterval(() => {
-    App.runMidnightReset();
-}, 60000);
+// গ্লোবাল অ্যাক্সেস দেওয়া
+window.handleLogin = handleLogin;
