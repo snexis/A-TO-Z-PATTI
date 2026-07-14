@@ -4,267 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atoz Bombay - Player Panel</title>
+
   <link rel="stylesheet" href="style.css">
+
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
   
   <script src="firebase-config.js"></script>
 
-  <style>
-    /* ==========================================
-       NEON GLASS-MORPHISM PLAYER THEME
-       ========================================== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: #090a0f;
-      color: #ffffff;
-      min-height: 100vh;
-      padding: 15px;
-    }
-
-    /* Header Bar with Isolated Balance Displays */
-    header {
-      background: rgba(20, 24, 35, 0.9);
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 242, 254, 0.15);
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .user-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .user-info h2 {
-      font-size: 18px;
-      letter-spacing: 1px;
-    }
-
-    .user-info h2 span {
-      color: #00f2fe;
-    }
-
-    .balance-container {
-      display: flex;
-      gap: 15px;
-    }
-
-    .balance-box {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      text-align: center;
-    }
-
-    .balance-box p {
-      font-size: 11px;
-      color: #8f9cae;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .balance-box span {
-      font-size: 18px;
-      font-weight: 700;
-      color: #00f2fe;
-    }
-
-    .balance-box.winning span {
-      color: #39ff14; /* Neon Green for Winning */
-    }
-
-    /* Navigation & Utility Buttons */
-    .utility-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .util-btn {
-      flex: 1;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .util-btn:hover {
-      background: rgba(0, 242, 254, 0.1);
-      border-color: #00f2fe;
-    }
-
-    .util-btn.disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-
-    /* 22x10 Play Matrix Grid CSS */
-    .grid-container {
-      background: rgba(20, 24, 35, 0.9);
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      overflow-x: auto;
-      margin-bottom: 20px;
-    }
-
-    .grid-header {
-      text-align: center;
-      margin-bottom: 15px;
-      color: #00f2fe;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .bet-grid {
-      display: grid;
-      grid-template-columns: repeat(10, minmax(80px, 1fr)); /* 10 Columns (A to J) */
-      gap: 8px;
-    }
-
-    .grid-cell {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .grid-cell.active {
-      border-color: #00f2fe;
-      background: rgba(0, 242, 254, 0.03);
-    }
-
-    .cell-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #8f9cae;
-    }
-
-    .grid-cell.active .cell-label {
-      color: #00f2fe;
-    }
-
-    .cell-controls {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      width: 100%;
-    }
-
-    .cell-checkbox {
-      width: 16px;
-      height: 16px;
-      accent-color: #00f2fe;
-      cursor: pointer;
-    }
-
-    .cell-input {
-      width: 100%;
-      padding: 4px;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      color: white;
-      font-size: 11px;
-      text-align: center;
-      outline: none;
-    }
-
-    .cell-input:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-
-    /* Submit Area */
-    .submit-panel {
-      position: sticky;
-      bottom: 0;
-      background: #090a0f;
-      padding: 15px 0;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      color: #0d0e12;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 700;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
-    }
-
-    /* Popup Modal for Play History */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: #141823;
-      width: 90%;
-      max-width: 450px;
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid #00f2fe;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 8px;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: #ff4b4b;
-      font-size: 20px;
-      cursor: pointer;
-    }
-  </style>
+  <script src="app.js"></script>
 </head>
-<body>
+<body class="player-panel-body">
 
-  <header>
+  <header class="dashboard-container dashboard-wide" style="margin-top: 20px;">
     <div class="user-info">
       <h2>ID: <span id="lblUserId">Loading...</span></h2>
-      <button onclick="logout()" style="background:none; border:none; color:#ff4b4b; cursor:pointer; font-size:12px;">লগআউট</button>
+      <button onclick="logout()" class="btn-danger" style="padding: 6px 12px; font-size: 11px; border-radius: 4px; width: auto; margin-top: 0;">লগআউট</button>
     </div>
     <div class="balance-container">
       <div class="balance-box">
@@ -278,29 +34,29 @@
     </div>
   </header>
 
-  <div class="utility-bar">
-    <button class="util-btn" onclick="openHistory()">Play History</button>
-    <button class="util-btn disabled" id="btnAdvanceDraw" onclick="toggleAdvanceDraw()">Advance Draw (Locked)</button>
+  <div class="utility-bar dashboard-wide" style="display: flex; gap: 10px; margin-bottom: 20px; width: 100%;">
+    <button class="btn-primary" style="flex: 1; padding: 10px;" onclick="openHistory()">Play History</button>
+    <button class="btn-primary" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.05); color: #fff;" id="btnAdvanceDraw" onclick="toggleAdvanceDraw()">Advance Draw (Locked)</button>
   </div>
 
-  <main class="grid-container">
-    <div class="grid-header" id="gridTitle">Loading Game Grid...</div>
+  <main class="dashboard-container dashboard-wide" style="overflow-x: auto; text-align: left;">
+    <div class="grid-header" id="gridTitle" style="text-align: center; margin-bottom: 15px; font-size: 16px; font-weight: bold; color: #00f2fe;">Loading Game Grid...</div>
     
     <div class="bet-grid" id="mainBetGrid">
       </div>
   </main>
 
-  <div class="submit-panel">
-    <button class="submit-btn" onclick="submitAllBets()">Submit All Bets</button>
+  <div class="submit-panel dashboard-wide" style="width: 100%; margin-bottom: 30px;">
+    <button class="btn-primary" onclick="submitAllBets()">Submit All Bets</button>
   </div>
 
   <div class="modal" id="historyModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h4>Your Play History</h4>
+        <h4 style="margin-bottom: 0;">Your Play History</h4>
         <button class="close-btn" onclick="closeHistory()">&times;</button>
       </div>
-      <div id="historyData" style="max-height: 300px; overflow-y: auto; font-size: 13px;">
+      <div id="historyData" style="max-height: 300px; overflow-y: auto; font-size: 13px; text-align: left; padding-top: 10px;">
         Loading history...
       </div>
     </div>
@@ -312,7 +68,7 @@
     let currentBalance = 0;
     let isAdvanceDrawAllowed = false;
 
-    // ১. প্লেয়ার অথেন্টিকেশন অ্যান্ড সিকিউরিটি চেক
+    // ১. প্লেয়ার অথেন্টিকেশন অ্যান্ড সিকিউরিটি চেক
     window.auth.onAuthStateChanged(user => {
       if (!user) {
         window.location.href = 'index.html';
@@ -322,7 +78,7 @@
       }
     });
 
-    // ২. প্রোফাইল ও ব্যালেন্স রিয়ালটাইম লোড
+    // ২. প্রোফাইল ও ব্যালেন্স রিয়ালটাইম লোড
     function loadPlayerProfile() {
       window.db.ref('users/' + playerUID).on('value', snapshot => {
         const data = snapshot.val();
@@ -337,14 +93,16 @@
           isAdvanceDrawAllowed = data.advanceDraw || false;
           const advBtn = document.getElementById('btnAdvanceDraw');
           if (isAdvanceDrawAllowed) {
-            advBtn.classList.remove('disabled');
+            advBtn.style.opacity = "1";
+            advBtn.style.cursor = "pointer";
             advBtn.innerText = "Advance Draw (Active)";
           } else {
-            advBtn.classList.add('disabled');
+            advBtn.style.opacity = "0.3";
+            advBtn.style.cursor = "not-allowed";
             advBtn.innerText = "Advance Draw (Locked)";
           }
 
-          // প্লেয়ারের ডেডিকেটেড গ্রিড জেনারেট করা
+          // প্লেয়ারের ডেডিকেটেড গ্রিড জেনারেট করা
           generateGrid();
         }
       });
@@ -377,10 +135,10 @@
           cell.className = 'grid-cell';
           cell.id = `cell_${col}_${row}`;
           cell.innerHTML = `
-            <span class="cell-label">${displayLabel}</span>
-            <div class="cell-controls">
+            <span class="cell-label" style="font-weight: bold; font-size: 12px; display: block; text-align: center; margin-bottom: 4px;">${displayLabel}</span>
+            <div class="cell-controls" style="display: flex; align-items: center; gap: 5px;">
               <input type="checkbox" class="cell-checkbox" onchange="toggleCellInput(this, '${inputId}')">
-              <input type="number" id="${inputId}" class="cell-input" placeholder="0" disabled min="1">
+              <input type="number" id="${inputId}" class="cell-input" placeholder="0" disabled min="1" style="width: 100%; text-align: center;">
             </div>
           `;
           grid.appendChild(cell);
@@ -500,16 +258,17 @@
       });
     }
 
+    // ক্লোজ হিস্ট্রি
     function closeHistory() {
       document.getElementById('historyModal').style.display = 'none';
     }
 
+    // লগআউট
     function logout() {
       window.auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
     }
   </script>
-  <script src="app.js"></script>
 </body>
 </html>
