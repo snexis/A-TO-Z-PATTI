@@ -2,44 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-/* * PROJECT: A-TO-Z-PATTI
- * VERSION: 4.4 (Ultra Advanced Modular Edition)
- * LAST UPDATED: 2026-07-15
- * =========================================================================
- * 🔍 QUICK SEARCH INDEX (কোড খোঁজার সহজ উপায়):
- * কিবোর্ডে Ctrl + F চাপুন এবং নিচের ব্র্যাকেটের ভেতরের ট্যাগটি লিখে সার্চ করুন।
- * =========================================================================
- * * 1. LIVE VERSION BADGE -------- [SEARCH: VERSION_BADGE]
- * - Display: "Update Version 4.4" on Top Navigation / View panel.
- * - প্রতিটি প্যানেলের উপরে লাইভ প্রিমিয়াম ভার্সন ডিসপ্লে মডিউল।
- * * 2. MASTER UNLOCK SWITCH ------ [SEARCH: MASTER_KEY]
- * - variable: MASTER_SECURITY_MODE (true/false) - সিকিউরিটির মূল অন-অফ চাবিকাঠি।
- * * 3. DOMAIN SECURITY GATE ------ [SEARCH: GATE_DOMAIN]
- * - variable: allowedDomain = "snexis.github.io" - গিটহাব থেকে ডোমেন চেঞ্জ করার মেইন সেন্টার।
- * * 4. NESTED MODULAR CONTROLLERS - [SEARCH: MODULAR_CONTAINER]
- * - Layout: Collapsible sub-buttons inside main sections. (ক্লিন ও হিজিবিজিহীন ভিউ)।
- * * 5. ACTION BASED BALANCING ---- [SEARCH: BALANCE_MASTER]
- * - Module: Point Add/Deduct nested panel logic under Balance Section.
- * * 6. HARDWARE PRINTER GATE ----- [SEARCH: GATE_PRINTER]
- * - HTML Wrapper: Bluetooth Thermal Printer 58mm/80mm hidden authorization gate.
- * * 7. DYNAMIC THEME ENGINE ------ [SEARCH: DYNAMIC_THEME]
- * - HTML Elements: Player Background & Sub-Admin BG dynamic URL changers.
- * * 8. CORE LANGUAGE MEMORY ------ [SEARCH: LANG_ENGINE]
- * - Function: applyLanguage() - ১০০% মিক্সড-ভাষা ব্লকার (localStorage মেমরি লকিং)।
- * * 9. NETWORK PING INDICATOR ---- [SEARCH: LIVE_PING]
- * - Function: checkNetworkStatus() - লাইভ নেটওয়ার্ক/সার্ভার কানেক্টিভিটি ইন্ডিকেটর।
- * * 10. SESSION FRAUD GUARD ------ [SEARCH: ANTI_FRAUD]
- * - Condition: Multi-device login blocker & hijack shield.
- * * 11. GLOBAL ANNOUNCEMENT ------ [SEARCH: GLOBAL_TICKER]
- * - Input Element: Live marquee dynamic message broadcaster for all sub-panels.
- * * 12. ANTI-INSPECT SHIELD ------ [SEARCH: SECURITY_SHIELD]
- * - Right-click, F12, Ctrl+U এবং ডেভলপার টুলস সম্পূর্ণ লক সিস্টেম।
- * * 13. LOCAL RUN PROTECTION ----- [SEARCH: ANTI_LOCAL]
- * - অফলাইনে কম্পিউটার বা পেনড্রাইভ থেকে ফাইল রান করা ব্লক করার গেট।
- * * 14. GOOGLE API LOOP FIX ------ [SEARCH: API_LOOP_FIX]
- * - "Waiting for googleapis" অনবরত লোডিং লুপ ব্লকার লজিক (.once implementation)।
- */
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atoz Bombay - Command Center v4.4</title>
   
@@ -61,20 +23,20 @@
     (function() {
       if (!MASTER_SECURITY_MODE) return;
 
-      // [SEARCH: ANTI_LOCAL] - লোকাল ফাইল রান প্রোটেকশন
+      // [SEARCH: ANTI_LOCAL] - লোকাল ফাইল প্রোটেকশন
       if (window.location.protocol === "file:") {
         document.write("<h1 style='color:red; text-align:center; margin-top:20%; font-family:sans-serif;'>ERROR: Local Execution Blocked! ❌</h1>");
         window.location.replace("about:blank");
       }
 
-      // [SEARCH: GATE_DOMAIN] - অথরাইজড ডোমেন লক (ভবিষ্যতে ডোমেন চেঞ্জ করলে শুধু এই লাইনের নাম পরিবর্তন করবেন)
+      // [SEARCH: GATE_DOMAIN] - ডোমেন লক সেটিংস
       const allowedDomain = "snexis.github.io"; 
       if (window.location.hostname !== allowedDomain && window.location.hostname !== "" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
         document.write("<h1 style='color:red; text-align:center; margin-top:20%; font-family:sans-serif;'>ERROR: Unauthorized Domain! ❌</h1>");
         window.location.replace("about:blank");
       }
 
-      // [SEARCH: SECURITY_SHIELD] - অ্যান্টি-ইনস্পেক্ট ও কিবোর্ড লক
+      // [SEARCH: SECURITY_SHIELD] - অ্যান্টি-ইনস্পেক্ট
       document.addEventListener('contextmenu', event => event.preventDefault());
       document.addEventListener('keydown', function(e) {
         if (e.key === "F12" || 
@@ -87,20 +49,27 @@
       });
     })();
 
-    // [SEARCH: ANTI_FRAUD] - সেশন গেটকিপার ও ফ্রড প্রোটেকশন
-    if (typeof window.auth === 'undefined' || typeof window.db === 'undefined') {
-      window.location.replace('index.html');
-    }
-    window.auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.replace('index.html'); 
-      } else {
-        window.db.ref('users/' + user.uid).once('value').then(snapshot => {
-          const data = snapshot.val();
-          if (!data || data.role !== 'admin') {
-            window.auth.signOut().then(() => { window.location.replace('index.html'); });
+    // [SEARCH: API_LOOP_FIX] এবং [SEARCH: ANTI_FRAUD]
+    // রিফ্রেশ লুপ এবং গুগলের 'Waiting' স্ট্যাটাস আটকানোর কোর ফিক্স
+    window.addEventListener('load', () => {
+      // ফায়ারবেস অবজেক্ট লোড হওয়া নিশ্চিত করার জন্য সেফটি চেক
+      if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+        const checkAuth = firebase.auth();
+        const checkDb = firebase.database();
+        
+        checkAuth.onAuthStateChanged(user => {
+          if (!user) {
+            window.location.replace('index.html'); 
+          } else {
+            // অনবরত লুপ ঠেকাতে ডেটা শুধুমাত্র একবার (.once) রিড করা হবে
+            checkDb.ref('users/' + user.uid).once('value').then(snapshot => {
+              const data = snapshot.val();
+              if (!data || data.role !== 'admin') {
+                checkAuth.signOut().then(() => { window.location.replace('index.html'); });
+              }
+            }).catch(() => { window.location.replace('index.html'); });
           }
-        }).catch(() => { window.location.replace('index.html'); });
+        });
       }
     });
   </script>
@@ -110,7 +79,7 @@
       background: #060913 !important;
       margin: 0;
       padding: 0;
-      font-family: 'Rajdhani', 'Hind Siliguri', sans-serif;
+      font-family: sans-serif;
     }
     .premium-header {
       width: 100%;
@@ -126,7 +95,7 @@
     .brand-area { display: flex; align-items: center; gap: 15px; }
     .brand-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 2px; margin: 0; text-transform: uppercase; }
     
-    /* [SEARCH: VERSION_BADGE] - প্রফেশনাল ভিউ ব্যাজ স্টাইল */
+    /* [SEARCH: VERSION_BADGE] */
     .version-view-btn {
       color: #00f2fe;
       font-size: 11px;
@@ -143,7 +112,7 @@
       box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
     }
     
-    /* [SEARCH: LIVE_PING] - লাইভ পিং ডট স্টাইল */
+    /* [SEARCH: LIVE_PING] */
     .ping-container { display: flex; align-items: center; gap: 6px; color: #8f9cae; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
     .ping-dot { width: 8px; height: 8px; background: #00fe96; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #00fe96; }
     .ping-dot.poor { background: #ffaa00; box-shadow: 0 0 8px #ffaa00; }
@@ -170,7 +139,7 @@
     .tab-content.active-box { display: block; }
     .welcome-screen { border: 1px dashed rgba(255,255,255,0.1); border-radius: 14px; padding: 60px; text-align: center; color: #636b7a; background: rgba(16, 24, 48, 0.2); }
     
-    /* [SEARCH: MODULAR_CONTAINER] - মডুলার নেস্টেড সেকশন এবং সাব-বাটন ডিজাইন */
+    /* [SEARCH: MODULAR_CONTAINER] */
     .dashboard-container { background: rgba(16, 24, 48, 0.6); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 14px; padding: 25px; box-sizing: border-box; backdrop-filter: blur(15px); }
     .nested-accordion-card { background: rgba(6, 9, 19, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; margin-bottom: 15px; overflow: hidden; }
     .nested-accordion-header { background: rgba(16, 24, 48, 0.8); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.3s; }
@@ -182,12 +151,9 @@
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
     .form-group label { font-size: 13px; color: #8f9cae; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .form-group input, .form-group select { background: rgba(6, 9, 19, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; color: #fff; font-size: 14px; outline: none; transition: all 0.3s; }
-    .form-group input:focus, .form-group select:focus { border-color: #00f2fe; box-shadow: 0 0 8px rgba(0, 242, 254, 0.2); }
     
-    .btn-primary { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #060913; border: none; padding: 12px 24px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; transition: opacity 0.2s; }
-    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #060913; border: none; padding: 12px 24px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
     .btn-danger { background: linear-gradient(135deg, #ff0844 0%, #ff4b2b 100%); color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px; cursor: pointer; }
-    
     .data-list { background: rgba(6, 9, 19, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; color: #8f9cae; }
   </style>
 </head>
@@ -209,7 +175,7 @@
   </header>
 
   <div class="wrapper">
-    <div id="ticker-wrap" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 8px; padding: 10px 20px; margin-bottom: 2px; color: #00f2fe; font-size: 14px; font-weight: 600; display:none;">
+    <div id="ticker-wrap" style="background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 8px; padding: 10px 20px; margin-bottom: 25px; color: #00f2fe; font-size: 14px; font-weight: 600; display:none;">
       <marquee id="liveGlobalTicker" scrollamount="4">System Update Operational...</marquee>
     </div>
 
@@ -307,13 +273,13 @@
 
           <div class="nested-accordion-card">
             <div class="nested-accordion-header" onclick="toggleSubSection('sub-tm-ticker')">
-              <h4><i class="fa-solid fa-bullhorn"></i> <span id="sublbl-tm-ticker">গ্লোবাল মেইনটেইন্যান্স ব্রডকাস্টার</span></h4>
+              <h4><i class="fa-solid fa-bullhorn"></i> <span id="sublbl-tm-ticker">গ্লোবাল মেইনটেইন্যান্স BR</span></h4>
               <i class="fa-solid fa-chevron-down toggle-icon"></i>
             </div>
             <div class="nested-accordion-body" id="sub-tm-ticker">
               <div class="form-group">
                 <label id="lbl-tm-ticker-msg">লাইভ নোটিশ স্ক্রোলিং টেক্সট</label>
-                <input type="text" id="globalTickerMessage" placeholder="প্লেয়ারদের জন্য নোটিশ এখানে লিখুন...">
+                <input type="text" id="globalTickerMessage" placeholder="নোটিশ এখানে লিখুন...">
               </div>
             </div>
           </div>
@@ -355,7 +321,6 @@
 
         <div class="dashboard-container tab-content" id="box-point">
           <h3 style="color: #00f2fe; margin-top:0; margin-bottom:20px;"><i class="fa-solid fa-gem"></i> <span id="lbl-pt-title">ক্রেডিট ও পয়েন্ট ব্যালেন্স মাস্টার</span></h3>
-          
           <div class="nested-accordion-card">
             <div class="nested-accordion-header" onclick="toggleSubSection('sub-pt-wallet')">
               <h4><i class="fa-solid fa-wallet"></i> <span id="sublbl-pt-wallet">ওয়ালেট ব্যালেন্স মডিউলেটর</span></h4>
@@ -363,7 +328,7 @@
             </div>
             <div class="nested-accordion-body" id="sub-pt-wallet" style="display:block;">
               <div class="form-group"><label id="lbl-pt-uid">প্লেয়ার আইডি</label><input type="text" id="pointUserId" oninput="fetchCurrentBalance(); return false;"></div>
-              <div class="form-group"><label id="lbl-pt-act">লেনদেনের ধরণ</label><select id="pointAction"><option value="add">পয়েন্ট যোগ করুন</option><option value="deduct">পয়েন্ট কেটে নিন</option></select></div>
+              <div class="form-group"><label id="lbl-pt-act">LEN</label><select id="pointAction"><option value="add">পয়েন্ট যোগ করুন</option><option value="deduct">পয়েন্ট কেটে নিন</option></select></div>
               <div class="form-group"><label id="lbl-pt-amt">পয়েন্টের পরিমাণ</label><input type="number" id="pointAmount"></div>
             </div>
           </div>
@@ -373,7 +338,6 @@
         <div class="dashboard-container tab-content" id="box-withdraw">
           <h3 style="color: #00f2fe; margin-top:0; margin-bottom:20px;"><i class="fa-solid fa-wallet"></i> <span id="lbl-wd-title">সুরক্ষিত উইড্রো ক্যাশ-আউট গেটওয়ে</span></h3>
           <div class="data-list" id="withdrawList" style="margin-bottom:15px; min-height:5px;"></div>
-          
           <div class="nested-accordion-card">
             <div class="nested-accordion-header" onclick="toggleSubSection('sub-wd-gate')">
               <h4><i class="fa-solid fa-key"></i> <span id="sublbl-wd-gate">ওটিপি কোড ভেরিফিকেশন</span></h4>
@@ -396,13 +360,12 @@
   </div>
 
   <script>
-    // [SEARCH: LANG_ENGINE] - মেমরি লকিং ল্যাঙ্গুয়েজ অবজেক্ট
+    // [SEARCH: LANG_ENGINE]
     let currentLang = localStorage.getItem('selectedLanguage') || 'bn';
 
     const translations = {
       en: {
-        logout: "Logout",
-        menuUser: "User Control", menuTheme: "Theme & Display", menuRoutine: "24H Routine",
+        logout: "Logout", menuUser: "User Control", menuTheme: "Theme & Display", menuRoutine: "24H Routine",
         menuResult: "Result Publish", menuPoint: "Point Master", menuWithdraw: "Withdraw OTP", menuHistory: "Live History Board",
         welcomeMsg: "System Running... Select any option from the left menu to start working.",
         usrTitle: "User Management Control", usrId: "Player or Sub-Admin ID", usrAction: "Action Mode",
@@ -410,23 +373,20 @@
         usrPin: "Default Security Pin / Password", usrMode: "Gameplay View Mode Permission", usrLangPerm: "Language Permission Gateway",
         lDual: "Dual Language (Bengali + English)", lEn: "Only English Mode",
         usrPrint: "Print Feature Permission (Thermal Printer)", prLock: "Locked / Hidden Mode", prBt: "Bluetooth Thermal Printer (Active)",
-        usrSubmit: "Submit Action",
-        tmTitle: "Theme & Dynamic Display Master", tmPlayBg: "Gameplay Background Image (Player Board URL)",
+        usrSubmit: "Submit Action", tmTitle: "Theme & Dynamic Display Master", tmPlayBg: "Gameplay Background Image (Player Board URL)",
         tmSubBg: "Sub-Admin Background Image (Sub-Admin BG URL)", tmSave: "Save Theme Settings",
         rtTitle: "Bazi Routine Scheduler", rtName: "Bazi Name", rtLock: "Lock Time", rtAdd: "Add New Bazi",
         resTitle: "Game Result Publishing Panel", resSelect: "Select Bazi", resPatti: "Patti Result", resSingle: "Single Result", resPub: "Publish Result",
         ptTitle: "Credit & Point Balance Master", ptUid: "Player ID", ptAct: "Transaction Type", ptAmt: "Point Amount", ptSub: "Confirm Point Update",
         wdTitle: "Secure Withdraw Cash-Out Gateway", wdOtp: "6-Digit Secure OTP Code", wdApp: "Verify & Release OTP",
-        hsTitle: "Live Sales & Bet History Tracker", hsReset: "Reset Today's Calculations",
-        livePlayers: "Live Player Database", activeBets: "Today's Active Bets",
-        pingText: "SYSTEM ONLINE",
-        subUsrCore: "1. Account Creation & Action Gate", subUsrPerms: "2. Advanced Permission & Thermal Printer Gate",
-        subTmBg: "Background Image Panel", subTmTicker: "Global Maintenance Broadcaster", tmTickerMsg: "Live Notice Scrolling Text",
-        subRtPanel: "Schedule Configuration", subResPanel: "Result Input Form", subPtWallet: "Wallet Balance Modulator", subWdGate: "OTP Code Verification"
+        hsTitle: "Live Sales & Bet History Tracker", hsReset: "Reset Today's Calculations", livePlayers: "Live Player Database",
+        activeBets: "Today's Active Bets", pingText: "SYSTEM ONLINE", subUsrCore: "1. Account Creation & Action Gate",
+        subUsrPerms: "2. Advanced Permission & Thermal Printer Gate", subTmBg: "Background Image Panel",
+        subTmTicker: "Global Maintenance Broadcaster", tmTickerMsg: "Live Notice Scrolling Text", subRtPanel: "Schedule Configuration",
+        subResPanel: "Result Input Form", subPtWallet: "Wallet Balance Modulator", subWdGate: "OTP Code Verification"
       },
       bn: {
-        logout: "লগআউট",
-        menuUser: "ইউজার কন্ট্রোল", menuTheme: "থিম ও ডিসপ্লে", menuRoutine: "২৪ ঘণ্টার রুটিন",
+        logout: "লগআউট", menuUser: "ইউজার কন্ট্রোল", menuTheme: "থিম ও ডিসপ্লে", menuRoutine: "২৪ ঘণ্টার রুটিন",
         menuResult: "রেজাল্ট পাবলিশ", menuPoint: "পয়েন্ট মাস্টার", menuWithdraw: "উইড্রো ওটিপি", menuHistory: "লাইভ হিস্ট্রি বোর্ড",
         welcomeMsg: "সিস্টেম রানিং... কাজ শুরু করতে বাম পাশের মেনু থেকে যেকোনো একটি অপশন সিলেক্ট করুন।",
         usrTitle: "ইউজার ম্যানেজমেন্ট কন্ট্রোল", usrId: "প্লেয়ার বা সাব-অ্যাডমিন আইডি", usrAction: "অ্যাকশন মোড",
@@ -434,19 +394,17 @@
         usrPin: "ডিফল্ট সিকিউরিটি পিন / পাসওয়ার্ড", usrMode: "গেমপ্লে ভিউ মোড পারমিশন", usrLangPerm: "ভাষা পারমিশন গেটওয়ে",
         lDual: "Dual Language (Bengali + English)", lEn: "Only English Mode",
         usrPrint: "প্রিন্ট ফিচার পারমিশন (Thermal Printer)", prLock: "Locked / Hidden (হাইড মোড)", prBt: "Bluetooth Thermal Printer (চলবে)",
-        usrSubmit: "অ্যাকশন সাবমিট করুন",
-        tmTitle: "থিম ও ডাইনামিক ডিসপ্লে মাস্টার", tmPlayBg: "গেমপ্লে ব্যাকগ্রাউন্ড ইমেজ (Player Board URL)",
+        usrSubmit: "অ্যাকশন সাবমিট করুন", tmTitle: "থিম ও ডাইনামিক ডিসপ্লে মাস্টার", tmPlayBg: "গেমপ্লে ব্যাকগ্রাউন্ড ইমেজ (Player Board URL)",
         tmSubBg: "সাব-অ্যাডমিন ব্যাকগ্রাউন্ড ইমেজ (Sub-Admin BG URL)", tmSave: "থিম সেটিংস সেভ করুন",
         rtTitle: "বাজি রুটিন শিডিউলার", rtName: "বাজির নাম", rtLock: "লক করার সময়", rtAdd: "নতুন বাজি যুক্ত করুন",
         resTitle: "গেম রেজাল্ট পাবলিশিং প্যানেল", resSelect: "বাজি সিলেক্ট করুন", resPatti: "পত্তি রেজাল্ট", resSingle: "সিঙ্গেল রেজাল্ট", resPub: "ফলাফল প্রকাশ করুন",
         ptTitle: "ক্রেডিট ও পয়েন্ট ব্যালেন্স মাস্টার", ptUid: "প্লেয়ার আইডি", ptAct: "লেনদেনের ধরণ", ptAmt: "পয়েন্টের পরিমাণ", ptSub: "পয়েন্ট আপডেট কনফার্ম করুন",
         wdTitle: "সুরক্ষিত উইড্রো ক্যাশ-আউট গেটওয়ে", wdOtp: "৬-ডিজিট সিকিউর ওটিপি কোড", wdApp: "ওটিপি ভেরিফাই ও রিলিজ করুন",
-        hsTitle: "লাইভ সেলস ও বেট হিস্ট্রি ট্র্যাকার", hsReset: "আজকের দিনের হিসাব রিসেট করুন",
-        livePlayers: "লাইভ প্লেয়ার ডাটাবেস", activeBets: "আজকের একটিভ বেটস",
-        pingText: "সিস্টেম অনলাইন",
-        subUsrCore: "১. অ্যাকাউন্ট ক্রিয়েশন ও অ্যাকশন গেট", subUsrPerms: "২. অ্যাডভান্সড পারমিশন ও থার্মাল প্রিন্টার গেট",
-        subTmBg: "ব্যাকগ্রাউন্ড ইমেজ প্যানেল", subTmTicker: "গ্লোবাল মেইনটেইন্যান্স ব্রডকাস্টার", tmTickerMsg: "লাইভ নোটিশ স্ক্রোলিং টেক্সট",
-        subRtPanel: "শিডিউল কনফিগারেশন", subResPanel: "ফলাফল ইনপুট ফর্ম", subPtWallet: "ওয়ালেট ব্যালেন্স মডিউলেটর", subWdGate: "ওটিপি কোড ভেরিফিকেশন"
+        hsTitle: "লাইভ সেলস ও বেট হিস্ট্রি ট্র্যাকার", hsReset: "আজকের দিনের হিসাব রিসেট করুন", livePlayers: "লাইভ প্লেয়ার ডাটাবেস",
+        activeBets: "আজকের একটিভ বেটস", pingText: "সিস্টেম অনলাইন", subUsrCore: "১. অ্যাকাউন্ট ক্রিয়েশন ও অ্যাকশন গেট",
+        subUsrPerms: "২. অ্যাডভান্সড পারমিশন ও থার্মাল প্রিন্টার গেট", subTmBg: "ব্যাকগ্রাউন্ড ইমেজ প্যানেল",
+        subTmTicker: "গ্লোবাল মেইনটেইন্যান্স ব্রডকাস্টার", tmTickerMsg: "লাইভ নোটিশ স্ক্রোলিং টেক্সট", subRtPanel: "শিডিউল কনফিগারেশন",
+        subResPanel: "ফলাফল ইনপুট ফর্ম", subPtWallet: "ওয়ালেট ব্যালেন্স মডিউলেটর", subWdGate: "ওটিপি কোড ভেরিফিকেশন"
       }
     };
 
@@ -469,7 +427,6 @@
       document.getElementById('menu-history').innerText = t.menuHistory;
       document.getElementById('txt-welcome-msg').innerText = t.welcomeMsg;
       
-      // সাব-লেবেল টেক্সট লোড
       document.getElementById('sublbl-usr-core').innerText = t.subUsrCore;
       document.getElementById('sublbl-usr-perms').innerText = t.subUsrPerms;
       document.getElementById('sublbl-tm-bg').innerText = t.subTmBg;
@@ -480,7 +437,6 @@
       document.getElementById('sublbl-wd-gate').innerText = t.subWdGate;
       document.getElementById('lbl-tm-ticker-msg').innerText = t.tmTickerMsg;
 
-      // মেইন ইউজার প্যানেল অনুবাদ লক
       document.getElementById('lbl-usr-title').innerText = t.usrTitle;
       document.getElementById('lbl-usr-id').innerText = t.usrId;
       document.getElementById('lbl-usr-action').innerText = t.usrAction;
@@ -499,7 +455,6 @@
       document.getElementById('opt-pr-bt').innerText = t.prBt;
       document.getElementById('btn-usr-submit').innerText = t.usrSubmit;
 
-      // থিম ও অন্যান্য মডিউল অনুবাদ লক
       document.getElementById('lbl-tm-title').innerText = t.tmTitle;
       document.getElementById('lbl-tm-play-bg').innerText = t.tmPlayBg;
       document.getElementById('lbl-tm-sub-bg').innerText = t.tmSubBg;
@@ -528,7 +483,7 @@
       document.getElementById('lbl-ping-text').innerText = t.pingText;
     }
 
-    // [SEARCH: MODULAR_CONTAINER] - অ্যাকোর্ডিয়ন ওপেন-ক্লোজ কন্ট্রোলার
+    // [SEARCH: MODULAR_CONTAINER]
     function toggleSubSection(sectionId) {
       const targetElement = document.getElementById(sectionId);
       const icon = targetElement.previousElementSibling.querySelector('i.toggle-icon');
@@ -561,38 +516,36 @@
       document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
     }, 1000);
 
-    // [SEARCH: LIVE_PING] - রিয়েল-টাইম লাইভ পিং ডিটেক্টর
+    // [SEARCH: LIVE_PING]
     function checkNetworkStatus() {
       const dot = document.getElementById('pingDot');
       if (navigator.onLine) {
-        dot.className = "ping-dot"; // Green Online
+        dot.className = "ping-dot";
       } else {
-        dot.className = "ping-dot disconnected"; // Red Offline
+        dot.className = "ping-dot disconnected";
       }
     }
     window.addEventListener('online', checkNetworkStatus);
     window.addEventListener('offline', checkNetworkStatus);
 
-    // [SEARCH: API_LOOP_FIX] - গুগল এপিআই অনবরত ডাবল-লোডিং ব্লকার লজিক
     function initializeStaticData() {
-      if (typeof window.db === 'undefined') return;
+      if (typeof firebase === 'undefined' || firebase.apps.length === 0) return;
+      const dbRef = firebase.database();
       
-      // লাইভ ডাটাবেস নোটিশ মারকুই সিঙ্ক
-      window.db.ref('settings/globalNotice').once('value').then(snap => {
+      dbRef.ref('settings/globalNotice').once('value').then(snap => {
         if(snap.exists() && snap.val()) {
           document.getElementById('ticker-wrap').style.display = "block";
           document.getElementById('liveGlobalTicker').innerText = snap.val();
         }
       });
 
-      // সংখ্যা বাদে স্ক্রিন লোডিং ড্রপ বন্ধ করতে .once ব্যবহার
-      window.db.ref('users').once('value').then(snapshot => {
+      dbRef.ref('users').once('value').then(snapshot => {
         if(snapshot.exists()) {
           let count = 0;
           snapshot.forEach(c => { if(c.val().role==='player') count++; });
           document.getElementById('livePlayerCount').innerText = count;
         }
-      }).catch(err => console.log("Firebase loop bridge locked."));
+      }).catch(err => console.log("System Ready."));
     }
 
     window.addEventListener('DOMContentLoaded', () => {
