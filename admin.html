@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atoz Bombay - Premium Command Center</title>
+  <title>Atoz Bombay - Command Center v2.0</title>
   
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- ফায়ারবেস কোর SDK এবং প্রয়োজনীয় মডিউল -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -18,12 +17,11 @@
   <script src="admin.js"></script>
 
   <style>
-    /* গ্লোবাল বডি ও লেআউট ফিক্স */
     body.admin-panel-body {
       background: #060913 !important;
       margin: 0;
       padding: 0;
-      font-family: 'Hind Siliguri', sans-serif;
+      font-family: 'Rajdhani', 'Hind Siliguri', sans-serif;
     }
 
     /* আল্ট্রা স্লিক ফুল-উইডথ হেডার */
@@ -45,7 +43,6 @@
       gap: 15px;
     }
 
-    /* লোগো অ্যানিমেশন */
     .animated-logo {
       background: linear-gradient(135deg, #00f2fe, #4364f7);
       width: 38px;
@@ -64,8 +61,7 @@
     }
 
     .brand-title {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #fff;
       letter-spacing: 2px;
@@ -75,26 +71,51 @@
 
     .brand-title span {
       color: #00f2fe;
-      text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+      font-size: 11px;
+      background: rgba(0, 242, 254, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-left: 10px;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      vertical-align: middle;
     }
 
-    /* হেডার রাইট প্যানেল (লগআউট ও টাইম জোনিং) */
     .header-right {
       display: flex;
       align-items: center;
-      gap: 25px;
+      gap: 20px;
     }
 
     .clock-display {
-      font-family: 'Rajdhani', sans-serif;
       color: #00f2fe;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       letter-spacing: 1px;
       background: rgba(0, 242, 254, 0.05);
       padding: 6px 14px;
       border-radius: 6px;
       border: 1px solid rgba(0, 242, 254, 0.15);
+    }
+
+    /* ভাষা সুইচ বাটন */
+    .lang-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      background: rgba(0, 242, 254, 0.15);
+      border-color: #00f2fe;
     }
 
     .mini-logout-btn {
@@ -110,15 +131,9 @@
       align-items: center;
       gap: 6px;
       box-shadow: 0 4px 10px rgba(255, 8, 68, 0.2);
-      transition: all 0.2s ease;
     }
 
-    .mini-logout-btn:hover {
-      box-shadow: 0 0 15px rgba(255, 8, 68, 0.5);
-      transform: translateY(-1px);
-    }
-
-    /* স্ট্যাটস বার ও মেইন লেআউট */
+    /* মূল লেআউট */
     .wrapper {
       padding: 25px 40px;
       max-width: 1600px;
@@ -144,7 +159,7 @@
       backdrop-filter: blur(5px);
     }
 
-    .stat-info h4 { margin: 0; font-size: 12px; color: #8f9cae; text-transform: uppercase; }
+    .stat-info h4 { margin: 0; font-size: 11px; color: #8f9cae; text-transform: uppercase; letter-spacing: 1px; }
     .stat-info p { margin: 5px 0 0 0; font-size: 20px; font-weight: 700; color: #fff; }
 
     .admin-layout {
@@ -189,7 +204,6 @@
       flex: 1;
     }
 
-    /* ডিফল্ট স্ক্রিন সেটিংস (সব বক্স প্রথমে হাইড থাকবে) */
     .tab-content {
       display: none;
     }
@@ -208,40 +222,40 @@
 </head>
 <body class="admin-panel-body">
 
-  <!-- স্লিক ও প্রফেশনাল টপ হেডার প্যানেল -->
   <header class="premium-header">
     <div class="brand-area">
       <div class="animated-logo">
         <i class="fa-solid fa-shield-halved" style="color: #fff; font-size: 18px;"></i>
       </div>
-      <h1 class="brand-title">Atoz Bombay <span>Control Panel</span></h1>
+      <h1 class="brand-title">Atoz Bombay <span id="ver-badge">v2.0 [LIVE]</span></h1>
     </div>
     
     <div class="header-right">
-      <!-- রিয়েল টাইম ক্লকটি এখন হেডারে রাইট সাইডে সুসংগঠিত -->
       <div class="clock-display">
         <i class="fa-regular fa-clock" style="margin-right: 6px;"></i><span id="liveClock">00:00:00 PM</span>
       </div>
+      <button class="lang-btn" onclick="toggleLanguage()">
+        <i class="fa-solid fa-language"></i> <span id="langText">English</span>
+      </button>
       <button class="mini-logout-btn" onclick="logout()">
-        <i class="fa-solid fa-power-off"></i> লগআউট
+        <i class="fa-solid fa-power-off"></i> <span id="txt-logout">লগআউট</span>
       </button>
     </div>
   </header>
 
   <div class="wrapper">
     
-    <!-- লাইভ স্ট্যাটিস্টিক্স ট্র্যাকার বার -->
     <div class="live-stats-bar">
       <div class="stat-card" style="border-left: 3px solid #ff007f;">
         <div class="stat-info">
-          <h4>লাইভ প্লেয়ার ডাটাবেস</h4>
+          <h4 id="lbl-live-players">লাইভ প্লেয়ার ডাটাবেস</h4>
           <p id="livePlayerCount" style="color: #ff007f;">অপেক্ষমান...</p>
         </div>
         <i class="fa-solid fa-users" style="color: #ff007f; font-size: 20px;"></i>
       </div>
       <div class="stat-card" style="border-left: 3px solid #00fe96;">
         <div class="stat-info">
-          <h4>আজকের একটিভ বেটস</h4>
+          <h4 id="lbl-active-bets">আজকের একটিভ বেটস</h4>
           <p id="liveActiveBets" style="color: #00fe96;">0</p>
         </div>
         <i class="fa-solid fa-dice" style="color: #00fe96; font-size: 20px;"></i>
@@ -249,140 +263,132 @@
     </div>
 
     <div class="admin-layout">
-      <!-- বাম দিকের মেনু বার -->
       <nav class="sidebar-menu">
-        <button class="menu-btn" onclick="switchTab(event, 'box-user-control')"><i class="fa-solid fa-user-gear"></i> ইউজার কন্ট্রোল</button>
-        <button class="menu-btn" onclick="switchTab(event, 'box-routine')"><i class="fa-solid fa-calendar-days"></i> ২৪ ঘণ্টার রুটিন</button>
-        <button class="menu-btn" onclick="switchTab(event, 'box-result')"><i class="fa-solid fa-trophy"></i> রেজাল্ট পাবলিশ</button>
-        <button class="menu-btn" onclick="switchTab(event, 'box-point')"><i class="fa-solid fa-gem"></i> পয়েন্ট মাস্টার</button>
-        <button class="menu-btn" onclick="switchTab(event, 'box-withdraw')"><i class="fa-solid fa-wallet"></i> উইড্রো ওটিপি</button>
-        <button class="menu-btn" onclick="switchTab(event, 'box-history')"><i class="fa-solid fa-chart-line"></i> লাইভ হিস্ট্রি বোর্ড</button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-user-control')"><i class="fa-solid fa-user-gear"></i> <span id="menu-user">ইউজার কন্ট্রোল</span></button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-routine')"><i class="fa-solid fa-calendar-days"></i> <span id="menu-routine">২৪ ঘণ্টার রুটিন</span></button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-result')"><i class="fa-solid fa-trophy"></i> <span id="menu-result">রেজাল্ট পাবলিশ</span></button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-point')"><i class="fa-solid fa-gem"></i> <span id="menu-point">পয়েন্ট মাস্টার</span></button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-withdraw')"><i class="fa-solid fa-wallet"></i> <span id="menu-withdraw">উইড্রো ওটিপি</span></button>
+        <button class="menu-btn" onclick="switchTab(event, 'box-history')"><i class="fa-solid fa-chart-line"></i> <span id="menu-history">লাইভ হিস্ট্রি বোর্ড</span></button>
       </nav>
 
-      <!-- ডান দিকের কন্টেন্ট এরিয়া -->
       <main class="main-content">
         
-        <!-- ইনিশিয়াল কাস্টম ওয়েলকাম স্ক্রিন (কোনো বক্স সিলেক্ট করার আগে এটি দেখাবে) -->
         <div id="welcome-message" class="welcome-screen">
           <i class="fa-solid fa-terminal" style="font-size: 40px; margin-bottom: 15px; color: rgba(0,242,254,0.2);"></i>
-          <p style="margin: 0; font-size: 15px; letter-spacing: 0.5px;">সিস্টেম রানিং... কাজ শুরু করতে বাম পাশের মেনু থেকে যেকোনো একটি অপশন সিলেক্ট করুন।</p>
+          <p id="txt-welcome-msg" style="margin: 0; font-size: 15px; letter-spacing: 0.5px;">সিস্টেম রানিং... কাজ শুরু করতে বাম পাশের মেনু থেকে যেকোনো একটি অপশন সিলেক্ট করুন।</p>
         </div>
 
-        <!-- ১. ইউজার কন্ট্রোল বক্স -->
         <div class="dashboard-container tab-content" id="box-user-control">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-user-gear"></i> ইউজার ম্যানেজমেন্ট কন্ট্রোল</h3>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-user-gear"></i> <span id="lbl-usr-title">ইউজার ম্যানেজমেন্ট কন্ট্রোল</span></h3>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
-            <input type="text" id="targetUserId" placeholder="যেমন: player101" oninput="toggleUserBtn()">
+            <label id="lbl-usr-id">প্লেয়ার বা সাব-অ্যাডমিন আইডি</label>
+            <input type="text" id="targetUserId" placeholder="player101" oninput="toggleUserBtn()">
+            <small id="idAlert" style="display:block; margin-top:5px; font-weight:600;"></small>
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>অ্যাকশন মোড</label>
+            <label id="lbl-usr-action">অ্যাকশন মোড</label>
             <select id="userAction">
-              <option value="player">جدید প্লেয়ার আইডি তৈরি করুন</option>
-              <option value="subadmin">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
-              <option value="approve">ইউজার আইডি অ্যাক্টিভ/Approve করুন</option>
-              <option value="block">ইউজার আইডি ব্লক/Block করুন</option>
+              <option value="player" id="opt-p1">নতুন প্লেয়ার আইডি তৈরি করুন</option>
+              <option value="subadmin" id="opt-p2">নতুন সাব-অ্যাডমিন তৈরি করুন</option>
+              <option value="approve" id="opt-p3">ইউজার আইডি অ্যাক্টিভ/Approve করুন</option>
+              <option value="block" id="opt-p4">ইউজার আইডি ব্লক/Block করুন</option>
             </select>
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>ডিফল্ট সিকিউরিটি পিন / পাসওয়ার্ড</label>
-            <input type="password" id="userDefaultPin" placeholder="পাসওয়ার্ড লিখুন">
+            <label id="lbl-usr-pin">ডিফল্ট সিকিউরিটি পিন / পাসওয়ার্ড</label>
+            <input type="password" id="userDefaultPin" placeholder="••••••">
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>গেমপ্লে ভিউ মোড পারমিশন</label>
+            <label id="lbl-usr-mode">গেমপ্লে ভিউ মোড পারমিশন</label>
             <select id="playerViewMode">
-              <option value="word">Word Mode (কোড ভিত্তিক ভিউ)</option>
-              <option value="digit">Digit Mode (ডিজিট বা সংখ্যা ভিত্তিক ভিউ)</option>
+              <option value="word">Word Mode</option>
+              <option value="digit">Digit Mode</option>
             </select>
           </div>
           <div style="margin-bottom: 20px;">
-            <input type="checkbox" id="advanceDrawPermission" style="accent-color:#00f2fe;"> <label for="advanceDrawPermission" style="color:#8f9cae; font-size:13px;">অ্যাডভান্স ড্র পারমিশন কার্যকর করুন</label>
+            <input type="checkbox" id="advanceDrawPermission" style="accent-color:#00f2fe;"> <label for="advanceDrawPermission" id="lbl-usr-chk1" style="color:#8f9cae; font-size:13px; cursor:pointer;">অ্যাডভান্স ড্র পারমিশন কার্যকর করুন</label>
             <br><br>
-            <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()" style="accent-color:#00f2fe;"> <label for="userSafetyCheck" style="color:#8f9cae; font-size:13px;">আমি কনফার্ম করছি যে এই ইউজার সেটিংস পরিবর্তন করব।</label>
+            <input type="checkbox" id="userSafetyCheck" onchange="toggleUserBtn()" style="accent-color:#00f2fe;"> <label for="userSafetyCheck" id="lbl-usr-chk2" style="color:#8f9cae; font-size:13px; cursor:pointer;">আমি কনফার্ম করছি যে এই ইউজার সেটিংস পরিবর্তন করব।</label>
           </div>
-          <button class="btn-primary" id="userBtn" disabled onclick="handleUserControl()">অ্যাকশন সাবমিট করুন</button>
+          <button type="button" class="btn-primary" id="userBtn" disabled onclick="handleUserControl(); return false;"><span id="btn-usr-submit">অ্যাকশন সাবমিট করুন</span></button>
         </div>
 
-        <!-- ২. ২৪ ঘণ্টার রুটিন বক্স -->
         <div class="dashboard-container tab-content" id="box-routine">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-calendar-days"></i> বাজি রুটিন শিডিউলার</h3>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-calendar-days"></i> <span id="lbl-rt-title">বাজি রুটিন শিডিউলার</span></h3>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>বাজির নাম</label>
-            <input type="text" id="baziName" placeholder="যেমন: Bazi 1">
+            <label id="lbl-rt-name">বাজির নাম</label>
+            <input type="text" id="baziName" placeholder="Bazi 1">
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>লক করার সময় (Lock Time)</label>
+            <label id="lbl-rt-lock">লক করার সময় (Lock Time)</label>
             <input type="time" id="lockTime">
           </div>
-          <label style="font-size: 13px; color: #8f9cae; display: block; margin-bottom: 8px;">একটিভ বাজি রুটিন তালিকা:</label>
+          <label id="lbl-rt-list" style="font-size: 13px; color: #8f9cae; display: block; margin-bottom: 8px;">একটিভ বাজি রুটিন তালিকা:</label>
           <div class="data-list" id="routineList" style="max-height: 150px; overflow-y: auto;"></div>
-          <button class="btn-primary" onclick="saveRoutine()" style="margin-top: 15px;">নতুন বাজি যুক্ত করুন</button>
+          <button type="button" class="btn-primary" onclick="saveRoutine(); return false;" style="margin-top: 15px;"><span id="btn-rt-add">নতুন বাজি যুক্ত করুন</span></button>
         </div>
 
-        <!-- ৩. রেজাল্ট বক্স -->
         <div class="dashboard-container tab-content" id="box-result">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-trophy"></i> গেম রেজাল্ট পাবলিশিং প্যানেল</h3>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-trophy"></i> <span id="lbl-res-title">গেম রেজাল্ট পাবলিশিং প্যানেল</span></h3>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>বাজি সিলেক্ট করুন</label>
-            <select id="resultBaziSelect"><option value="">লোডিং...</option></select>
+            <label id="lbl-res-select">বাজি সিলেক্ট করুন</label>
+            <select id="resultBaziSelect"><option value="">Loading...</option></select>
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>পত্তি রেজাল্ট (৩-ডিজিট / ৩-লেটার)</label>
-            <input type="text" id="pattiResult" placeholder="রেজাল্ট কোড লিখুন">
+            <label id="lbl-res-patti">পত্তি রেজাল্ট (৩-ডিজিট / ৩-লেটার)</label>
+            <input type="text" id="pattiResult" placeholder="ZQR / 100">
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>সিঙ্গেল রেজাল্ট (১-ডিজিট / ১-লেটার)</label>
-            <input type="text" id="singleResult" placeholder="সিঙ্গেল কোড লিখুন">
+            <label id="lbl-res-single">সিঙ্গেল রেজাল্ট (১-ডিজিট / ১-লেটার)</label>
+            <input type="text" id="singleResult" placeholder="A / 1">
           </div>
-          <button class="btn-primary" onclick="publishResult()">ফলাফল প্রকাশ করুন</button>
+          <button type="button" class="btn-primary" onclick="publishResult(); return false;"><span id="btn-res-pub">ফলাফল প্রকাশ করুন</span></button>
         </div>
 
-        <!-- ৪. পয়েন্ট মাস্টার বক্স -->
         <div class="dashboard-container tab-content" id="box-point">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-gem"></i> ক্রেডিট ও পয়েন্ট ব্যালেন্স মাস্টার</h3>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-gem"></i> <span id="lbl-pt-title">ক্রেডিট ও পয়েন্ট ব্যালেন্স মাস্টার</span></h3>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>প্লেয়ার আইডি</label>
-            <input type="text" id="pointUserId" placeholder="প্লেয়ার আইডি দিন" oninput="togglePointBtn()">
+            <label id="lbl-pt-uid">플레이어 প্লেয়ার আইডি</label>
+            <input type="text" id="pointUserId" placeholder="player101" oninput="togglePointBtn()">
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>লেনদেনের ধরণ</label>
+            <label id="lbl-pt-act">লেনদেনের ধরণ</label>
             <select id="pointAction">
-              <option value="add">পয়েন্ট যোগ করুন (Add Points)</option>
-              <option value="deduct">পয়েন্ট কেটে নিন (Deduct Points)</option>
+              <option value="add" id="opt-pt1">পয়েন্ট যোগ করুন (Add Points)</option>
+              <option value="deduct" id="opt-pt2">পয়েন্ট কেটে নিন (Deduct Points)</option>
             </select>
           </div>
           <div class="form-group" style="margin-bottom: 15px;">
-            <label>পয়েন্টের পরিমাণ</label>
-            <input type="number" id="pointAmount" placeholder="সংখ্যা লিখুন" oninput="togglePointBtn()">
+            <label id="lbl-pt-amt">পয়েন্টের পরিমাণ</label>
+            <input type="number" id="pointAmount" placeholder="1000" oninput="togglePointBtn()">
           </div>
           <div style="margin-bottom: 20px;">
-            <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()" style="accent-color:#00f2fe;"> <label for="pointSafetyCheck" style="color:#8f9cae; font-size:13px;">আমি অ্যাকাউন্ট আইডি ও অ্যামাউন্ট ক্রস-চেক করেছি।</label>
+            <input type="checkbox" id="pointSafetyCheck" onchange="togglePointBtn()" style="accent-color:#00f2fe;"> <label id="lbl-pt-chk" for="pointSafetyCheck" style="color:#8f9cae; font-size:13px; cursor:pointer;">আমি অ্যাকাউন্ট আইডি ও অ্যামাউন্ট ক্রস-চেক করেছি।</label>
           </div>
-          <button class="btn-primary" id="pointBtn" disabled onclick="handlePoints()">পয়েন্ট আপডেট কনফার্ম করুন</button>
+          <button type="button" class="btn-primary" id="pointBtn" disabled onclick="handlePoints(); return false;"><span id="btn-pt-sub">পয়েন্ট আপডেট কনফার্ম করুন</span></button>
         </div>
 
-        <!-- ৫. উইড্রো ওটিপি বক্স -->
         <div class="dashboard-container tab-content" id="box-withdraw">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-wallet"></i> সুরক্ষিত উইড্রো ক্যাশ-আউট গেটওয়ে</h3>
-          <label style="font-size: 13px; color: #8f9cae; display: block; margin-bottom: 8px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট সমূহ:</label>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-wallet"></i> <span id="lbl-wd-title">সুরক্ষিত উইড্রো ক্যাশ-আউট গেটওয়ে</span></h3>
+          <label id="lbl-wd-pending" style="font-size: 13px; color: #8f9cae; display: block; margin-bottom: 8px;">পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট সমূহ:</label>
           <div class="data-list" id="withdrawList" style="max-height: 150px; overflow-y: auto;"></div>
           <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
-            <label>৬-ডিজিট সিকিউর ওটিপি কোড (OTP)</label>
-            <input type="text" id="withdrawOtp" placeholder="কোডটি এখানে দিন">
+            <label id="lbl-wd-otp">৬-ডিজিট সিকিউর ওটিপি কোড (OTP)</label>
+            <input type="text" id="withdrawOtp" placeholder="123456">
           </div>
-          <button class="btn-primary" onclick="approveWithdraw()">ওটিপি ভেরিফাই ও রিলিজ করুন</button>
+          <button type="button" class="btn-primary" onclick="approveWithdraw(); return false;"><span id="btn-wd-app">ওটিপি ভেরিফাই ও রিলিজ করুন</span></button>
         </div>
 
-        <!-- ৬. হিস্ট্রি বোর্ড বক্স -->
         <div class="dashboard-container tab-content" id="box-history">
-          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-chart-line"></i> লাইভ সেলস ও বেট হিস্ট্রি ট্র্যাকার</h3>
+          <h3 style="color: #00f2fe; margin-top:0;"><i class="fa-solid fa-chart-line"></i> <span id="lbl-hs-title">লাইভ সেলস ও বেট হিস্ট্রি ট্র্যাকার</span></h3>
           <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-            <button class="tab-small active" id="tabWord" onclick="setHistoryView('word')" style="flex:1; padding:8px;">কোড ভিউ (Word)</button>
-            <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit')" style="flex:1; padding:8px;">ডিজিট ভিউ (Digit)</button>
-            <button class="tab-small" id="tabBoth" onclick="setHistoryView('both')" style="flex:1; padding:8px;">যৌথ ভিউ (Both)</button>
+            <button class="tab-small active" id="tabWord" onclick="setHistoryView('word'); return false;" style="flex:1; padding:8px;">Word</button>
+            <button class="tab-small" id="tabDigit" onclick="setHistoryView('digit'); return false;" style="flex:1; padding:8px;">Digit</button>
+            <button class="tab-small" id="tabBoth" onclick="setHistoryView('both'); return false;" style="flex:1; padding:8px;">Both</button>
           </div>
           <div class="data-list" id="historyList" style="max-height: 200px; overflow-y: auto;"></div>
-          <button class="btn-danger" onclick="archiveDay()" style="margin-top: 20px;">আজকের দিনের হিসাব রিসেট করুন (Midnight Flush)</button>
+          <button type="button" class="btn-danger" onclick="archiveDay(); return false;" style="margin-top: 20px;"><span id="btn-hs-reset">আজকের দিনের হিসাব রিসেট করুন (Midnight Flush)</span></button>
         </div>
 
       </main>
@@ -390,27 +396,216 @@
   </div>
 
   <script>
-    // ডাইনামিক ইন্টারফেস সুইচ মেকানিজম (কোনো রিলোড ছাড়া)
-    function switchTab(event, targetId) {
-      // ওয়েকলাম স্ক্রিন হাইড করা
-      document.getElementById('welcome-message').style.display = 'none';
+    // গ্লোবাল ল্যাঙ্গুয়েজ ভ্যারিয়েবল (Default: Bengali)
+    let currentLang = 'bn';
+
+    const translations = {
+      en: {
+        title: "Atoz Bombay <span>Control Panel</span>",
+        logout: "Logout",
+        livePlayers: "Live Player Database",
+        activeBets: "Active Bets Today",
+        welcome: "System Running... Select an option from the left menu to begin.",
+        menuUser: "User Control",
+        menuRoutine: "24H Routine",
+        menuResult: "Result Publish",
+        menuPoint: "Point Master",
+        menuWithdraw: "Withdraw OTP",
+        menuHistory: "Live History Board",
+        
+        usrTitle: "User Management Control",
+        usrId: "Player or Sub-Admin ID",
+        usrAction: "Action Mode",
+        usrPin: "Default Pin / Password",
+        usrMode: "Gameplay View Mode",
+        usrChk1: "Enable Advance Draw Permission",
+        usrChk2: "I confirm to apply these settings.",
+        usrBtn: "Submit Action",
+        optP1: "Create New Player ID",
+        optP2: "Create New Sub-Admin",
+        optP3: "Approve User ID",
+        optP4: "Block User ID",
+
+        rtTitle: "Bazi Scheduler Routine",
+        rtName: "Bazi Name",
+        rtLock: "Lock Time (HH:MM)",
+        rtList: "Active Bazi Routines:",
+        rtBtn: "Add New Bazi",
+
+        resTitle: "Game Result Publishing Portal",
+        resSelect: "Select Bazi",
+        resPatti: "Patti Result (3-Digit / 3-Letter)",
+        resSingle: "Single Result (1-Digit / 1-Letter)",
+        resBtn: "Publish Result",
+
+        ptTitle: "Credit & Points Ledger Master",
+        ptUid: "Player ID",
+        ptAct: "Transaction Type",
+        ptAmt: "Points Amount",
+        ptChk: "I have double-checked the ID and amount.",
+        ptBtn: "Confirm Points Update",
+        optPt1: "Add Points",
+        optPt2: "Deduct Points",
+
+        wdTitle: "Secure Withdrawal Gate",
+        wdPending: "Pending Cash-out Requests:",
+        wdOtp: "6-Digit Secure OTP Code",
+        wdBtn: "Verify & Release Funds",
+
+        hsTitle: "Live Sales & Bet History Tracker",
+        hsBtn: "Reset Today's Bets (Midnight Flush)"
+      },
+      bn: {
+        title: "Atoz Bombay <span>Control Panel</span>",
+        logout: "লগআউট",
+        livePlayers: "লাইভ প্লেয়ার ডাটাবেস",
+        activeBets: "আজকের একটিভ বেটস",
+        welcome: "সিস্টেম রানিং... কাজ শুরু করতে বাম পাশের মেনু থেকে যেকোনো একটি অপশন সিলেক্ট করুন।",
+        menuUser: "ইউজার কন্ট্রোল",
+        menuRoutine: "২৪ ঘণ্টার রুটিন",
+        menuResult: "রেজাল্ট পাবলিশ",
+        menuPoint: "পয়েন্ট মাস্টার",
+        menuWithdraw: "উইড্রো ওটিপি",
+        menuHistory: "লাইভ হিস্ট্রি বোর্ড",
+
+        usrTitle: "ইউজার ম্যানেজমেন্ট কন্ট্রোল",
+        usrId: "প্লেয়ার বা সাব-অ্যাডমিন আইডি",
+        usrAction: "অ্যাকশন মোড",
+        usrPin: "ডিফল্ট সিকিউরিটি পিন / পাসওয়ার্ড",
+        usrMode: "গেমপ্লে ভিউ মোড পারমিশন",
+        usrChk1: "অ্যাডভান্স ড্র পারমিশন কার্যকর করুন",
+        usrChk2: "আমি কনফার্ম করছি যে এই ইউজার সেটিংস পরিবর্তন করব।",
+        usrBtn: "অ্যাকশন সাবমিট করুন",
+        optP1: "নতুন প্লেয়ার আইডি তৈরি করুন",
+        optP2: "নতুন সাব-অ্যাডমিন তৈরি করুন",
+        optP3: "ইউজার আইডি অ্যাক্টিভ/Approve করুন",
+        optP4: "ইউজার আইডি ব্লক/Block করুন",
+
+        rtTitle: "বাজি রুটিন শিডিউলার",
+        rtName: "বাজির নাম",
+        rtLock: "লক করার সময় (Lock Time)",
+        rtList: "একটিভ বাজি রুটিন তালিকা:",
+        rtBtn: "নতুন বাজি যুক্ত করুন",
+
+        resTitle: "গেম রেজাল্ট পাবলিশিং প্যানেল",
+        resSelect: "বাজি সিলেক্ট করুন",
+        resPatti: "পত্তি রেজাল্ট (৩-ডিজিট / ৩-লেটার)",
+        resSingle: "সিঙ্গেল রেজাল্ট (১-ডিজিট / ১-লেটার)",
+        resBtn: "ফলাফল প্রকাশ করুন",
+
+        ptTitle: "ক্রেডিট ও পয়েন্ট ব্যালেন্স মাস্টার",
+        ptUid: "প্লেয়ার আইডি",
+        ptAct: "লেনদেনের ধরণ",
+        ptAmt: "পয়েন্টের পরিমাণ",
+        ptChk: "আমি অ্যাকাউন্ট আইডি ও অ্যামাউন্ট ক্রস-চেক করেছি।",
+        ptBtn: "পয়েন্ট আপডেট কনফার্ম করুন",
+        optPt1: "পয়েন্ট যোগ করুন (Add Points)",
+        optPt2: "পয়েন্ট কেটে নিন (Deduct Points)",
+
+        wdTitle: "সুরক্ষিত উইড্রো ক্যাশ-আউট গেটওয়ে",
+        wdPending: "পেন্ডিং ক্যাশ-আউট রিকোয়েস্ট সমূহ:",
+        wdOtp: "৬-ডিজিট সিকিউর ওটিপি কোড (OTP)",
+        wdBtn: "ওটিপি ভেরিফাই ও রিলিজ করুন",
+
+        hsTitle: "লাইভ সেলস ও বেট হিস্ট্রি ট্র্যাকার",
+        hsBtn: "আজকের দিনের হিসাব রিসেট করুন (Midnight Flush)"
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'bn' ? 'en' : 'bn';
+      document.getElementById('langText').innerText = currentLang === 'bn' ? 'English' : 'বাংলা';
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const t = translations[currentLang];
       
-      // পূর্বের সমস্ত একটিভ কন্টেন্ট ও বাটন ক্লাস রিমুভ করা
+      // ড্যাশবোর্ড টেক্সট
+      document.getElementById('txt-logout').innerText = t.logout;
+      document.getElementById('lbl-live-players').innerText = t.livePlayers;
+      document.getElementById('lbl-active-bets').innerText = t.activeBets;
+      document.getElementById('txt-welcome-msg').innerText = t.welcome;
+      
+      // মেনু আইটেম
+      document.getElementById('menu-user').innerText = t.menuUser;
+      document.getElementById('menu-routine').innerText = t.menuRoutine;
+      document.getElementById('menu-result').innerText = t.menuResult;
+      document.getElementById('menu-point').innerText = t.menuPoint;
+      document.getElementById('menu-withdraw').innerText = t.menuWithdraw;
+      document.getElementById('menu-history').innerText = t.menuHistory;
+
+      // ইউজার বক্স
+      document.getElementById('lbl-usr-title').innerHTML = `<i class="fa-solid fa-user-gear"></i> ` + t.usrTitle;
+      document.getElementById('lbl-usr-id').innerText = t.usrId;
+      document.getElementById('lbl-usr-action').innerText = t.usrAction;
+      document.getElementById('lbl-usr-pin').innerText = t.usrPin;
+      document.getElementById('lbl-usr-mode').innerText = t.usrMode;
+      document.getElementById('lbl-usr-chk1').innerText = t.usrChk1;
+      document.getElementById('lbl-usr-chk2').innerText = t.usrChk2;
+      document.getElementById('btn-usr-submit').innerText = t.usrBtn;
+      document.getElementById('opt-p1').innerText = t.optP1;
+      document.getElementById('opt-p2').innerText = t.optP2;
+      document.getElementById('opt-p3').innerText = t.optP3;
+      document.getElementById('opt-p4').innerText = t.optP4;
+
+      // রুটিন বক্স
+      document.getElementById('lbl-rt-title').innerHTML = `<i class="fa-solid fa-calendar-days"></i> ` + t.rtTitle;
+      document.getElementById('lbl-rt-name').innerText = t.rtName;
+      document.getElementById('lbl-rt-lock').innerText = t.rtLock;
+      document.getElementById('lbl-rt-list').innerText = t.rtList;
+      document.getElementById('btn-rt-add').innerText = t.rtBtn;
+
+      // রেজাল্ট বক্স
+      document.getElementById('lbl-res-title').innerHTML = `<i class="fa-solid fa-trophy"></i> ` + t.resTitle;
+      document.getElementById('lbl-res-select').innerText = t.resSelect;
+      document.getElementById('lbl-res-patti').innerText = t.resPatti;
+      document.getElementById('lbl-res-single').innerText = t.resSingle;
+      document.getElementById('btn-res-pub').innerText = t.resBtn;
+
+      // পয়েন্ট বক্স
+      document.getElementById('lbl-pt-title').innerHTML = `<i class="fa-solid fa-gem"></i> ` + t.ptTitle;
+      document.getElementById('lbl-pt-uid').innerText = t.ptUid;
+      document.getElementById('lbl-pt-act').innerText = t.ptAct;
+      document.getElementById('lbl-pt-amt').innerText = t.ptAmt;
+      document.getElementById('lbl-pt-chk').innerText = t.ptChk;
+      document.getElementById('btn-pt-sub').innerText = t.ptBtn;
+      document.getElementById('opt-pt1').innerText = t.optPt1;
+      document.getElementById('opt-pt2').innerText = t.optPt2;
+
+      // উইড্রো বক্স
+      document.getElementById('lbl-wd-title').innerHTML = `<i class="fa-solid fa-wallet"></i> ` + t.wdTitle;
+      document.getElementById('lbl-wd-pending').innerText = t.wdPending;
+      document.getElementById('lbl-wd-otp').innerText = t.wdOtp;
+      document.getElementById('btn-wd-app').innerText = t.wdBtn;
+
+      // হিস্ট্রি বক্স
+      document.getElementById('lbl-hs-title').innerHTML = `<i class="fa-solid fa-chart-line"></i> ` + t.hsTitle;
+      document.getElementById('btn-hs-reset').innerText = t.hsBtn;
+    }
+
+    // মেনু সিলেকশন (অ্যান্টি-রিফ্রেশ)
+    function switchTab(event, targetId) {
+      if (event) event.preventDefault(); // বাটন ক্লিকের রিফ্রেশ ট্র্যাপ লক করা হলো
+      
+      document.getElementById('welcome-message').style.display = 'none';
       document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(box => box.classList.remove('active-box'));
       
-      // বর্তমান সিলেকশন সচল করা
-      event.currentTarget.classList.add('active');
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
       document.getElementById(targetId).classList.add('active-box');
+      return false;
     }
 
-    // ব্যাকগ্রাউন্ড ঘড়ি প্রসেস (স্ক্রিন সাদা হওয়া প্রতিরোধ করবে)
+    // রিয়েল-টাইম ক্লক
     setInterval(() => {
       const now = new Date();
       document.getElementById('liveClock').innerText = now.toLocaleTimeString();
     }, 1000);
 
-    // সিকিউরিটি ভেরিফিকেশন সেশন
+    // সিকিউরিটি সেশন
     window.auth.onAuthStateChanged(user => {
       if (!user) {
         window.location.href = 'index.html'; 
@@ -421,29 +616,51 @@
             window.auth.signOut();
             window.location.href = 'index.html';
           } else {
-            // শুধুমাত্র ডাটাবেস সাবস্ক্রিপশন অন করা হবে (রিফ্রেশ ছাড়া)
             listenToDatabase();
           }
         });
       }
     });
 
+    // ডুপ্লিকেট আইডি রিয়েল-টাইম চেক লজিক (v2.0 Exclusive)
+    document.getElementById('targetUserId').addEventListener('input', function() {
+      const username = this.value.trim();
+      const alertLabel = document.getElementById('idAlert');
+      
+      if(username.length === 0) {
+        alertLabel.innerText = "";
+        return;
+      }
+
+      window.db.ref('users/' + username).once('value').then(snapshot => {
+        if(snapshot.exists()) {
+          alertLabel.style.color = "#ff4b4b";
+          alertLabel.innerText = currentLang === 'bn' ? "⚠️ এই আইডিটি ইতিমধ্যে ডাটাবেসে আছে!" : "⚠️ This ID already exists!";
+          document.getElementById('userBtn').disabled = true;
+        } else {
+          alertLabel.style.color = "#00fe96";
+          alertLabel.innerText = currentLang === 'bn' ? "✅ এই আইডিটি নতুন এবং বৈধ।" : "✅ This ID is available.";
+          toggleUserBtn();
+        }
+      });
+    });
+
     function listenToDatabase() {
-      // রিয়েল-টাইম মেম্বার কাউন্ট (ব্যাকগ্রাউন্ড প্রসেস)
+      // রিয়েল-টাইম মেম্বার কাউন্ট (ব্যাকগ্রাউন্ড)
       window.db.ref('users').on('value', snapshot => {
         if (snapshot.exists()) {
           let count = 0;
           snapshot.forEach(child => { if (child.val().role === 'player') count++; });
-          document.getElementById('livePlayerCount').innerText = count + " জন প্লেয়ার";
+          document.getElementById('livePlayerCount').innerText = count + (currentLang === 'bn' ? " জন প্লেয়ার" : " Players");
         }
       });
 
-      // একটিভ বেট নোড ট্র্যাকার (ব্যাকগ্রাউন্ড প্রসেস)
+      // একটিভ বেট ট্র্যাকার (ব্যাকগ্রাউন্ড)
       window.db.ref('active_bets').on('value', snapshot => {
         if(snapshot.exists()) {
           let totalBets = 0;
           snapshot.forEach(child => { totalBets += child.numChildren(); });
-          document.getElementById('liveActiveBets').innerText = totalBets + " টি";
+          document.getElementById('liveActiveBets').innerText = totalBets;
         }
       });
       
@@ -452,13 +669,13 @@
         const listDiv = document.getElementById('routineList');
         const select = document.getElementById('resultBaziSelect');
         listDiv.innerHTML = '';
-        select.innerHTML = '<option value="">একটি বাজি বেছে নিন</option>';
+        select.innerHTML = `<option value="">${currentLang === 'bn' ? 'একটি বাজি বেছে নিন' : 'Select Bazi'}</option>`;
         if (snapshot.exists()) {
           snapshot.forEach(child => {
             const id = child.key; const item = child.val();
             const div = document.createElement('div');
             div.className = 'data-item'; div.style.display="flex"; div.style.justifyContent="space-between"; div.style.padding="8px";
-            div.innerHTML = `<span><strong>${item.name}</strong> (লক: ${item.lockTime})</span><button onclick="deleteBazi('${id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;">মুছুন</button>`;
+            div.innerHTML = `<span><strong>${item.name}</strong> (লক: ${item.lockTime})</span><button type="button" onclick="deleteBazi('${id}'); return false;" style="background:none; border:none; color:#ff4b4b; cursor:pointer;">${currentLang === 'bn' ? 'মুছুন' : 'Delete'}</button>`;
             listDiv.appendChild(div);
             const opt = document.createElement('option'); opt.value = id; opt.innerText = `${item.name} (${item.lockTime})`;
             select.appendChild(opt);
@@ -466,7 +683,7 @@
         }
       });
 
-      // পেন্ডিং উইড্রো রিকোয়েস্ট লিসেনার
+      // পেন্ডিং উইড্রো লিসেনার
       window.db.ref('withdraw_requests').orderByChild('status').equalTo('pending').on('value', snapshot => {
         const listDiv = document.getElementById('withdrawList');
         listDiv.innerHTML = '';
@@ -475,14 +692,17 @@
             const req = child.val();
             const div = document.createElement('div');
             div.className = 'data-item'; div.style.display="flex"; div.style.justifyContent="space-between"; div.style.padding="8px";
-            div.innerHTML = `<span>ইউজার: ${req.userId.substring(0,6)}.. | পরিমাণ: ${req.amount}৳</span><span style="color:#00f2fe; font-weight:bold;">ওটিপি পেন্ডিং</span>`;
+            div.innerHTML = `<span>ইউজার: ${req.userId.substring(0,6)}.. | পরিমাণ: ${req.amount}৳</span><span style="color:#00f2fe; font-weight:bold;">OTP Pending</span>`;
             listDiv.appendChild(div);
           });
         } else {
-          listDiv.innerHTML = '<div class="data-item" style="color: #636b7a; padding: 8px;">কোনো পেন্ডিং উইড্রো রিকোয়েস্ট নেই...</div>';
+          listDiv.innerHTML = `<div class="data-item" style="color: #636b7a; padding: 8px;">${currentLang === 'bn' ? 'কোনো পেন্ডিং রিকোয়েস্ট নেই' : 'No pending requests'}</div>`;
         }
       });
     }
+
+    // প্রাথমিক ভাষা সেটআপ
+    applyLanguage();
   </script>
 </body>
 </html>
