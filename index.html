@@ -1,1 +1,273 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atoz Bombay - Secure Login Portal</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
+  
+  <script src="firebase-config.js"></script>
 
+  <style>
+    /* ==========================================
+       NEON DARK THEME STYLING (HACK-PROOF LOOK)
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle, #101216 0%, #050608 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px;
+      background: rgba(21, 24, 33, 0.85);
+      border-radius: 16px;
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                  0 0 15px rgba(0, 242, 254, 0.1);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .brand-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    }
+
+    .brand-header span {
+      color: #00f2fe;
+    }
+
+    /* Tab Role Selection Switch */
+    .role-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #8f9cae;
+      padding: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      color: #0d0e12;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      color: #8f9cae;
+      font-size: 13px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus {
+      border-color: #00f2fe;
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+    }
+
+    /* Submit Button */
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      border: none;
+      border-radius: 8px;
+      color: #0d0e12;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .login-btn:hover {
+      opacity: 0.95;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    /* Message Display Alert */
+    .error-msg {
+      background: rgba(255, 75, 75, 0.1);
+      border: 1px solid rgba(255, 75, 75, 0.3);
+      color: #ff4b4b;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 15px;
+      display: none;
+      text-align: center;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      margin-top: 15px;
+      color: #00f2fe;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="brand-header">
+      <h1>Atoz <span>Bombay</span></h1>
+    </div>
+
+    <div class="role-tabs">
+      <button class="tab-btn active" onclick="setRole('player')">Player</button>
+      <button class="tab-btn" onclick="setRole('subadmin')">Subadmin</button>
+      <button class="tab-btn" onclick="setRole('admin')">Admin</button>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="userId">ইউজার আইডি (User ID)</label>
+        <input type="text" id="userId" placeholder="আপনার আইডি লিখুন" required autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label for="userPin">পাসওয়ার্ড / পিন (PIN/Password)</label>
+        <input type="password" id="userPin" placeholder="••••••" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="login-btn">লগইন করুন</button>
+    </form>
+
+    <div id="errorAlert" class="error-msg"></div>
+    <div id="loader" class="loading-spinner">সার্ভারের সাথে কানেক্ট হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</div>
+  </div>
+
+  <script>
+    // ডিফল্ট সিলেক্টেড রোল
+    let selectedRole = 'player';
+
+    // ১. রোল স্যুইচ ফাংশন
+    function setRole(role) {
+      selectedRole = role;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.innerText.toLowerCase() === role) {
+          btn.classList.add('active');
+        }
+      });
+      // পুরানো মেসেজ মুছে ফেলা
+      hideElements();
+    }
+
+    // ২. লগইন হ্যান্ডলিং ফাংশন
+    function handleLogin(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('userId').value.trim();
+      const pin = document.getElementById('userPin').value.trim();
+      
+      const errorAlert = document.getElementById('errorAlert');
+      const loader = document.getElementById('loader');
+
+      errorAlert.style.display = 'none';
+      loader.style.display = 'block';
+
+      // firebase-config.js এর গ্লোবাল লগইন ফাংশনকে কল করা হচ্ছে
+      window.loginWithUserId(userId, pin, function(error, userData) {
+        loader.style.display = 'none';
+
+        if (error) {
+          errorAlert.innerText = error;
+          errorAlert.style.display = 'block';
+        } else {
+          // রোল এবং স্ট্যাটাস চেক
+          if (userData.status === 'blocked') {
+            errorAlert.innerText = 'দুঃখিত! আপনার আইডিটি সাময়িকভাবে ব্লক করা হয়েছে।';
+            errorAlert.style.display = 'block';
+            window.auth.signOut();
+            return;
+          }
+
+          // রোল ভেরিফিকেশন এবং রিডাইরেকশন রুলস
+          if (userData.role !== selectedRole) {
+            errorAlert.innerText = `ভুল রোল সিলেক্ট করেছেন! আপনার আইডিটি "${selectedRole.toUpperCase()}" রুলের নয়।`;
+            errorAlert.style.display = 'block';
+            window.auth.signOut();
+            return;
+          }
+
+          // সফল লগইনের পর নির্দিষ্ট ড্যাশবোর্ডে পাঠানো
+          if (userData.role === 'admin') {
+            window.location.href = 'admin.html';
+          } else if (userData.role === 'subadmin') {
+            window.location.href = 'subadmin.html';
+          } else if (userData.role === 'player') {
+            window.location.href = 'player.html';
+          }
+        }
+      });
+    }
+
+    function hideElements() {
+      document.getElementById('errorAlert').style.display = 'none';
+      document.getElementById('loader').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
