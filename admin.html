@@ -597,27 +597,7 @@
         });
       }
     }
-
-    // হেল্পার রিসেট ফাংশনসমূহ
-    function resetUserControlForm() {
-      document.getElementById('targetUserId').value = '';
-      document.getElementById('userDefaultPin').value = '';
-      document.getElementById('userSafetyCheck').checked = false;
-      toggleUserBtn();
-    }
-
-    function resetPointForm() {
-      document.getElementById('pointUserId').value = '';
-      document.getElementById('pointAmount').value = '';
-      document.getElementById('pointSafetyCheck').checked = false;
-      togglePointBtn();
-    }
-
-    function logout() {
-      window.auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
-    }
   </script>
+<script src="admin.js"></script>
 </body>
 </html>
