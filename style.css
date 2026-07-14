@@ -1,117 +1,155 @@
+/* ==========================================
+   ATOZ BOMBAY - GLOBAL NEON DARK THEME
+   ========================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    color: #f8fafc;
-    font-family: 'Segoe UI', Arial, sans-serif;
+  background: radial-gradient(circle, #101216 0%, #050608 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
 }
 
-.admin-main-container {
-    max-width: 900px;
-    margin: 0 auto;
+/* ১. গ্লাস-মরফিজম কার্ড ও কন্টেইনার (লগইন ও ড্যাশবোর্ড বক্স) */
+.login-container, .dashboard-container {
+  background: rgba(20, 24, 35, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.15);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  padding: 30px 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
+              0 0 15px rgba(0, 242, 254, 0.05);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.main-title {
-    text-align: center;
-    font-size: 28px;
-    color: #3b82f6;
-    margin-bottom: 30px;
-    letter-spacing: 1px;
+/* বড় ড্যাশবোর্ড কন্টেইনার (অ্যাডমিন ও প্লেয়ার প্যানেলের জন্য চওড়া লেআউট) */
+.dashboard-wide {
+  max-width: 900px;
+  width: 100%;
 }
 
-/* প্রতিটি সেকশনের জন্য আলাদা পার্টিশন কার্ড */
-.partition-card {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+/* ২. টাইটেল ও হেডার্স */
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
 }
 
-.partition-header {
-    font-size: 18px;
-    font-weight: bold;
-    color: #f1f5f9;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+p {
+  color: #636b7a;
+  font-size: 13px;
+  margin-bottom: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+/* ৩. গ্লোবাল ইনপুট ফিল্ড ও ড্রপডাউন */
+.input-group {
+  margin-bottom: 18px;
+  text-align: left;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 14px;
-    color: #94a3b8;
+.input-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #8f9cae;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
 }
 
-input, select {
-    width: 100%;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 15px;
-    box-sizing: border-box;
+.input-field, select {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #3b82f6;
+.input-field:focus, select:focus {
+  border-color: #00f2fe;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+  background: rgba(0, 0, 0, 0.6);
 }
 
-/* অ্যাকশন এরিয়া এবং চেক বক্স */
-.action-area {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* ৪. গ্লোয়িং নিওন বাটন (সব পেজের জন্য) */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  border: none;
+  border-radius: 8px;
+  color: #0d0e12;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+  transition: all 0.3s ease;
 }
 
-.checkbox-container {
-    font-size: 14px;
-    color: #cbd5e1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
 }
 
-.checkbox-container input {
-    width: auto;
-    cursor: pointer;
+/* লাল/বিপদজনক বাটন (লগআউট বা ডিলিট করার জন্য) */
+.btn-danger {
+  background: linear-gradient(135deg, #ff4b4b 0%, #ff2a2a 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
 }
 
-/* কালার কোডেড বাটন সমূহ */
-.btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: bold;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background 0.2s ease, opacity 0.2s;
+.btn-danger:hover {
+  box-shadow: 0 6px 20px rgba(255, 75, 75, 0.5);
 }
 
-.btn:disabled {
-    background: #475569 !important;
-    opacity: 0.5;
-    cursor: not-allowed;
+/* ৫. ডেটা আইটেম এবং গ্রিড লেআউট (অ্যাডমিন/প্লেয়ার প্যানেলের জন্য) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
 }
 
-.btn-blue { background: #2563eb; }
-.btn-green { background: #16a34a; }
-.btn-purple { background: #7c3aed; }
-.btn-orange { background: #ea580c; }
-.btn-red { background: #dc2626; }
-.btn-small { width: auto; padding: 8px 15px; font-size: 12px; margin-top: 5px; background: #4b5563;}
+.data-card {
+  background: rgba(25, 30, 41, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  border-left: 3px solid #00f2fe;
+}
