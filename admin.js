@@ -1,8 +1,16 @@
 // ==========================================
-// ATOZ BOMBAY - ADMIN DASHBOARD LOGIC (CLEANED & OPTIMIZED)
+// ATOZ BOMBAY - ADVANCED ADMIN DASHBOARD LOGIC
 // ==========================================
 
-// ১. বাটনের সেফটি সুইচ এনাবল-ডিজেবল লজিক
+// ১. ফায়ারবেস সেকেন্ডারি অ্যাপ তৈরি (যাতে অ্যাডমিন সেশন লগআউট না হয়)
+let secondaryApp;
+if (window.firebase && firebase.apps.length) {
+  // আগের কনফিগারেশন ব্যবহার করে সেকেন্ডারি অ্যাপ ইনিশিয়ালাইজ করা
+  const config = firebase.app().options;
+  secondaryApp = firebase.initializeApp(config, "SecondaryAuthApp");
+}
+
+// ২. বাটনের সেফটি সুইচ এনাবল-ডিজেবল লজিক
 function toggleUserBtn() {
   const targetId = document.getElementById('targetUserId').value.trim();
   const check = document.getElementById('userSafetyCheck').checked;
@@ -16,7 +24,7 @@ function togglePointBtn() {
   document.getElementById('pointBtn').disabled = !(targetId && amount && check);
 }
 
-// ২. ইউজার ক্রিয়েশন ও কন্ট্রোল লজিক (ভার্চুয়াল ইমেল সহ)
+// ৩. ইউজার ক্রিয়েশন ও কন্ট্রোল লজিক (সেকেন্ডারি অ্যাপ সহ)
 function handleUserControl() {
   const targetId = document.getElementById('targetUserId').value.trim();
   const action = document.getElementById('userAction').value;
@@ -24,7 +32,6 @@ function handleUserControl() {
   const viewMode = document.getElementById('playerViewMode').value;
   const advDraw = document.getElementById('advanceDrawPermission').checked;
 
-  // app.js থেকে ভার্চুয়াল ইমেল জেনারেটর কল করা হচ্ছে
   const virtualEmail = window.getVirtualEmail ? window.getVirtualEmail(targetId) : `${targetId}@atozbombay.com`;
 
   if (action === 'player' || action === 'subadmin') {
@@ -33,8 +40,13 @@ function handleUserControl() {
       return;
     }
     
-    // মেইন অ্যাডমিন সেশন যাতে সাইন-আউট না হয় সেজন্য সতর্কভাবে ক্রিয়েট করা
-    firebase.auth().createUserWithEmailAndPassword(virtualEmail, pin)
+    if (!secondaryApp) {
+      alert('ফায়ারবেস সেকেন্ডারি অ্যাপ লোড হতে পারেনি!');
+      return;
+    }
+
+    // সেকেন্ডারি অ্যাপ দিয়ে ইউজার তৈরি, তাই অ্যাডমিন লগআউট হবে না
+    secondaryApp.auth().createUserWithEmailAndPassword(virtualEmail, pin)
       .then(cred => {
         const uid = cred.user.uid;
         const userData = {
@@ -46,8 +58,11 @@ function handleUserControl() {
           viewMode: action === 'player' ? viewMode : 'none',
           advanceDraw: advDraw
         };
+        
         window.db.ref('users/' + uid).set(userData).then(() => {
           alert(`সফলভাবে ${action.toUpperCase()} আইডি তৈরি হয়েছে!`);
+          // সেকেন্ডারি অ্যাপ থেকে নতুন ইউজারকে সাথে সাথে সাইন আউট করে দেওয়া যেন মেমোরি ক্লিয়ার থাকে
+          secondaryApp.auth().signOut();
           resetUserControlForm();
         });
       })
@@ -68,7 +83,7 @@ function handleUserControl() {
   }
 }
 
-// ৩. টাইম সেটিংস (Routine) সেভ করা
+// ৪. টাইম সেটিংস (Routine) সেভ করা
 function saveRoutine() {
   const name = document.getElementById('baziName').value.trim();
   const time = document.getElementById('lockTime').value;
@@ -91,7 +106,7 @@ function deleteBazi(id) {
   }
 }
 
-// ৪. ওয়ান-ক্লিক রেজাল্ট পাবলিশ মেকানিজম
+// ৫. ওয়ান-ক্লিক রেজাল্ট পাবলিশ মেকানিজম
 function publishResult() {
   const baziId = document.getElementById('resultBaziSelect').value;
   const patti = document.getElementById('pattiResult').value.trim().toUpperCase();
@@ -104,13 +119,13 @@ function publishResult() {
     single: single,
     publishedAt: firebase.database.ServerValue.TIMESTAMP
   }).then(() => {
-    alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে এবং উইনারদের ক্যালকুলেশন শুরু হয়েছে!');
+    alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে!');
     document.getElementById('pattiResult').value = '';
     document.getElementById('singleResult').value = '';
   });
 }
 
-// ৫. পয়েন্ট মাস্টার রিচার্জ ও ডিডাক্ট
+// ৬. পয়েন্ট মাস্টার রিচার্জ ও ডিডাক্ট
 function handlePoints() {
   const targetId = document.getElementById('pointUserId').value.trim();
   const action = document.getElementById('pointAction').value;
@@ -141,27 +156,97 @@ function handlePoints() {
   });
 }
 
-// ৬. উইড্রো ওটিপি প্রসেসিং
+// ৭. উইд্রো ওটিপি প্রসেসিং (ডাটাবেস রিয়েল-টাইম আপডেট সহ)
 function approveWithdraw() {
   const otp = document.getElementById('withdrawOtp').value.trim();
   if (!otp) return alert('দয়া করে ওটিপি কোডটি টাইপ করুন!');
   
-  // ওটিপি ভেরিফিকেশন মেসেজ
-  alert('ওটিপি সফলভাবে ভেরিফাই করা হয়েছে এবং টাকা রিলিজ হয়েছে!');
-  document.getElementById('withdrawOtp').value = '';
+  // পেন্ডিং রিকোয়েস্টের ভেতর ওটিপি ম্যাচিং করা হচ্ছে
+  window.db.ref('withdraw_requests').orderByChild('status').equalTo('pending').once('value', snapshot => {
+    let otpFound = false;
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        const reqKey = child.key;
+        const reqData = child.val();
+        
+        if (reqData.otp === otp) {
+          otpFound = true;
+          // ডাটাবেসে স্ট্যাটাস এপ্রুভ করা
+          window.db.ref(`withdraw_requests/${reqKey}/status`).set('approved')
+            .then(() => {
+              alert(`ওটিপি সফলভাবে ভেরিফাই হয়েছে! ${reqData.amount}৳ রিলিজ করা হয়েছে।`);
+              document.getElementById('withdrawOtp').value = '';
+            });
+        }
+      });
+      if (!otpFound) alert('দুঃখিত! ওটিপি কোডটি মেলেনি বা ভুল।');
+    } else {
+      alert('কোনো পেন্ডিং উইড্রো রিকোয়েস্ট খুঁজে পাওয়া যায়নি!');
+    }
+  });
 }
 
-// ৭. ডাইনামিক হিস্ট্রি বোর্ড ভিউ স্যুইচ
+// ৮. ডাইনামিক হিস্ট্রি বোর্ড ভিউ স্যুইচ এবং রেন্ডারিং
 let currentHistoryView = 'word';
+
 function setHistoryView(view) {
   currentHistoryView = view;
   document.querySelectorAll('.tab-small').forEach(btn => btn.classList.remove('active'));
   if (view === 'word') document.getElementById('tabWord').classList.add('active');
   if (view === 'digit') document.getElementById('tabDigit').classList.add('active');
   if (view === 'both') document.getElementById('tabBoth').classList.add('active');
+  
+  // মোড চেঞ্জ হলে হিস্ট্রি ডেটা রি-রেন্ডার করা
+  renderHistoryBoard();
 }
 
-// ৮. মিডনাইট ডেটা রিসেট বা পিউরিফাই মেকানিজম
+function renderHistoryBoard() {
+  const historyList = document.getElementById('historyList');
+  if (!historyList) return;
+
+  // active_bets নোড থেকে আজকের সমস্ত সেলস লাইভ ট্র্যাক করা
+  window.db.ref('active_bets').once('value', snapshot => {
+    historyList.innerHTML = '';
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        const bet = child.val();
+        const div = document.createElement('div');
+        div.className = 'data-item';
+        div.style.padding = "8px 12px";
+        div.style.fontSize = "12px";
+        div.style.display = "flex";
+        div.style.justifyContent = "space-between";
+        div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+
+        let displayText = '';
+        // মোড অনুযায়ী ডেটা সাজানো
+        if (currentHistoryView === 'word') {
+          displayText = `ID: ${bet.userId} | Word: ${bet.wordCode || 'N/A'}`;
+        } else if (currentHistoryView === 'digit') {
+          displayText = `ID: ${bet.userId} | Digit: ${bet.digitPatti || 'N/A'}`;
+        } else {
+          displayText = `ID: ${bet.userId} | W: ${bet.wordCode || '-'} | D: ${bet.digitPatti || '-'}`;
+        }
+
+        div.innerHTML = `<span>${displayText}</span> <span style="color:#00f2fe;">${bet.amount} Points</span>`;
+        historyList.appendChild(div);
+      });
+    } else {
+      historyList.innerHTML = '<div class="data-item" style="color: #636b7a; padding: 8px 12px;">আজকের কোনো বেটিং রেকর্ড নেই...</div>';
+    }
+  });
+}
+
+// ড্যাশবোর্ড লোড হওয়ার সাথে সাথে হিস্ট্রি রেন্ডার লিসেনার রান করানো
+setTimeout(() => {
+  if(window.db) {
+    window.db.ref('active_bets').on('value', () => {
+      renderHistoryBoard();
+    });
+  }
+}, 2000);
+
+// ৯. মিডনাইট ডেটা রিসেট বা পিউরিফাই মেকানিজম
 function archiveDay() {
   if (confirm('সাবধান! এটি আজকের সমস্ত লাইভ বেটিং রেকর্ড সার্ভার থেকে ডিলিট করে রিসেট করে দেবে। আপনি কি নিশ্চিত?')) {
     window.db.ref('active_bets').remove().then(() => {
@@ -170,7 +255,7 @@ function archiveDay() {
   }
 }
 
-// ৯. হেল্পার রিসেট ফাংশনসমূহ
+// ১০. হেল্পার রিসেট ফাংশনসমূহ
 function resetUserControlForm() {
   document.getElementById('targetUserId').value = '';
   document.getElementById('userDefaultPin').value = '';
@@ -185,7 +270,7 @@ function resetPointForm() {
   togglePointBtn();
 }
 
-// গ্লোবাল উইন্ডো ফাংশন ডিক্লেয়ারেশন (যাতে HTML ফাইলগুলো সরাসরি অ্যাক্সেস পায়)
+// গ্লোবাল উইন্ডো ফাংশন ডিক্লেয়ারেশন (যাতে HTML ফাইলগুলো সরাসরি অ্যাক্সেস পায়)
 window.toggleUserBtn = toggleUserBtn;
 window.togglePointBtn = togglePointBtn;
 window.handleUserControl = handleUserControl;
