@@ -1,5 +1,5 @@
 /* ==========================================
-   ATOZ BOMBAY - GLOBAL NEON DARK THEME
+   ATOZ BOMBAY - GLOBAL NEON DARK THEME (UPDATED)
    ========================================== */
 
 * {
@@ -10,7 +10,7 @@
 }
 
 body {
-  background: radial-gradient(circle, #101216 0%, #050608 100%);
+  background: radial-gradient(circle at center, #141722 0%, #08090d 100%);
   color: #ffffff;
   min-height: 100vh;
   display: flex;
@@ -18,6 +18,7 @@ body {
   justify-content: flex-start;
   align-items: center;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 /* ১. গ্লাস-মরফিজম কার্ড ও কন্টেইনার (লগইন ও ড্যাশবোর্ড বক্স) */
@@ -31,11 +32,13 @@ body {
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
               0 0 15px rgba(0, 242, 254, 0.05);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   text-align: center;
   margin-bottom: 20px;
+  transition: border-color 0.3s ease;
 }
 
-/* বড় ড্যাশবোর্ড কন্টেইনার (অ্যাডমিন ও প্লেয়ার প্যানেলের জন্য চওড়া লেআউট) */
+/* বড় ড্যাশবোর্ড কন্টেইনার (অ্যাডমিন ও প্লেয়ার প্যানেলের জন্য চওড়া লেআউট) */
 .dashboard-wide {
   max-width: 900px;
   width: 100%;
@@ -86,13 +89,30 @@ p {
   transition: all 0.3s ease;
 }
 
+/* কাস্টম ড্রপডাউন স্টাইলিং */
+select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%2300f2fe' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 35px;
+}
+
+select option {
+  background: #141823;
+  color: #fff;
+}
+
 .input-field:focus, select:focus {
   border-color: #00f2fe;
   box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
   background: rgba(0, 0, 0, 0.6);
 }
 
-/* ৪. গ্লোয়িং নিওন বাটন (সব পেজের জন্য) */
+/* ৪. গ্লোয়িং নিওন বাটন (সব পেজের জন্য) */
 .btn-primary {
   width: 100%;
   padding: 14px;
@@ -109,9 +129,19 @@ p {
   transition: all 0.3s ease;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+}
+
+/* ডিজেবলড বাটন স্টাইল (সেফটি সুইচের জন্য) */
+.btn-primary:disabled {
+  background: #252d3a !important;
+  color: #586476 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* লাল/বিপদজনক বাটন (লগআউট বা ডিলিট করার জন্য) */
@@ -121,11 +151,19 @@ p {
   box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   box-shadow: 0 6px 20px rgba(255, 75, 75, 0.5);
 }
 
-/* ৫. ডেটা আইটেম এবং গ্রিড লেআউট (অ্যাডমিন/প্লেয়ার প্যানেলের জন্য) */
+/* চেক-বক্স স্টাইলিং */
+input[type="checkbox"] {
+  accent-color: #00f2fe;
+  cursor: pointer;
+  transform: scale(1.1);
+  vertical-align: middle;
+}
+
+/* ৫. ডেটা আইটেম এবং গ্রিড লেআউট */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -152,4 +190,17 @@ p {
   margin-bottom: 8px;
   font-size: 13px;
   border-left: 3px solid #00f2fe;
+}
+
+/* ৬. রেসপনসিভ মিডিয়া কোয়েরি (ছোট স্ক্রিনের জন্য) */
+@media screen and (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+  .login-container, .dashboard-container {
+    padding: 20px 15px;
+  }
+  h1 {
+    font-size: 22px;
+  }
 }
