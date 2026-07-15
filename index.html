@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtoZ Bombay - Premium Login Gateway (v4.9)</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="firebase-config.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+    <div class="login-container">
+        <div class="update-version-tag">New Update Version 4.9</div>
+        
+        <div class="login-header">
+            <h2>ATOZ BOMBAY</h2>
+            <p>Secure Gaming Portal</p>
+        </div>
+
+        <form id="loginForm" onsubmit="event.preventDefault();">
+            <div class="input-group">
+                <label for="username">ইউজার আইডি (User ID)</label>
+                <input type="text" id="username" placeholder="আপনার আইডি লিখুন" required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="password">সিকিউরিটি পিন (Password)</label>
+                <input type="password" id="password" placeholder="আপনার পিন লিখুন" required autocomplete="current-password">
+            </div>
+
+            <div class="remember-me-container">
+                <label class="remember-checkbox-label">
+                    <input type="checkbox" id="savePasswordBtn">
+                    <span class="custom-checkbox"></span>
+                    পাসওয়ার্ড সেভ করে রাখুন (Remember Me)
+                </label>
+            </div>
+
+            <button type="button" id="loginSubmitBtn" class="glow-btn">লগইন করুন</button>
+        </form>
+
+        <div id="approvalNoticeBox" class="notice-box hidden">
+            <div class="spinner"></div>
+            <p id="noticeText">Waiting for Admin Approval...</p>
+            <div id="verificationGate" class="hidden">
+                <input type="text" id="adminApprovalCode" placeholder="অ্যাডমিনের দেওয়া সিকিউরিটি কোডটি বসান">
+                <button type="button" id="verifyCodeBtn" class="verify-btn">ভেরিফাই ও ওপেন গেম</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
