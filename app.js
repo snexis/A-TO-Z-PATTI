@@ -1,91 +1,142 @@
 // ==========================================
-// ATOZ BOMBAY - MAIN PORTAL & LOGIN LOGIC (OPTIMIZED)
+// ATOZ BOMBAY - CORE SESSION & LOGIN ENGINE (v4.9)
 // ==========================================
 
-// ভার্চুয়াল ইমেইল জেনারেটর (ফলব্যাক সহ যাতে কোনো ফাইলে মিস হলেও ক্র্যাশ না করে)
-function getVirtualEmail(userId) {
-  const cleanId = userId.trim().toLowerCase();
-  return `${cleanId}@atozbombay.com`;
-}
+document.addEventListener("DOMContentLoaded", () => {
+    // DOM এলিমেন্টসমূহ সিলেক্ট করা
+    const loginForm = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const savePasswordBtn = document.getElementById("savePasswordBtn");
+    const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+    
+    const approvalNoticeBox = document.getElementById("approvalNoticeBox");
+    const noticeText = document.getElementById("noticeText");
+    const verificationGate = document.getElementById("verificationGate");
+    const adminApprovalCode = document.getElementById("adminApprovalCode");
+    const verifyCodeBtn = document.getElementById("verifyCodeBtn");
 
-// ১. পেজ লোড হওয়ার সাথে সাথে চেক করা কোনো ইউজার অলরেডি লগইন আছে কিনা
-window.auth.onAuthStateChanged(user => {
-  if (user) {
-    // ইউজার লগইন থাকলে তার রোল অনুযায়ী রিডাইরেক্ট করা হবে
-    redirectUserBasedOnRole(user.uid);
-  }
-});
+    // [পাসওয়ার্ড সেভ মেকানিজম]: পেজ লোড হলে লোকাল স্টোরেজ চেক করা
+    if (localStorage.getItem("rememberMe") === "true") {
+        usernameInput.value = localStorage.getItem("savedUsername") || "";
+        passwordInput.value = localStorage.getItem("savedPassword") || "";
+        savePasswordBtn.checked = true;
+    }
 
-// ২. লগইন ফাংশন (index.html থেকে কল হবে)
-function handleLogin(event) {
-  if (event && typeof event.preventDefault === 'function') {
-    event.preventDefault();
-  }
+    // লগইন বাটন ক্লিক অ্যাকশন
+    loginSubmitBtn.addEventListener("click", handleLogin);
 
-  const userIdEl = document.getElementById('txtUserId');
-  const pinEl = document.getElementById('txtPin');
-
-  if (!userIdEl || !pinEl) {
-    alert('সিস্টেম এরর: লগইন ফর্মের ইনপুট ফিল্ডগুলো খুঁজে পাওয়া যায়নি!');
-    return;
-  }
-
-  const userId = userIdEl.value.trim();
-  const pin = pinEl.value.trim();
-
-  if (!userId || !pin) {
-    alert('দয়া করে আইডি এবং পিন/পাসওয়ার্ড দিন!');
-    return;
-  }
-
-  // সিস্টেমের ভার্চুয়াল ইমেইল জেনারেট করা
-  const virtualEmail = getVirtualEmail(userId);
-
-  // ফায়ারবেস সাইন-ইন শুরু
-  window.auth.signInWithEmailAndPassword(virtualEmail, pin)
-    .then(cred => {
-      // লগইন সফল হলে রোল চেক করে ড্যাশবোর্ডে পাঠানো হবে
-      redirectUserBasedOnRole(cred.user.uid);
-    })
-    .catch(err => {
-      alert('ভুল আইডি অথবা পিন! আবার চেষ্টা করুন।');
-      console.error("লগইন এরর:", err);
+    // [কিবোর্ড এন্টার লজিক]: ইনপুট ফিল্ডে এন্টার চাপলে লগইন হবে
+    usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleLogin();
     });
-}
+    passwordInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleLogin();
+    });
 
-// ৩. রোল ভিত্তিক রিডাইরেক্ট মেকানিজম
-function redirectUserBasedOnRole(uid) {
-  window.db.ref('users/' + uid).once('value')
-    .then(snapshot => {
-      const userData = snapshot.val();
-      if (userData) {
-        // ইউজারের অবস্থা চেক করা (ব্লকড কিনা)
-        if (userData.status === 'blocked') {
-          alert('আপনার আইডিটি সাময়িকভাবে ব্লক করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।');
-          window.auth.signOut();
-          return;
+    // কোর লগইন ফাংশন (লুপ-ফ্রি সিঙ্গেল থ্রেড লজিক)
+    function handleLogin() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            alert("অনুগ্রহ করে ইউজার আইডি এবং পাসওয়ার্ড দুটিই লিখুন।");
+            return;
         }
 
-        // রোল অনুযায়ী পেজ রিডাইরেকশন
-        if (userData.role === 'admin') {
-          window.location.href = 'admin.html';
-        } else if (userData.role === 'player') {
-          window.location.href = 'player.html';
+        // পাসওয়ার্ড সেভ করার টিক চিহ্ন চেক করা
+        if (savePasswordBtn.checked) {
+            localStorage.setItem("savedUsername", username);
+            localStorage.setItem("savedPassword", password);
+            localStorage.setItem("rememberMe", "true");
         } else {
-          alert('আপনার আইডিতে কোনো রোল সেট করা নেই!');
-          window.auth.signOut();
+            localStorage.removeItem("savedUsername");
+            localStorage.removeItem("savedPassword");
+            localStorage.setItem("rememberMe", "false");
         }
-      } else {
-        alert('ইউজার ডেটাবেস রেকর্ড পাওয়া যায়নি!');
-        window.auth.signOut();
-      }
-    })
-    .catch(err => {
-      console.error("রিডাইরেক্ট করতে সমস্যা হয়েছে:", err);
-    });
-}
 
-// গ্লোবাল উইন্ডো অবজেক্টে ফাংশনগুলো যুক্ত করা যাতে সরাসরি HTML থেকে কল করা যায়
-window.getVirtualEmail = getVirtualEmail;
-window.handleLogin = handleLogin;
-window.redirectUserBasedOnRole = redirectUserBasedOnRole;
+        // বাটন ডিজেবল করা যাতে বারবার ক্লিক করে লুপ তৈরি না হয়
+        loginSubmitBtn.disabled = true;
+        loginSubmitBtn.innerText = "ভেরিফাই হচ্ছে...";
+
+        // ফায়ারবেস ডেটাবেস থেকে ইউজার চেক করা
+        const userRef = window.db.ref("users/" + username);
+        userRef.once("value")
+            .then((snapshot) => {
+                if (!snapshot.exists()) {
+                    alert("ভুল ইউজার আইডি! আবার চেষ্টা করুন।");
+                    resetLoginButton();
+                    return;
+                }
+
+                const userData = snapshot.val();
+
+                // পাসওয়ার্ড/পিন ম্যাচিং
+                if (userData.password !== password) {
+                    alert("ভুল সিকিউরিটি পিন! সঠিক পিন দিন।");
+                    resetLoginButton();
+                    return;
+                }
+
+                // অ্যাকাউন্ট স্ট্যাটাস চেক (Active/Blocked)
+                if (userData.status === "blocked") {
+                    alert("আপনার অ্যাকাউন্টটি ব্লক করা আছে। অ্যাডমিনের সাথে যোগাযোগ করুন।");
+                    resetLoginButton();
+                    return;
+                }
+
+                // রোল (Role) অনুযায়ী ড্যাশবোর্ডে পাঠানো (লুপ ছাড়া ডাইরেক্ট রাউটিং)
+                processUserRole(username, userData);
+            })
+            .catch((error) => {
+                console.error("Database Error:", error);
+                alert("সার্ভার কানেকশন ত্রুটি! পরে চেষ্টা করুন।");
+                resetLoginButton();
+            });
+    }
+
+    // রোল প্রসেসিং ও টু-স্টেপ ভেরিফিকেশন গেট
+    function processUserRole(username, userData) {
+        // যদি অ্যাডমিন বা সাব-অ্যাডমিন হয়, সরাসরি রিডাইরেক্ট
+        if (userData.role === "admin" || userData.role === "subadmin") {
+            sessionStorage.setItem("currentUser", JSON.stringify({ username, role: userData.role }));
+            window.location.href = "admin.html";
+        } 
+        // যদি সাধারণ প্লেয়ার হয়, তবে অ্যাডমিন এপ্রুভাল নোটিশ জোন অ্যাক্টিভ হবে
+        else if (userData.role === "player") {
+            approvalNoticeBox.classList.remove("hidden");
+            
+            // রিয়েল-টাইম লিসেনার (অ্যাডমিন এপ্রুভ করলে অটো গেম ওপেন হবে)
+            window.db.ref("users/" + username + "/approved").on("value", (statusSnapshot) => {
+                if (statusSnapshot.val() === true) {
+                    sessionStorage.setItem("currentUser", JSON.stringify({ username, role: "player" }));
+                    window.location.href = "player.html";
+                } else {
+                    noticeText.innerText = "অ্যাডমিনের অনুমোদনের জন্য অপেক্ষা করা হচ্ছে...";
+                    verificationGate.classList.remove("hidden");
+                }
+            });
+
+            // কোড ভেরিফিকেশন বাটন অ্যাকশন (ম্যানুয়াল কোড এন্ট্রি)
+            verifyCodeBtn.onclick = () => {
+                const inputCode = adminApprovalCode.value.trim();
+                if (inputCode === userData.secretKey) {
+                    // কোড মিলে গেলে এপ্রুভাল ট্রু করে দেওয়া
+                    window.db.ref("users/" + username).update({ approved: true })
+                        .then(() => {
+                            sessionStorage.setItem("currentUser", JSON.stringify({ username, role: "player" }));
+                            window.location.href = "player.html";
+                        });
+                } else {
+                    alert("ভুল সিকিউরিটি কোড!");
+                }
+            };
+        }
+    }
+
+    // বাটন রিসেট ফাংশন
+    function resetLoginButton() {
+        loginSubmitBtn.disabled = false;
+        loginSubmitBtn.innerText = "লগইন করুন";
+    }
+});
