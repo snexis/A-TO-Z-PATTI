@@ -1,274 +1,65 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atoz Bombay - Player Panel</title>
-
-  <link rel="stylesheet" href="style.css">
-
-  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
-  
-  <script src="firebase-config.js"></script>
-
-  <script src="app.js"></script>
-</head>
-<body class="player-panel-body">
-
-  <header class="dashboard-container dashboard-wide" style="margin-top: 20px;">
-    <div class="user-info">
-      <h2>ID: <span id="lblUserId">Loading...</span></h2>
-      <button onclick="logout()" class="btn-danger" style="padding: 6px 12px; font-size: 11px; border-radius: 4px; width: auto; margin-top: 0;">লগআউট</button>
-    </div>
-    <div class="balance-container">
-      <div class="balance-box">
-        <p>Play Point</p>
-        <span id="lblPlayPoint">0</span>
-      </div>
-      <div class="balance-box winning">
-        <p>Winning Point</p>
-        <span id="lblWinningPoint">0</span>
-      </div>
-    </div>
-  </header>
-
-  <div class="utility-bar dashboard-wide" style="display: flex; gap: 10px; margin-bottom: 20px; width: 100%;">
-    <button class="btn-primary" style="flex: 1; padding: 10px;" onclick="openHistory()">Play History</button>
-    <button class="btn-primary" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.05); color: #fff;" id="btnAdvanceDraw" onclick="toggleAdvanceDraw()">Advance Draw (Locked)</button>
-  </div>
-
-  <main class="dashboard-container dashboard-wide" style="overflow-x: auto; text-align: left;">
-    <div class="grid-header" id="gridTitle" style="text-align: center; margin-bottom: 15px; font-size: 16px; font-weight: bold; color: #00f2fe;">Loading Game Grid...</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtoZ Bombay - Player Zone (v4.9)</title>
     
-    <div class="bet-grid" id="mainBetGrid">
-      </div>
-  </main>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <div class="submit-panel dashboard-wide" style="width: 100%; margin-bottom: 30px;">
-    <button class="btn-primary" onclick="submitAllBets()">Submit All Bets</button>
-  </div>
+    <script src="firebase-config.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="player-page">
 
-  <div class="modal" id="historyModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 style="margin-bottom: 0;">Your Play History</h4>
-        <button class="close-btn" onclick="closeHistory()">&times;</button>
-      </div>
-      <div id="historyData" style="max-height: 300px; overflow-y: auto; font-size: 13px; text-align: left; padding-top: 10px;">
-        Loading history...
-      </div>
-    </div>
-  </div>
+    <header class="player-nav">
+        <div class="nav-logo" id="navLogoText">ATOZ BOMBAY</div>
+        <div class="nav-user-info">
+            <span id="playerNameDisplay">---</span>
+            <button type="button" id="playerLogoutBtn" class="logout-btn">লগআউট</button>
+        </div>
+    </header>
 
-  <script>
-    let playerUID = "";
-    let playerMode = "word"; // ডিফল্ট 'word' মোড
-    let currentBalance = 0;
-    let isAdvanceDrawAllowed = false;
-
-    // ১. প্লেয়ার অথেন্টিকেশন অ্যান্ড সিকিউরিটি চেক
-    window.auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = 'index.html';
-      } else {
-        playerUID = user.uid;
-        loadPlayerProfile();
-      }
-    });
-
-    // ২. প্রোফাইল ও ব্যালেন্স রিয়ালটাইম লোড
-    function loadPlayerProfile() {
-      window.db.ref('users/' + playerUID).on('value', snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          document.getElementById('lblUserId').innerText = data.userId;
-          document.getElementById('lblPlayPoint').innerText = data.playPoints || 0;
-          document.getElementById('lblWinningPoint').innerText = data.winningPoints || 0;
-          currentBalance = data.playPoints || 0;
-          playerMode = data.viewMode || 'word';
-
-          // অ্যাডভান্স ড্র পারমিশন হ্যান্ডলিং
-          isAdvanceDrawAllowed = data.advanceDraw || false;
-          const advBtn = document.getElementById('btnAdvanceDraw');
-          if (isAdvanceDrawAllowed) {
-            advBtn.style.opacity = "1";
-            advBtn.style.cursor = "pointer";
-            advBtn.innerText = "Advance Draw (Active)";
-          } else {
-            advBtn.style.opacity = "0.3";
-            advBtn.style.cursor = "not-allowed";
-            advBtn.innerText = "Advance Draw (Locked)";
-          }
-
-          // প্লেয়ারের ডেডিকেটেড গ্রিড জেনারেট করা
-          generateGrid();
-        }
-      });
-    }
-
-    // ৩. ২২×১০ ডাইনামিক গ্রিড জেনারেটর লজিক (Word/Digit Mode Switch)
-    function generateGrid() {
-      const grid = document.getElementById('mainBetGrid');
-      const title = document.getElementById('gridTitle');
-      grid.innerHTML = "";
-
-      title.innerText = playerMode === 'word' ? "Word Mode Active (A-J)" : "Digit Mode Active (1-0)";
-
-      const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
-      // ২২টি রো এবং ১০টি কলাম লুপ চালিয়ে ২২×১০ প্যানেল তৈরি করা
-      for (let row = 0; row < 22; row++) {
-        columns.forEach(col => {
-          // ম্যাট্রিক্স থেকে প্লেয়ারের মোড অনুযায়ী কোড বা ডিজিট বের করা
-          const matrixData = window.SECRET_MATRIX[col];
-          const keys = Object.keys(matrixData.patti_map);
-          const currentPattiCode = keys[row]; // ৩ অক্ষরের কোড
-          const currentPattiDigit = matrixData.patti_map[currentPattiCode]; // ডিজিট মান
-
-          // প্লেয়ার স্ক্রিনে কী দেখবে তা ডিফাইন করা
-          const displayLabel = playerMode === 'word' ? currentPattiCode : currentPattiDigit;
-          const inputId = `bet_${col}_${row}`;
-
-          const cell = document.createElement('div');
-          cell.className = 'grid-cell';
-          cell.id = `cell_${col}_${row}`;
-          cell.innerHTML = `
-            <span class="cell-label" style="font-weight: bold; font-size: 12px; display: block; text-align: center; margin-bottom: 4px;">${displayLabel}</span>
-            <div class="cell-controls" style="display: flex; align-items: center; gap: 5px;">
-              <input type="checkbox" class="cell-checkbox" onchange="toggleCellInput(this, '${inputId}')">
-              <input type="number" id="${inputId}" class="cell-input" placeholder="0" disabled min="1" style="width: 100%; text-align: center;">
-            </div>
-          `;
-          grid.appendChild(cell);
-        });
-      }
-    }
-
-    // ৪. চেক-বক্স টিক দিলে ঘর আনলক করার লজিক (Tick & Type)
-    function toggleCellInput(checkbox, inputId) {
-      const input = document.getElementById(inputId);
-      const cell = checkbox.closest('.grid-cell');
-      
-      input.disabled = !checkbox.checked;
-      if (checkbox.checked) {
-        cell.classList.add('active');
-        input.focus();
-      } else {
-        cell.classList.remove('active');
-        input.value = "";
-      }
-    }
-
-    // ৫. ওয়ান-ক্লিক অল বেট সাবমিট মেকানিজম
-    function submitAllBets() {
-      const checkedBoxes = document.querySelectorAll('.cell-checkbox:checked');
-      if (checkedBoxes.length === 0) {
-        return alert("প্লে করতে প্রথমে যেকোনো ঘরে টিক (Tick) দিন এবং পয়েন্ট বসান!");
-      }
-
-      let totalCost = 0;
-      let betsToSubmit = [];
-
-      // ১. ভ্যালিডেশন এবং টোটাল ব্যালেন্স ক্যালকুলেশন
-      for (let box of checkedBoxes) {
-        const cell = box.closest('.grid-cell');
-        const input = cell.querySelector('.cell-input');
-        const amount = parseInt(input.value);
-
-        if (!amount || amount <= 0) {
-          alert("টিক দেওয়া ঘরে অবশ্যই বৈধ পয়েন্ট (অ্যামাউন্ট) বসাতে হবে!");
-          input.focus();
-          return;
-        }
-
-        totalCost += amount;
+    <main class="player-container">
         
-        // বেটিং অবজেক্ট রেডি করা
-        betsToSubmit.push({
-          cellId: input.id,
-          label: cell.querySelector('.cell-label').innerText,
-          points: amount
-        });
-      }
+        <section class="welcome-box">
+            <h2 id="welcomeHeading">স্বাগতম, প্লেয়ার!</h2>
+            <p id="welcomeSubtext">আপনার লাইভ গেমিং ড্যাশবোর্ড এখানে দেখুন।</p>
+        </section>
 
-      // ২. ব্যালেন্স চেক
-      if (totalCost > currentBalance) {
-        return alert(`দুঃখিত! আপনার মেইন ব্যালেন্সের চেয়ে মোট বাজি বেশি হয়ে গেছে। বর্তমান ব্যালেন্স: ${currentBalance}`);
-      }
+        <section class="player-box chart-section">
+            <div class="chart-header">
+                <h3 id="chartTitle">📊 লাইভ গেম রেজাল্ট চার্ট</h3>
+                
+                <button type="button" id="printChartBtn" class="print-btn" title="চার্ট প্রিন্ট করুন">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <span id="printBtnText">প্রিন্ট চার্ট</span>
+                </button>
+            </div>
 
-      // ৩. ফায়ারবেস ডেটাবেসে ওয়ান-ক্লিক সাবমিশন
-      const newBalance = currentBalance - totalCost;
-      const baziId = "Bazi_Active_Slot"; // উদাহরণস্বরূপ অ্যাক্টিভ স্লট
+            <div class="table-responsive" id="printableArea">
+                <table>
+                    <thead>
+                        <tr>
+                            <th id="thTime">সময় (Time Slot)</th>
+                            <th id="thResult">উইনিং নাম্বার (Result)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gameChartTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
 
-      const updates = {};
-      betsToSubmit.forEach(bet => {
-        const newBetRef = window.db.ref(`active_bets/${baziId}`).push();
-        updates[`active_bets/${baziId}/${newBetRef.key}`] = {
-          userId: playerUID,
-          label: bet.label,
-          points: bet.points,
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        };
-      });
+    </main>
 
-      // ব্যালেন্স আপডেট ও সাবমিশন একসাথে করা (Transaction/Multi-path update)
-      updates[`users/${playerUID}/playPoints`] = newBalance;
-
-      window.db.ref().update(updates)
-        .then(() => {
-          alert(`অভিনন্দন! আপনার মোট ${totalCost} পয়েন্টের বাজি সফলভাবে সাবমিট হয়েছে।`);
-          // সমস্ত ইনপুট ফিল্ড ও টিক রিসেট করা
-          generateGrid();
-        })
-        .catch(err => alert("বাজি সাবমিট করতে ত্রুটি হয়েছে: " + err.message));
-    }
-
-    // ৬. অ্যাডভান্স ড্র হ্যান্ডলার
-    function toggleAdvanceDraw() {
-      if (!isAdvanceDrawAllowed) {
-        alert("আপনার আইডিতে অ্যাডভান্স ড্র পারমিশন লক করা রয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।");
-        return;
-      }
-      alert("অ্যাডভান্স ড্র প্যানেল ওপেন হচ্ছে... আপনি আগামীকালের জন্য বেট আগে থেকেই সেট করতে পারেন।");
-    }
-
-    // ৭. প্লে হিস্ট্রি মডাল ওপেন ও ক্লোজ
-    function openHistory() {
-      document.getElementById('historyModal').style.display = 'flex';
-      const historyDiv = document.getElementById('historyData');
-      historyDiv.innerHTML = "লোড হচ্ছে...";
-
-      // ইউজারের প্লে হিস্ট্রি রিড করা
-      window.db.ref('active_bets/Bazi_Active_Slot').orderByChild('userId').equalTo(playerUID).once('value', snapshot => {
-        historyDiv.innerHTML = "";
-        if (snapshot.exists()) {
-          snapshot.forEach(child => {
-            const bet = child.val();
-            const div = document.createElement('div');
-            div.style.padding = "8px 0";
-            div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
-            div.innerHTML = `ঘণ্টা/বাজি: Active | ঘর: <strong>${bet.label}</strong> | পয়েন্ট: <span style="color:#00f2fe;">${bet.points}৳</span>`;
-            historyDiv.appendChild(div);
-          });
-        } else {
-          historyDiv.innerHTML = "আজকে আপনার কোনো খেলার রেকর্ড পাওয়া যায়নি।";
-        }
-      });
-    }
-
-    // ক্লোজ হিস্ট্রি
-    function closeHistory() {
-      document.getElementById('historyModal').style.display = 'none';
-    }
-
-    // লগআউট
-    function logout() {
-      window.auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
-    }
-  </script>
+    <script src="player.js"></script>
 </body>
 </html>
