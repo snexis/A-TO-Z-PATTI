@@ -135,9 +135,6 @@ function loadGameBoard() {
     });
 }
 
-const WORD_DATA = ['AXZ', 'BKP', 'LMO', 'RST', 'TUV', 'WXY', 'NOP', 'ABC', 'EFG', 'HIJ', 'KLM', 'QRS', 'UVW', 'XYZ', 'DEF', 'GHI', 'JKL', 'MNO', 'PQR', 'STU', 'VWX', 'ZAB']
-
-
 
 function loadGameBoard() {
     document.getElementById('dashboard-area').style.display = 'none';
