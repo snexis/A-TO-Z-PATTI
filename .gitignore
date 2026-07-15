@@ -1,9 +1,13 @@
-# Dependency directories (ভবিষ্যতে npm ব্যবহার করলে)
-node_modules/
-jspm_packages/
-web_modules/
+# ==========================================
+# ATOZ BOMBAY - GIT IGNORE ARCHITECTURE (v4.9)
+# ==========================================
 
-# IDE and Editor files (এডিটর বা কোড এডিটরের নিজস্ব ফাইল)
+# ওএস বা সিস্টেম জেনারেটেড ফাইল (যা সার্ভারে যাওয়ার প্রয়োজন নেই)
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# এডিটর এবং আইডিই (IDE) কনফিগারেশন ফাইল
 .vscode/
 .idea/
 *.suo
@@ -12,29 +16,23 @@ web_modules/
 *.sln
 *.swp
 
-# Operating System files (অপারেটিং সিস্টেমের আবর্জনা ফাইল)
-.DS_Store
-.DS_Store?
-._*
-Thumbs.db
-ehthumbs.db
-desktop.ini
-
-# Logs (লগ ফাইল)
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local Firebase files (ফায়ারবেসের নিজস্ব লোকাল কনফিগ)
-.firebase/
-*-debug.log
-firebase-debug.log
-
-# Environment variables & Secret files (ভবিষ্যতে কোনো সিক্রেট কি রাখলে)
+# লোকাল এনভায়রনমেন্ট বা সিক্রেট ব্যাকআপ ফাইল
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ফায়ারবেস বা লোকাল ডিবাগিং ক্যাশ ও টেম্পোরারি ফাইল
+.firebase/
+firestore.indexes.json
+firebase-debug.log
+ui-debug.log
+
+# লোকাল টেস্টিং বা ড্রাফট স্ক্রিপ্ট ফাইল (যদি থাকে)
+/drafts/
+/backups/
