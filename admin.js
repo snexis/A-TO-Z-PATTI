@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td><strong>${username}</strong></td>
                         <td>${user.role}</td>
                         <td><span class="code-badge">${user.secretKey || 'N/A'}</span></td>
+                        <td><span class="lang-badge">${user.language === 'en' ? 'English' : 'বাংলা'}</span></td>
                         <td>
                             <span class="status-tag ${user.approved ? 'status-approved' : 'status-pending'}">
                                 ${user.approved ? 'অনুমোদিত' : 'অপেক্ষমাণ'}
@@ -70,22 +71,23 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        // কাউন্টার আপডেট (অ্যানিমেশন ছাড়া ডিরেক্ট ভ্যালু চেঞ্জ)
+        // কাউন্টার আপডেট
         totalPlayersCount.innerText = total;
         activePlayersCount.innerText = active;
         blockedPlayersCount.innerText = blocked;
 
-        // টেবিলের অ্যাকশন বাটনগুলোতে ইভেন্ট লিসেনার সেট করা (লুপ-মুক্ত ডেলিগেশন)
+        // টেবিলের অ্যাকশন বাটনগুলোতে ইভেন্ট লিসেনার সেট করা
         attachTableButtonListeners();
     });
 
     // ==========================================
-    // ২. নতুন ইউজার/প্লেয়ার আইডি তৈরি (Bypass Logic)
+    // ২. নতুন ইউজার/প্লেয়ার আইডি তৈরি (Language Bypass Logic)
     // ==========================================
     submitCreateUserBtn.addEventListener("click", () => {
         const username = document.getElementById("newUsername").value.trim();
         const password = document.getElementById("newPassword").value.trim();
         const role = document.getElementById("userRole").value;
+        const language = document.getElementById("userLanguage").value; // [নতুন ভাষা ইনপুট]
 
         if (!username || !password) {
             alert("সবগুলো ফিল্ড সঠিকভাবে পূরণ করুন।");
@@ -97,18 +99,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // ৪ ডিজিটের ইউনিক সিক্রেট ভেরিফিকেশন কোড জেনারেট করা
         const generatedSecretKey = Math.floor(1000 + Math.random() * 9000).toString();
 
-        // ফায়ারবেস ডেটাবেসে পাঠানো (ইউজার আইডি মেইল মেকানিজমে বাইপাস হবে)
+        // ফায়ারবেস ডেটাবেসে পাঠানো (ভাষা অপশনসহ)
         const newUserData = {
             password: password,
             role: role,
             status: "active",
             approved: role === "subadmin", // সাব-অ্যাডমিন হলে অটো এপ্রুভড, প্লেয়ার হলে ফলস
-            secretKey: generatedSecretKey
+            secretKey: generatedSecretKey,
+            language: language // [ফায়ারবেসে সেভ হওয়ার জন্য ভাষা যুক্ত করা হলো]
         };
 
         window.db.ref("users/" + username).set(newUserData)
             .then(() => {
-                alert(`আইডি সফলভাবে তৈরি হয়েছে!\nপ্লেয়ার সিকিউরিটি কোড: ${generatedSecretKey}`);
+                alert(`আইডি সফলভাবে তৈরি হয়েছে!\nভাষা: ${language === 'en' ? 'English' : 'Bengali'}\nকোড: ${generatedSecretKey}`);
                 document.getElementById("createUserForm").reset();
                 submitCreateUserBtn.disabled = false;
             })
@@ -133,7 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateChartBtn.disabled = true;
 
-        // টাইম স্লট অনুযায়ী চার্ট ডেটা পুশ করা
         window.db.ref("gameChart/" + timeSlot).set({
             result: winningNumber,
             timestamp: Date.now()
@@ -153,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ৪. টেবিল অ্যাকশন ফাংশনালিটি (Approve, Block, Delete)
     // ==========================================
     function attachTableButtonListeners() {
-        // এপ্রুভ বাটন
         document.querySelectorAll(".btn-approve").forEach(btn => {
             btn.onclick = (e) => {
                 const id = e.target.getAttribute("data-id");
@@ -161,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         });
 
-        // ব্লক/আনব্লক বাটন
         document.querySelectorAll(".btn-block, .btn-unblock").forEach(btn => {
             btn.onclick = (e) => {
                 const id = e.target.getAttribute("data-id");
@@ -171,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         });
 
-        // ডিলিট বাটন
         document.querySelectorAll(".btn-delete").forEach(btn => {
             btn.onclick = (e) => {
                 const id = e.target.getAttribute("data-id");
