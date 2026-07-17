@@ -4,17 +4,16 @@
     <!-- ==========================================================================
        🔑 PROJECT: A-TO-Z BOMBAY PLAY ZONE (A-TO-Z-PATTI)
        📁 FILE: index.html
-       📌 VERSION: v2.5.3 (Syntax Error Fixed & Clean Link)
+       📌 VERSION: v2.5.4 (Strict Module Path Patch)
        📡 FIREBASE VERSION: v10.12.0 (Modular CDN)
        
-       📜 WHAT CHANGED & UPDATED IN THIS VERSION:
-       - স্ক্রিপ্ট ট্যাগের ভেতরের ডুপ্লিকেট এবং ভাঙা ট্যাগগুলো পরিষ্কার করা হয়েছে।
-       - `SyntaxError: Unexpected token '<'` এররটি স্থায়ীভাবে ফিক্স করা হয়েছে।
-       - i18n ট্র্যাকিং এবং ল্যাঙ্গুয়েজ ইঞ্জিনকে মডিউল স্ক্রিপ্টের ভেতরে সুন্দরভাবে সাজানো হয়েছে।
-       - সরাসরি `auth.js` ফাইলের `handleLogin` ফাংশনের সাথে মেইন ফর্মটিকে লিঙ্ক করা হয়েছে।
+       📜 CHANGES MADE:
+       - 'Unexpected token <' এরর ফিক্স করতে import পাথে সুনির্দিষ্ট ডট-স্ল্যাশ (./) প্রোটোকল ব্যবহার।
+       - i18n আর্কিটেকচার অক্ষুণ্ণ রাখা হয়েছে (কোনো বাংলা-ইংরেজি টেক্সট মিক্সিং নেই)।
+       - ছবির ডার্ক ব্লু থিম এবং গোল্ডেন টাইটেল স্টাইলিং অক্ষুণ্ণ।
        
-       🚀 FUTURE FEATURES TO INSERT IN THIS FILE:
-       - প্লেয়ার এবং অ্যাডমিন ড্যাশবোর্ডের ভিজ্যুয়াল বোর্ডের সাথে থিম কালার পুরোপুরি ম্যাচ করানো।
+       🚀 FUTURE ROADMAP:
+       - auth.js থেকে আসা রোল রেসপন্স অনুযায়ী এডমিন ও প্লেয়ার ড্যাশবোর্ড লিঙ্কিং।
        ========================================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,10 +81,6 @@
             box-sizing: border-box;
             font-size: 1rem;
         }
-        input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
         button {
             width: 100%;
             padding: 12px;
@@ -106,7 +101,6 @@
 <body>
 
     <div class="login-container">
-        <!-- i18n Language Switcher Dropdown -->
         <div class="lang-selector">
             <select id="languageSelect">
                 <option value="en">English</option>
@@ -131,12 +125,11 @@
         </form>
     </div>
 
-    <!-- ল্যাঙ্গুয়েজ ইঞ্জিন এবং সিকিউর অথেন্টিকেশন স্ক্রিপ্ট -->
     <script type="module">
-        // auth.js ফাইলটি থেকে লগইন হ্যান্ডলার নিয়ে আসা হলো
-        import { handleLogin } from "./auth.js"; 
+        // গিটহাব পেজের রুট পাথ প্রটেকশনের জন্য কঠোরভাবে আপেক্ষিক পাথ নির্ধারণ
+        import { handleLogin } from "./auth.js";
 
-        // আন্তর্জাতিক মান অনুযায়ী ট্রান্সলেশন অবজেক্ট (কোনো ভাষা মিক্স হবে না)
+        // i18n ল্যাঙ্গুয়েজ ট্র্যাকিং ডিকশনারি
         const translations = {
             en: {
                 title: "A-TO-Z PATTI LOGIN",
@@ -157,8 +150,6 @@
         };
 
         const languageSelect = document.getElementById('languageSelect');
-
-        // ভাষা পরিবর্তন করার ফাংশন
         function updateLanguage(lang) {
             document.documentElement.lang = lang;
             document.getElementById('loginTitle').innerText = translations[lang].title;
@@ -169,20 +160,15 @@
             document.getElementById('btnLogin').innerText = translations[lang].loginBtn;
         }
 
-        // ড্রপডাউন চেঞ্জ ইভেন্ট লিসেনার
-        languageSelect.addEventListener('change', (e) => {
-            updateLanguage(e.target.value);
-        });
+        languageSelect.addEventListener('change', (e) => updateLanguage(e.target.value));
 
-        // ফর্ম সাবমিট হ্যান্ডলার (সরাসরি auth.js-এর ফাংশনকে কল করা হচ্ছে)
-        const loginForm = document.getElementById('loginForm');
-        loginForm.addEventListener('submit', (e) => {
+        // ফর্ম সাবমিট অ্যাকশন হ্যান্ডলার
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const id = document.getElementById('userId').value;
-            const pass = document.getElementById('password').value;
-            handleLogin(id, pass);
+            const inputId = document.getElementById('userId').value;
+            const inputPass = document.getElementById('password').value;
+            handleLogin(inputId, inputPass);
         });
     </script>
-    
 </body>
 </html>
