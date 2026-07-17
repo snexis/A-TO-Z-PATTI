@@ -1,77 +1,184 @@
-<!-- ==========================================================================
-     ATOZ BOMBAY - PREMIUM CYBER INTERFACE (v7.1.2.8 Lite)
-     ==========================================================================
-     [CORE FEATURES INSIDE THIS FILE]:
-     1. VERSION CONTROL DISPLAY: স্ক্রিনের টপ-রাইটে নতুন v7.1.2.8 Lite ট্যাগ শো করা।
-     2. NEON BORDER TRACING: সাইবারপাঙ্ক নিওন লাইটিং ও রেসপনসিভ কন্টেইনার লেআউট।
-     3. CASE-INSENSITIVE INPUTS: ইউজার ছোট হাতের বা বড় হাতের অক্ষরে আইডি লিখলেও 
-        তা সুন্দরভাবে ক্যাচ করে ব্যাকএন্ডে পাঠানোর ব্যবস্থা।
-     4. SECURITY FILE INTEGRATION: একটু আগে তৈরি করা 'firebase_security_auth.js' 
-        ফাইলটিকে এই ইন্টারফেসের সাথে লিংক করা।
-     ========================================================================== -->
-
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en" dir="ltr">
 <head>
+    <!-- ==========================================================================
+       🔑 PROJECT: A-TO-Z BOMBAY PLAY ZONE (A-TO-Z-PATTI)
+       📁 FILE: index.html
+       📌 VERSION: v2.3.0 (Internationalization Standard)
+       📡 FIREBASE VERSION: v10.12.0 (Modular CDN)
+       
+       📜 FILE DETAILS & CORE FEATURES:
+       - এটি প্রজেক্টের মেইন সিকিউর লগইন গেটওয়ে।
+       - i18n (Internationalization) স্ট্যান্ডার্ড মেনে সম্পূর্ণ পৃথক ভাষা ট্র্যাকিং।
+       - রেসপন্সিভ এবং ক্লিন ইউজার ইন্টারফেস (UI)।
+       
+       🚀 FUTURE FEATURES TO INSERT IN THIS FILE:
+       - আইডি ও পাসওয়ার্ড ফায়ারবেস অথেন্টিকেশনের সাথে কানেক্ট করা।
+       - রোল (Role) অনুযায়ী নির্দিষ্ট ড্যাশবোর্ডে অটো-রিডাইরেক্ট মেকানিজম।
+       ========================================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AtoZ Bombay - Cyber Edition (v7.1.2.8 Lite)</title>
-    <!-- নিওন স্টাইলশিট লিংক -->
-    <link rel="stylesheet" href="style.css">
+    <title>A-TO-Z Bombay Play Zone - Login</title>
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --bg-color: #1a1a2e;
+            --card-bg: #16162a;
+            --text-color: #ffffff;
+            --input-bg: #222242;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .lang-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .lang-selector select {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #ffc107;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid #333366;
+            border-radius: 6px;
+            color: var(--text-color);
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0b5ed7;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- লাইভ ভার্সন কন্ট্রোল ট্যাগ -->
-    <div class="update-version-tag">Version 7.1.2.8 Lite</div>
-
     <div class="login-container">
-        <h2 class="neon-title">ATOZ BOMBAY LOG-IN</h2>
+        <!-- i18n Language Switcher Dropdown -->
+        <div class="lang-selector">
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+            </select>
+        </div>
+
+        <h2 id="loginTitle">A-TO-Z PATTI LOGIN</h2>
         
-        <form id="loginForm" onsubmit="handleFormSubmit(event)">
-            <div class="input-group">
-                <label for="userId">ইউজার আইডি / অ্যাডমিন আইডি:</label>
-                <!-- কেস-ইনসেন্সিটিভ করার জন্য input-এ automatic ছোট হাতের অক্ষরে কনভার্ট করার মেকানিজম -->
-                <input type="text" id="userId" placeholder="যেমন: player01 বা subadmin" required oninput="this.value = this.value.toLowerCase()">
+        <form id="loginForm">
+            <div class="form-group">
+                <label id="labelUserId" for="userId">User ID / Player ID</label>
+                <input type="text" id="userId" required placeholder="Enter your unique ID">
             </div>
             
-            <div class="input-group">
-                <label for="userPassword">সিকিউর পাসওয়ার্ড:</label>
-                <input type="password" id="userPassword" placeholder="••••••••" required>
+            <div class="form-group">
+                <label id="labelPassword" for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter password">
             </div>
             
-            <button type="submit" class="neon-btn">কানেক্ট টু সার্ভার</button>
+            <button type="submit" id="btnLogin">Log In</button>
         </form>
     </div>
 
-    <!-- ফায়ারবেস কোর এসডিকে (SDK) এবং কনফিগারেশন লজিক -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    
-    <!-- আমাদের তৈরি করা সিকিউরিটি ও অথ ইঞ্জিন লিংক করলাম -->
-    <script src="firebase_security_auth.js"></script>
-
-    <!-- ফ্রন্টএন্ড লগইন ট্রিগার লজিক -->
+    <!-- i18n Language Engine Script -->
     <script>
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-            
-            const idInput = document.getElementById('userId').value.trim();
-            const passwordInput = document.getElementById('userPassword').value;
-            
-            console.log("[INTERFACE] Login attempt initiated for ID:", idInput);
-            
-            // আমাদের সিকিউরিটি ফাইলের কোর ফাংশনকে কল করা হলো
-            const result = await window.SecureAuth.login(idInput, passwordInput);
-            
-            if (result.success) {
-                console.log("[INTERFACE] Login Successful! Redirecting to dashboard...");
-                // সফল হলে ড্যাশবোর্ডে বা মেইন গেমে নিয়ে যাবে
-                alert("লগইন সফল হয়েছে! সিস্টেমে স্বাগতম।");
-            } else {
-                console.error("[INTERFACE] Login failed due to:", result.reason);
+        // আন্তর্জাতিক মান অনুযায়ী ট্রান্সলেশন অবজেক্ট (কোনো ভাষা মিক্স হবে না)
+        const translations = {
+            en: {
+                title: "A-TO-Z PATTI LOGIN",
+                userId: "User ID / Player ID",
+                userIdPlaceholder: "Enter your unique ID",
+                password: "Password",
+                passwordPlaceholder: "Enter password",
+                loginBtn: "Log In"
+            },
+            bn: {
+                title: "এ টু জেড পাত্তি লগইন",
+                userId: "ইউজার আইডি / প্লেয়ার আইডি",
+                userIdPlaceholder: "আপনার ইউনিক আইডি দিন",
+                password: "পাসওয়ার্ড",
+                passwordPlaceholder: "পাসওয়ার্ড দিন",
+                loginBtn: "লগইন করুন"
             }
+        };
+
+        const languageSelect = document.getElementById('languageSelect');
+
+        // ভাষা পরিবর্তন করার ফাংশন
+        function updateLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.getElementById('loginTitle').innerText = translations[lang].title;
+            document.getElementById('labelUserId').innerText = translations[lang].userId;
+            document.getElementById('userId').placeholder = translations[lang].userIdPlaceholder;
+            document.getElementById('labelPassword').innerText = translations[lang].password;
+            document.getElementById('password').placeholder = translations[lang].passwordPlaceholder;
+            document.getElementById('btnLogin').innerText = translations[lang].loginBtn;
         }
+
+        // ড্রপডাউন চেঞ্জ ইভেন্ট লিসেনার
+        languageSelect.addEventListener('change', (e) => {
+            updateLanguage(e.target.value);
+        });
+
+        // ফর্ম সাবমিট হ্যান্ডলার (ভবিষ্যতে ফায়ারবেস লজিক এখানে যুক্ত হবে)
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputId = document.getElementById('userId').value.trim();
+            const inputPass = document.getElementById('password').value;
+            console.log("🔒 Internationalized Login Attempt for ID:", inputId);
+            // Next step: Integrate with firebase-config.js
+        });
     </script>
 </body>
 </html>
