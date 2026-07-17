@@ -154,7 +154,8 @@
         };
 
         const languageSelect = document.getElementById('languageSelect');
-
+<script type="module">
+        import { handleLogin } from "./auth.js"; // auth.js ফাইলটি কানেক্ট হলো
         // ভাষা পরিবর্তন করার ফাংশন
         function updateLanguage(lang) {
             document.documentElement.lang = lang;
