@@ -1,39 +1,29 @@
 /* ==========================================================================
    🔑 PROJECT: A-TO-Z BOMBAY PLAY ZONE (A-TO-Z-PATTI)
    📁 FILE: auth.js
-   📌 VERSION: v2.5.5 (Strict Path Integrity Patch)
-   📡 FIREBASE VERSION: v10.12.0 (Modular CDN)
+   📌 VERSION: v2.7.0 (Cross-Repo Security Isolation)
    
    📜 CHANGES MADE IN THIS VERSION:
-   - গিটহাব পেজে 'Unexpected token <' এরর দূর করতে ডাটা পাথ এক্সপোজিশন ফিক্স।
-   - i18n গাইডলাইন মেনে কোনো ল্যাঙ্গুয়েজ মিক্সিং ছাড়াই পিওর জাভাস্ক্রিপ্ট আর্কিটেকচার।
-   - ডাইনামিক ইউজার আইডি (যেমন: a01)-কে অটো সিকিউর ডামি মেইলে রূপান্তর করার লজিক।
-   
-   🚀 FUTURE ROADMAP:
-   - সফল লগইনের পর ইউজার রোল ভেরিফাই করে নির্দিষ্ট ড্যাশবোর্ড ফাইলে অটো-রিডাইরেক্ট।
+   - প্লেয়ার এবং অ্যাডমিন প্যানেলকে দুটি আলাদা রিপোজিটরিতে সম্পূর্ণ আইসোলেট করা হয়েছে।
+   - লগইন সফল হওয়ার পর প্লেয়ারকে 'ATOZBOMBAY' রিপোজিটরির লিঙ্কে পাঠানো হবে।
+   - প্লেয়ার কোনোভাবেই অ্যাডমিন ফাইলের পাথ বা ইউআরএল ট্রেস করতে পারবে না।
    ========================================================================== */
 
 import { auth, database } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// লগইন হ্যান্ডলার এবং রোল ভেরিফিকেশন ফাংশন
 export async function handleLogin(username, password) {
     try {
         const cleanUsername = username.trim().toLowerCase();
-        
-        // আন্তর্জাতিক সিকিউরিটি রুলস: আইডি ম্যাপড টু ডামি ডোমেইন
         const secureEmail = `${cleanUsername}@atozpatti.com`;
 
-        console.log("🔄 Initiating secure link to Firebase for:", secureEmail);
+        console.log("🔄 Initiating secure link to Firebase...");
 
-        // ফায়ারবেস অথেন্টিকেশন
+        // ফায়ারবেস লগইন প্রোটোকল
         const userCredential = await signInWithEmailAndPassword(auth, secureEmail, password);
-        const uid = userCredential.user.uid;
-
-        console.log("✅ Connection Established! Accessing Realtime Database...");
-
-        // ডাটাবেস থেকে রোল চেক
+        
+        // ডাটাবেস থেকে ইউজারের রোল চেক
         const userRef = ref(database, `users/${cleanUsername}`);
         const snapshot = await get(userRef);
 
@@ -41,23 +31,25 @@ export async function handleLogin(username, password) {
             const userData = snapshot.val();
             const userRole = userData.role;
             
-            console.log(`🎯 Role Authenticated: ${userRole}`);
-            alert(`লগইন সফল হয়েছে! আপনার রোল: ${userRole}`);
+            console.log("🎯 Role Authenticated successfully.");
             
-            // রোল অনুযায়ী রিডাইরেকশন লজিক
-            if (userRole === "master_admin") {
-                window.location.href = "master-admin.html";
-            } else if (userRole === "player") {
-                window.location.href = "player-dashboard.html";
-            } else {
-                window.location.href = "dashboard.html";
+            // 🔒 সিকিউরিটি রাউটিং লক:
+            if (userRole === "player") {
+                // প্লেয়ারকে সরাসরি আলাদা রিপোজিটরির সুরক্ষিত ড্যাশবোর্ডে পাঠানো হচ্ছে
+                window.location.href = "https://snexis.github.io/ATOZBOMBAY/player-dashboard.html";
+            } 
+            else if (userRole === "master_admin") {
+                // অ্যাডমিন তার নিজস্ব সুরক্ষিত ড্যাশবোর্ডে প্রবেশ করবে
+                window.location.href = "master-admin.html"; 
+            } 
+            else {
+                alert("Error: Unauthorized Access Role.");
             }
         } else {
-            console.error("❌ Database Mismatch: Role configuration missing.");
-            alert("Error: User role not defined in database.");
+            alert("Error: User configuration missing in database.");
         }
     } catch (error) {
-        console.error("❌ Firebase Protocol Failure:", error.message);
+        console.error("❌ Auth Failure:", error.message);
         alert("ভুল আইডি অথবা পাসওয়ার্ড! আবার চেষ্টা করুন।");
     }
 }
