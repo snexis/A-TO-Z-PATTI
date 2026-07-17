@@ -173,13 +173,18 @@
         });
 
         // ফর্ম সাবমিট হ্যান্ডলার (ভবিষ্যতে ফায়ারবেস লজিক এখানে যুক্ত হবে)
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        <!-- এইটুকু শুধু কপি করে index.html-এর শেষে বসান -->
+    <script type="module">
+        import { handleLogin } from './auth.js'; 
+
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const inputId = document.getElementById('userId').value.trim();
-            const inputPass = document.getElementById('password').value;
-            console.log("🔒 Internationalized Login Attempt for ID:", inputId);
-            // Next step: Integrate with firebase-config.js
+            const id = document.getElementById('userId').value;
+            const pass = document.getElementById('password').value;
+            handleLogin(id, pass);
         });
     </script>
+    
 </body>
 </html>
