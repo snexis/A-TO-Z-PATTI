@@ -4,17 +4,17 @@
     <!-- ==========================================================================
        🔑 PROJECT: A-TO-Z BOMBAY PLAY ZONE (A-TO-Z-PATTI)
        📁 FILE: index.html
-       📌 VERSION: v2.3.0 (Internationalization Standard)
+       📌 VERSION: v2.5.3 (Syntax Error Fixed & Clean Link)
        📡 FIREBASE VERSION: v10.12.0 (Modular CDN)
        
-       📜 FILE DETAILS & CORE FEATURES:
-       - এটি প্রজেক্টের মেইন সিকিউর লগইন গেটওয়ে।
-       - i18n (Internationalization) স্ট্যান্ডার্ড মেনে সম্পূর্ণ পৃথক ভাষা ট্র্যাকিং।
-       - রেসপন্সিভ এবং ক্লিন ইউজার ইন্টারফেস (UI)।
+       📜 WHAT CHANGED & UPDATED IN THIS VERSION:
+       - স্ক্রিপ্ট ট্যাগের ভেতরের ডুপ্লিকেট এবং ভাঙা ট্যাগগুলো পরিষ্কার করা হয়েছে।
+       - `SyntaxError: Unexpected token '<'` এররটি স্থায়ীভাবে ফিক্স করা হয়েছে।
+       - i18n ট্র্যাকিং এবং ল্যাঙ্গুয়েজ ইঞ্জিনকে মডিউল স্ক্রিপ্টের ভেতরে সুন্দরভাবে সাজানো হয়েছে।
+       - সরাসরি `auth.js` ফাইলের `handleLogin` ফাংশনের সাথে মেইন ফর্মটিকে লিঙ্ক করা হয়েছে।
        
        🚀 FUTURE FEATURES TO INSERT IN THIS FILE:
-       - আইডি ও পাসওয়ার্ড ফায়ারবেস অথেন্টিকেশনের সাথে কানেক্ট করা।
-       - রোল (Role) অনুযায়ী নির্দিষ্ট ড্যাশবোর্ডে অটো-রিডাইরেক্ট মেকানিজম।
+       - প্লেয়ার এবং অ্যাডমিন ড্যাশবোর্ডের ভিজ্যুয়াল বোর্ডের সাথে থিম কালার পুরোপুরি ম্যাচ করানো।
        ========================================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -131,9 +131,12 @@
         </form>
     </div>
 
-    <!-- i18n Language Engine Script -->
-    <script>
-        // আন্তর্জাতিক মান অনুযায়ী ট্রান্সলেশন অবজেক্ট (কোনো ভাষা মিক্স হবে না)
+    <!-- ল্যাঙ্গুয়েজ ইঞ্জিন এবং সিকিউর অথেন্টিকেশন স্ক্রিপ্ট -->
+    <script type="module">
+        // auth.js ফাইলটি থেকে লগইন হ্যান্ডলার নিয়ে আসা হলো
+        import { handleLogin } from "./auth.js"; 
+
+        // আন্তর্জাতিক মান অনুযায়ী ট্রান্সলেশন অবজেক্ট (কোনো ভাষা মিক্স হবে না)
         const translations = {
             en: {
                 title: "A-TO-Z PATTI LOGIN",
@@ -154,8 +157,7 @@
         };
 
         const languageSelect = document.getElementById('languageSelect');
-<script type="module">
-        import { handleLogin } from "./auth.js"; // auth.js ফাইলটি কানেক্ট হলো
+
         // ভাষা পরিবর্তন করার ফাংশন
         function updateLanguage(lang) {
             document.documentElement.lang = lang;
@@ -172,11 +174,7 @@
             updateLanguage(e.target.value);
         });
 
-        // ফর্ম সাবমিট হ্যান্ডলার (ভবিষ্যতে ফায়ারবেস লজিক এখানে যুক্ত হবে)
-        <!-- এইটুকু শুধু কপি করে index.html-এর শেষে বসান -->
-    <script type="module">
-        import { handleLogin } from './auth.js'; 
-
+        // ফর্ম সাবমিট হ্যান্ডলার (সরাসরি auth.js-এর ফাংশনকে কল করা হচ্ছে)
         const loginForm = document.getElementById('loginForm');
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
