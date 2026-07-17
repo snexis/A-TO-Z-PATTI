@@ -1,60 +1,77 @@
+<!-- ==========================================================================
+     ATOZ BOMBAY - PREMIUM CYBER INTERFACE (v7.1.2.8 Lite)
+     ==========================================================================
+     [CORE FEATURES INSIDE THIS FILE]:
+     1. VERSION CONTROL DISPLAY: স্ক্রিনের টপ-রাইটে নতুন v7.1.2.8 Lite ট্যাগ শো করা।
+     2. NEON BORDER TRACING: সাইবারপাঙ্ক নিওন লাইটিং ও রেসপনসিভ কন্টেইনার লেআউট।
+     3. CASE-INSENSITIVE INPUTS: ইউজার ছোট হাতের বা বড় হাতের অক্ষরে আইডি লিখলেও 
+        তা সুন্দরভাবে ক্যাচ করে ব্যাকএন্ডে পাঠানোর ব্যবস্থা।
+     4. SECURITY FILE INTEGRATION: একটু আগে তৈরি করা 'firebase_security_auth.js' 
+        ফাইলটিকে এই ইন্টারফেসের সাথে লিংক করা।
+     ========================================================================== -->
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AtoZ Bombay - Premium Login Gateway (v4.9)</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-    <script src="firebase-config.js"></script>
-    
+    <title>AtoZ Bombay - Cyber Edition (v7.1.2.8 Lite)</title>
+    <!-- নিওন স্টাইলশিট লিংক -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="login-page">
+<body>
+
+    <!-- লাইভ ভার্সন কন্ট্রোল ট্যাগ -->
+    <div class="update-version-tag">Version 7.1.2.8 Lite</div>
 
     <div class="login-container">
-        <div class="update-version-tag">New Update Version 4.9</div>
+        <h2 class="neon-title">ATOZ BOMBAY LOG-IN</h2>
         
-        <div class="login-header">
-            <h2>ATOZ BOMBAY</h2>
-            <p>Secure Gaming Portal</p>
-        </div>
-
-        <form id="loginForm" onsubmit="event.preventDefault();">
+        <form id="loginForm" onsubmit="handleFormSubmit(event)">
             <div class="input-group">
-                <label for="username">ইউজার আইডি (User ID)</label>
-                <input type="text" id="username" placeholder="আপনার আইডি লিখুন" required autocomplete="username">
+                <label for="userId">ইউজার আইডি / অ্যাডমিন আইডি:</label>
+                <!-- কেস-ইনসেন্সিটিভ করার জন্য input-এ automatic ছোট হাতের অক্ষরে কনভার্ট করার মেকানিজম -->
+                <input type="text" id="userId" placeholder="যেমন: player01 বা subadmin" required oninput="this.value = this.value.toLowerCase()">
             </div>
-
+            
             <div class="input-group">
-                <label for="password">সিকিউরিটি পিন (Password)</label>
-                <input type="password" id="password" placeholder="আপনার পিন লিখুন" required autocomplete="current-password">
+                <label for="userPassword">সিকিউর পাসওয়ার্ড:</label>
+                <input type="password" id="userPassword" placeholder="••••••••" required>
             </div>
-
-            <div class="remember-me-container">
-                <label class="remember-checkbox-label">
-                    <input type="checkbox" id="savePasswordBtn">
-                    <span class="custom-checkbox"></span>
-                    পাসওয়ার্ড সেভ করে রাখুন (Remember Me)
-                </label>
-            </div>
-
-            <button type="button" id="loginSubmitBtn" class="glow-btn">লগইন করুন</button>
+            
+            <button type="submit" class="neon-btn">কানেক্ট টু সার্ভার</button>
         </form>
-
-        <div id="approvalNoticeBox" class="notice-box hidden">
-            <div class="spinner"></div>
-            <p id="noticeText">Waiting for Admin Approval...</p>
-            <div id="verificationGate" class="hidden">
-                <input type="text" id="adminApprovalCode" placeholder="অ্যাডমিনের দেওয়া সিকিউরিটি কোডটি বসান">
-                <button type="button" id="verifyCodeBtn" class="verify-btn">ভেরিফাই ও ওপেন গেম</button>
-            </div>
-        </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- ফায়ারবেস কোর এসডিকে (SDK) এবং কনফিগারেশন লজিক -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <!-- আমাদের তৈরি করা সিকিউরিটি ও অথ ইঞ্জিন লিংক করলাম -->
+    <script src="firebase_security_auth.js"></script>
+
+    <!-- ফ্রন্টএন্ড লগইন ট্রিগার লজিক -->
+    <script>
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const idInput = document.getElementById('userId').value.trim();
+            const passwordInput = document.getElementById('userPassword').value;
+            
+            console.log("[INTERFACE] Login attempt initiated for ID:", idInput);
+            
+            // আমাদের সিকিউরিটি ফাইলের কোর ফাংশনকে কল করা হলো
+            const result = await window.SecureAuth.login(idInput, passwordInput);
+            
+            if (result.success) {
+                console.log("[INTERFACE] Login Successful! Redirecting to dashboard...");
+                // সফল হলে ড্যাশবোর্ডে বা মেইন গেমে নিয়ে যাবে
+                alert("লগইন সফল হয়েছে! সিস্টেমে স্বাগতম।");
+            } else {
+                console.error("[INTERFACE] Login failed due to:", result.reason);
+            }
+        }
+    </script>
 </body>
 </html>
