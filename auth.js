@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <!-- ==========================================================================
+       🔑 PROJECT: A-TO-Z BOMBAY PLAY ZONE (A-TO-Z-PATTI)
+       📁 FILE: index.html
+       📌 VERSION: v2.3.0 (Internationalization Standard)
+       📡 FIREBASE VERSION: v10.12.0 (Modular CDN)
+       
+       📜 FILE DETAILS & CORE FEATURES:
+       - এটি প্রজেক্টের মেইন সিকিউর লগইন গেটওয়ে।
+       - i18n (Internationalization) স্ট্যান্ডার্ড মেনে সম্পূর্ণ পৃথক ভাষা ট্র্যাকিং।
+       - রেসপন্সিভ এবং ক্লিন ইউজার ইন্টারফেস (UI)।
+       
+       🚀 FUTURE FEATURES TO INSERT IN THIS FILE:
+       - আইডি ও পাসওয়ার্ড ফায়ারবেস অথেন্টিকেশনের সাথে কানেক্ট করা।
+       - রোল (Role) অনুযায়ী নির্দিষ্ট ড্যাশবোর্ডে অটো-রিডাইরেক্ট মেকানিজম।
+       ========================================================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-TO-Z Bombay Play Zone - Login</title>
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --bg-color: #1a1a2e;
+            --card-bg: #16162a;
+            --text-color: #ffffff;
+            --input-bg: #222242;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .lang-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .lang-selector select {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #ffc107;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid #333366;
+            border-radius: 6px;
+            color: var(--text-color);
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0b5ed7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- i18n Language Switcher Dropdown -->
+        <div class="lang-selector">
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+            </select>
+        </div>
+
+        <h2 id="loginTitle">A-TO-Z PATTI LOGIN</h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label id="labelUserId" for="userId">User ID / Player ID</label>
+                <input type="text" id="userId" required placeholder="Enter your unique ID">
+            </div>
+            
+            <div class="form-group">
+                <label id="labelPassword" for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter password">
+            </div>
+            
+            <button type="submit" id="btnLogin">Log In</button>
+        </form>
+    </div>
+
+    <!-- i18n Language Engine Script -->
+    <script>
+        // আন্তর্জাতিক মান অনুযায়ী ট্রান্সলেশন অবজেক্ট (কোনো ভাষা মিক্স হবে না)
+        const translations = {
+            en: {
+                title: "A-TO-Z PATTI LOGIN",
+                userId: "User ID / Player ID",
+                userIdPlaceholder: "Enter your unique ID",
+                password: "Password",
+                passwordPlaceholder: "Enter password",
+                loginBtn: "Log In"
+            },
+            bn: {
+                title: "এ টু জেড পাত্তি লগইন",
+                userId: "ইউজার আইডি / প্লেয়ার আইডি",
+                userIdPlaceholder: "আপনার ইউনিক আইডি দিন",
+                password: "পাসওয়ার্ড",
+                passwordPlaceholder: "পাসওয়ার্ড দিন",
+                loginBtn: "লগইন করুন"
+            }
+        };
+
+        const languageSelect = document.getElementById('languageSelect');
+
+        // ভাষা পরিবর্তন করার ফাংশন
+        function updateLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.getElementById('loginTitle').innerText = translations[lang].title;
+            document.getElementById('labelUserId').innerText = translations[lang].userId;
+            document.getElementById('userId').placeholder = translations[lang].userIdPlaceholder;
+            document.getElementById('labelPassword').innerText = translations[lang].password;
+            document.getElementById('password').placeholder = translations[lang].passwordPlaceholder;
+            document.getElementById('btnLogin').innerText = translations[lang].loginBtn;
+        }
+
+        // ড্রপডাউন চেঞ্জ ইভেন্ট লিসেনার
+        languageSelect.addEventListener('change', (e) => {
+            updateLanguage(e.target.value);
+        });
+
+        // ফর্ম সাবমিট হ্যান্ডলার (ভবিষ্যতে ফায়ারবেস লজিক এখানে যুক্ত হবে)
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputId = document.getElementById('userId').value.trim();
+            const inputPass = document.getElementById('password').value;
+            console.log("🔒 Internationalized Login Attempt for ID:", inputId);
+            // Next step: Integrate with firebase-config.js
+        });
+    </script>
+</body>
+</html>
