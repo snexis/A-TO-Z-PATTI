@@ -12,8 +12,9 @@
         <h2>Admin Portal</h2>
         <form id="adminLoginForm">
             <div class="input-group">
-                <label for="adminEmail">Admin Email / ID</label>
-                <input type="email" id="adminEmail" required placeholder="Enter admin email">
+                <!-- এখানে টাইপ text করা হয়েছে যাতে কোনো মেইল আইডি লিখতে না হয় -->
+                <label for="adminEmail">Admin ID</label>
+                <input type="text" id="adminEmail" required placeholder="Enter admin unique ID">
             </div>
             
             <div class="input-group">
@@ -25,14 +26,62 @@
         </form>
     </div>
 
+    <!-- এখানে ফায়ারবেসের মেইন স্ক্রিপ্ট যোগ করা হয়েছে ব্যাকগ্রাউন্ডে অটো-সেটআপের জন্য -->
+    <script type="importmap">
+      {
+        "imports": {
+          "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+          "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+        }
+      }
+    </script>
+
     <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+        import { getDatabase, ref, set } from "firebase/database";
         import { handleAdminLogin } from "./auth.js";
 
-        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+        // আপনার auth.js ফাইলে যে ফায়ারবেস কনফিগ আছে, সেটি এখানে নিজে থেকেই কানেক্ট হবে
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
+            const inputId = document.getElementById('adminEmail').value.trim();
             const pass = document.getElementById('adminPassword').value;
-            handleAdminLogin(email, pass);
+            
+            // আপনার ছোট আইডিকে ব্যাকগ্রাউন্ডে মেইলে কনভার্ট করা হচ্ছে
+            const finalEmail = inputId.toLowerCase() + "@atoz.com";
+            
+            try {
+                // প্রথমে আপনার মেইন auth.js এর লগইন ফাংশনটি রান করার চেষ্টা করবে
+                await handleAdminLogin(finalEmail, pass);
+            } catch (error) {
+                // যদি ফায়ারবেসে এই অ্যাকাউন্টটি একদম প্রথমবার হওয়ার কারণে খুঁজে না পায়
+                if (error.code === 'auth/user-not-found' || error.message.includes('user-not-found')) {
+                    
+                    // প্লেয়ার বা অ্যাডমিন প্যানেলের মেইন ফায়ারবেস ইনস্ট্যান্স থেকে ব্যাকগ্রাউন্ডে অ্যাকাউন্টটি তৈরি করে নেবে
+                    const auth = getAuth();
+                    const db = getDatabase();
+                    
+                    createUserWithEmailAndPassword(auth, finalEmail, pass)
+                        .then((userCredential) => {
+                            const firebaseUID = userCredential.user.uid;
+                            
+                            // এবং আপনার সেই কাঙ্ক্ষিত 'admin' রোলটি ডাটাবেসে নিজে নিজেই পুশ করে দেবে
+                            set(ref(db, 'users/' + firebaseUID), {
+                                role: "admin"
+                            }).then(() => {
+                                alert("অভিনন্দন! প্রথমবার সফলভাবে আপনার অ্যাডমিন আইডি তৈরি এবং ডাটাবেস রুট সেট হয়েছে। আবার লগইন করুন।");
+                                location.reload();
+                            });
+                        })
+                        .catch((err) => {
+                            alert("অ্যাডমিন তৈরি করতে সমস্যা: " + err.message);
+                        });
+                } else {
+                    alert("লগইনে সমস্যা: " + error.message);
+                }
+            }
         });
     </script>
 </body>
