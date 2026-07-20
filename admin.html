@@ -3,80 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-TO-Z Bombay | Admin Dashboard</title>
+    <title>A-TO-Z Bombay | Admin Login</title>
     <link rel="stylesheet" href="./style.css">
+    
+    <!-- ১. ব্রাউজারের নিয়ম অনুযায়ী ইমপোর্ট ম্যাপ সবার উপরে থাকতে হবে (এরর ফিক্স) -->
+    <script type="importmap">
+      {
+        "imports": {
+          "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+          "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+        }
+      }
+    </script>
 </head>
 <body>
 
-    <!-- ড্যাশবোর্ড হেডার -->
-    <header class="dashboard-header">
-        <h1 class="dashboard-title">ATOZ Bombay - Admin Panel</h1>
-        <button id="logoutBtn" class="btn btn-danger" style="width: auto; padding: 10px 20px;">Secure Logout</button>
-    </header>
+    <!-- এখানে শুধু একটিই ক্লিন অ্যাডমিন পোর্টাল থাকবে (ডুপ্লিকেট ফিক্স) -->
+    <div class="login-container">
+        <h2>Admin Portal</h2>
+        <form id="adminLoginForm">
+            <div class="input-group">
+                <label for="adminEmail">Admin ID</label>
+                <input type="text" id="adminEmail" required placeholder="Enter admin unique ID">
+            </div>
+            
+            <div class="input-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" required placeholder="Enter password">
+            </div>
+            
+            <button type="submit" class="btn">Secure Login</button>
+        </form>
+    </div>
 
-    <!-- মেইন কন্টেন্ট এরিয়া -->
-    <main class="main-content">
-        <h2 style="text-align: center; color: #fff; margin-bottom: 10px;">220 Patti Live Matrix Controller</h2>
-        <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">Click on any patti to update its live value instantly.</p>
-
-        <!-- ২২০ পাত্তি লোড হওয়ার গ্রিড কন্টেইনার -->
-        <div id="pattiMatrix" class="matrix-grid">
-            <!-- জাভাস্ক্রিপ্ট দিয়ে এখানে স্বয়ংক্রিয়ভাবে ২২০টি পাত্তি জেনারেট হবে -->
-        </div>
-    </main>
-
-    <!-- ফায়ারবেস এবং কন্ট্রোল লজিক স্ক্রিপ্ট -->
+    <!-- ২. মেইন ফায়ারবেস লজিক এবং লগইন হ্যান্ডলার -->
     <script type="module">
-        import { protectAdminPage, handleAdminLogout } from "./auth.js";
-        import { db } from "./firebase-config.js";
-        import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+        import { getDatabase, ref, set } from "firebase/database";
+        import { handleAdminLogin } from "./auth.js";
 
-        // ১. পেজ সিকিউরিটি লক সচল করা (অননুমোদিত ইউজার আটকাতে)
-        protectAdminPage();
-
-        // লগআউট বাটন অ্যাকশন
-        document.getElementById('logoutBtn').addEventListener('click', handleAdminLogout);
-
-        // ২. ২২০টি পাত্তির লিস্ট ডেটাবেস জেনারেশন ও লাইভ লিসেনিং লজিক
-        const pattiMatrixContainer = document.getElementById('pattiMatrix');
-        const gameDataRef = ref(db, 'pattiData');
-
-        // লাইভ ফায়ারবেস ডাটা লোড ও রেন্ডারিং (ল্যাগ-ফ্রি মেথড)
-        onValue(gameDataRef, (snapshot) => {
-            pattiMatrixContainer.innerHTML = ''; // আগের ডেটা ক্লিয়ার করা
-            const data = snapshot.val() || {};
-
-            // ২২০টি পাত্তির লুপ প্রসেসিং (000 থেকে 999 এর মধ্যকার সমস্ত স্ট্যান্ডার্ড কম্বিনেশন)
-            // যদি ডাটাবেসে পাত্তি না থাকে তবে ইনিশিয়াল ডাটা রেডি করবে
-            for (let i = 100; i <= 999; i++) {
-                // পাত্তির সাধারণ নিয়ম: সংখ্যাগুলো ছোট থেকে বড় সাজানো থাকে (যেমন: 123, 112)
-                const digits = i.toString().split('').map(Number);
-                if (digits[0] <= digits[1] && digits[1] <= digits[2]) {
-                    const pattiNum = i.toString();
-                    const pattiValue = data[pattiNum] !== undefined ? data[pattiNum] : "-";
-
-                    // সিঙ্গেল পাত্তি কার্ড কার্ড তৈরি
-                    const card = document.createElement('div');
-                    card.className = 'patti-card';
-                    card.innerHTML = `
-                        <span class="patti-number">${pattiNum}</span>
-                        <span class="patti-value" id="val-${pattiNum}">${pattiValue}</span>
-                    `;
-
-                    // কার্ডে ক্লিক করলে লাইভ আপডেট করার ইভেন্ট
-                    card.addEventListener('click', () => {
-                        const newValue = prompt(`Enter new live value for Patti ${pattiNum}:`, pattiValue === "-" ? "" : pattiValue);
-                        if (newValue !== null && newValue.trim() !== "") {
-                            // ডাটাবেসে রিয়েল-টাইম আপডেট পাঠানো
-                            const updateObj = {};
-                            updateObj[pattiNum] = newValue.trim();
-                            update(gameDataRef, updateObj)
-                            .then(() => console.log(`Patti ${pattiNum} updated to ${newValue}`))
-                            .catch((err) => alert("Error updating data: " + err.message));
-                        }
-                    });
-
-                    pattiMatrixContainer.appendChild(card);
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputId = document.getElementById('adminEmail').value.trim();
+            const pass = document.getElementById('adminPassword').value;
+            
+            // ছোট আইডিকে ব্যাকগ্রাউন্ডে সিকিউর মেইলে কনভার্ট করা হচ্ছে
+            const finalEmail = inputId.toLowerCase() + "@atoz.com";
+            
+            try {
+                // প্রথমে লগইন করার চেষ্টা করবে
+                await handleAdminLogin(finalEmail, pass);
+            } catch (error) {
+                // যদি ডাটাবেসে এই অ্যাকাউন্টটি একদম প্রথমবার হওয়ার কারণে খুঁজে না পায়
+                if (error.code === 'auth/user-not-found' || error.message.includes('user-not-found')) {
+                    
+                    const auth = getAuth();
+                    const db = getDatabase();
+                    
+                    // কোড নিজেই ব্যাকগ্রাউন্ডে নতুন অ্যাডমিন অ্যাকাউন্ট তৈরি করে নেবে
+                    createUserWithEmailAndPassword(auth, finalEmail, pass)
+                        .then((userCredential) => {
+                            const firebaseUID = userCredential.user.uid;
+                            
+                            // ডাটাবেসে role: "admin" রুট স্ট্রাকচার পুশ করে দেবে
+                            set(ref(db, 'users/' + firebaseUID), {
+                                role: "admin"
+                            }).then(() => {
+                                alert("সফলভাবে আপনার অ্যাডমিন আইডি তৈরি এবং ডাটাবেস রুট সেট হয়েছে। অনুগ্রহ করে আবার লগইন করুন!");
+                                location.reload();
+                            });
+                        })
+                        .catch((err) => {
+                            alert("অ্যাডমিন তৈরিতে সমস্যা: " + err.message);
+                        });
+                } else {
+                    alert("লগইনে সমস্যা: " + error.message);
                 }
             }
         });
