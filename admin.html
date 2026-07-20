@@ -1,115 +1,85 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AtoZ Bombay - Admin Control Panel (v4.9)</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-    <script src="firebase-config.js"></script>
-    
-    <link rel="stylesheet" href="style.css">
+    <title>A-TO-Z Bombay | Admin Dashboard</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body class="admin-page">
+<body>
 
-    <header class="admin-nav">
-        <div class="nav-logo">ATOZ BOMBAY - ADMIN (v4.9)</div>
-        <div class="nav-user-info">
-            <span id="adminNameDisplay">অ্যাডমিন</span>
-            <button type="button" id="logoutBtn" class="logout-btn">লগআউট</button>
-        </div>
+    <!-- ড্যাশবোর্ড হেডার -->
+    <header class="dashboard-header">
+        <h1 class="dashboard-title">ATOZ Bombay - Admin Panel</h1>
+        <button id="logoutBtn" class="btn btn-danger" style="width: auto; padding: 10px 20px;">Secure Logout</button>
     </header>
 
-    <main class="admin-container">
-        
-        <section class="dashboard-counters">
-            <div class="card bg-cyan">
-                <h3>টোটাল প্লেয়ার</h3>
-                <p id="totalPlayersCount">0</p>
-            </div>
-            <div class="card bg-purple">
-                <h3>অ্যাক্টিভ প্লেয়ার</h3>
-                <p id="activePlayersCount">0</p>
-            </div>
-            <div class="card bg-dark-red">
-                <h3>ব্লকড প্লেয়ার</h3>
-                <p id="blockedPlayersCount">0</p>
-            </div>
-        </section>
+    <!-- মেইন কন্টেন্ট এরিয়া -->
+    <main class="main-content">
+        <h2 style="text-align: center; color: #fff; margin-bottom: 10px;">220 Patti Live Matrix Controller</h2>
+        <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">Click on any patti to update its live value instantly.</p>
 
-        <section class="admin-grid">
-            
-            <div class="admin-box">
-                <h3>🆕 নতুন প্লেয়ার/সাব-অ্যাডমিন তৈরি করুন</h3>
-                <form id="createUserForm" onsubmit="event.preventDefault();">
-                    <div class="form-group">
-                        <label>ইউজার আইডি</label>
-                        <input type="text" id="newUsername" placeholder="ইউনিক আইডি লিখুন" required autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label>সিকিউরিটি পিন (পাসওয়ার্ড)</label>
-                        <input type="password" id="newPassword" placeholder="পিন সেট করুন" required autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label>রোল (Role) সিলেক্ট করুন</label>
-                        <select id="userRole">
-                            <option value="player">প্লেয়ার (Player)</option>
-                            <option value="subadmin">সাব-অ্যাডমিন (Sub-Admin)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>প্লেয়ারের ভাষা (Language for Player)</label>
-                        <select id="userLanguage">
-                            <option value="bn">খাঁটি বাংলা (Bengali Only)</option>
-                            <option value="en">Pure English (English Only)</option>
-                        </select>
-                    </div>
-                    <button type="button" id="submitCreateUserBtn" class="action-btn-glow">আইডি তৈরি করুন</button>
-                </form>
-            </div>
-
-            <div class="admin-box">
-                <h3>📊 লাইভ গেম চার্ট ও রেজাল্ট এন্ট্রি</h3>
-                <form id="gameDataForm" onsubmit="event.preventDefault();">
-                    <div class="form-group">
-                        <label>গেমের সময়/রাউন্ড (Time Slot)</label>
-                        <input type="text" id="gameTimeSlot" placeholder="যেমন: 12:00 PM" required>
-                    </div>
-                    <div class="form-group">
-                        <label>উইনিং নাম্বার/রেজাল্ট</label>
-                        <input type="number" id="winningNumber" placeholder="নাম্বার বসান" required>
-                    </div>
-                    <button type="button" id="updateChartBtn" class="action-btn-glow">চার্ট আপডেট করুন</button>
-                </form>
-            </div>
-
-        </section>
-
-        <section class="admin-box list-section">
-            <h3>👥 প্লেয়ার লিস্ট ও এপ্রুভাল কন্ট্রোল (Auto-Refresh Free)</h3>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ইউজার আইডি</th>
-                            <th>রোল</th>
-                            <th>সিকিউরিটি কোড</th>
-                            <th>ভাষা (Language)</th>
-                            <th>অনুমোদন স্ট্যাটাস</th>
-                            <th>অ্যাকশন (Action)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="playerTableBody">
-                        </tbody>
-                </table>
-            </div>
-        </section>
-
+        <!-- ২২০ পাত্তি লোড হওয়ার গ্রিড কন্টেইনার -->
+        <div id="pattiMatrix" class="matrix-grid">
+            <!-- জাভাস্ক্রিপ্ট দিয়ে এখানে স্বয়ংক্রিয়ভাবে ২২০টি পাত্তি জেনারেট হবে -->
+        </div>
     </main>
 
-    <script src="admin.js"></script>
+    <!-- ফায়ারবেস এবং কন্ট্রোল লজিক স্ক্রিপ্ট -->
+    <script type="module">
+        import { protectAdminPage, handleAdminLogout } from "./auth.js";
+        import { db } from "./firebase-config.js";
+        import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // ১. পেজ সিকিউরিটি লক সচল করা (অননুমোদিত ইউজার আটকাতে)
+        protectAdminPage();
+
+        // লগআউট বাটন অ্যাকশন
+        document.getElementById('logoutBtn').addEventListener('click', handleAdminLogout);
+
+        // ২. ২২০টি পাত্তির লিস্ট ডেটাবেস জেনারেশন ও লাইভ লিসেনিং লজিক
+        const pattiMatrixContainer = document.getElementById('pattiMatrix');
+        const gameDataRef = ref(db, 'pattiData');
+
+        // লাইভ ফায়ারবেস ডাটা লোড ও রেন্ডারিং (ল্যাগ-ফ্রি মেথড)
+        onValue(gameDataRef, (snapshot) => {
+            pattiMatrixContainer.innerHTML = ''; // আগের ডেটা ক্লিয়ার করা
+            const data = snapshot.val() || {};
+
+            // ২২০টি পাত্তির লুপ প্রসেসিং (000 থেকে 999 এর মধ্যকার সমস্ত স্ট্যান্ডার্ড কম্বিনেশন)
+            // যদি ডাটাবেসে পাত্তি না থাকে তবে ইনিশিয়াল ডাটা রেডি করবে
+            for (let i = 100; i <= 999; i++) {
+                // পাত্তির সাধারণ নিয়ম: সংখ্যাগুলো ছোট থেকে বড় সাজানো থাকে (যেমন: 123, 112)
+                const digits = i.toString().split('').map(Number);
+                if (digits[0] <= digits[1] && digits[1] <= digits[2]) {
+                    const pattiNum = i.toString();
+                    const pattiValue = data[pattiNum] !== undefined ? data[pattiNum] : "-";
+
+                    // সিঙ্গেল পাত্তি কার্ড কার্ড তৈরি
+                    const card = document.createElement('div');
+                    card.className = 'patti-card';
+                    card.innerHTML = `
+                        <span class="patti-number">${pattiNum}</span>
+                        <span class="patti-value" id="val-${pattiNum}">${pattiValue}</span>
+                    `;
+
+                    // কার্ডে ক্লিক করলে লাইভ আপডেট করার ইভেন্ট
+                    card.addEventListener('click', () => {
+                        const newValue = prompt(`Enter new live value for Patti ${pattiNum}:`, pattiValue === "-" ? "" : pattiValue);
+                        if (newValue !== null && newValue.trim() !== "") {
+                            // ডাটাবেসে রিয়েল-টাইম আপডেট পাঠানো
+                            const updateObj = {};
+                            updateObj[pattiNum] = newValue.trim();
+                            update(gameDataRef, updateObj)
+                            .then(() => console.log(`Patti ${pattiNum} updated to ${newValue}`))
+                            .catch((err) => alert("Error updating data: " + err.message));
+                        }
+                    });
+
+                    pattiMatrixContainer.appendChild(card);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
