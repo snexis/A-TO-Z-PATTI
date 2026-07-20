@@ -37,12 +37,12 @@
         </form>
     </div>
 
-    <!-- ২. মেইন ফায়ারবেস লজিক এবং লগইন হ্যান্ডলার -->
+  <!-- ২. মেইন ফায়ারবেস লজিক এবং লগইন হ্যান্ডলার (আপডেটেড ও ফিক্সড) -->
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
         import { getDatabase, ref, set } from "firebase/database";
-        import { handleAdminLogin } from "./auth.js";
+        import { auth, db } from "./firebase-config.js"; // আপনার মেইন কনফিগ থেকেই রুট ডিক্লেয়ার করা হলো
 
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -52,36 +52,33 @@
             // ছোট আইডিকে ব্যাকগ্রাউন্ডে সিকিউর মেইলে কনভার্ট করা হচ্ছে
             const finalEmail = inputId.toLowerCase() + "@atoz.com";
             
-            try {
-                // প্রথমে লগইন করার চেষ্টা করবে
-                await handleAdminLogin(finalEmail, pass);
-            } catch (error) {
-                // যদি ডাটাবেসে এই অ্যাকাউন্টটি একদম প্রথমবার হওয়ার কারণে খুঁজে না পায়
-                if (error.code === 'auth/user-not-found' || error.message.includes('user-not-found')) {
+            // ফায়ারবেস সিকিউরিটি বাইপাস: নতুন অ্যাকাউন্ট তৈরি ও ডেটাবেস রুট সেটআপ
+            createUserWithEmailAndPassword(auth, finalEmail, pass)
+                .then((userCredential) => {
+                    const firebaseUID = userCredential.user.uid;
                     
-                    const auth = getAuth();
-                    const db = getDatabase();
-                    
-                    // কোড নিজেই ব্যাকগ্রাউন্ডে নতুন অ্যাডমিন অ্যাকাউন্ট তৈরি করে নেবে
-                    createUserWithEmailAndPassword(auth, finalEmail, pass)
-                        .then((userCredential) => {
-                            const firebaseUID = userCredential.user.uid;
-                            
-                            // ডাটাবেসে role: "admin" রুট স্ট্রাকচার পুশ করে দেবে
-                            set(ref(db, 'users/' + firebaseUID), {
-                                role: "admin"
-                            }).then(() => {
-                                alert("সফলভাবে আপনার অ্যাডমিন আইডি তৈরি এবং ডাটাবেস রুট সেট হয়েছে। অনুগ্রহ করে আবার লগইন করুন!");
-                                location.reload();
+                    // ডাটাবেসে role: "admin" রুট স্ট্রাকচার পুশ করে দেবে
+                    set(ref(db, 'users/' + firebaseUID), {
+                        role: "admin"
+                    }).then(() => {
+                        alert("🎉 সফলভাবে আপনার অ্যাডমিন আইডি তৈরি এবং ডাটাবেস রুট সেট হয়েছে!");
+                        window.location.href = "admin-dashboard.html"; // সরাসরি ড্যাশবোর্ডে রিডাইরেক্ট
+                    });
+                })
+                .catch((error) => {
+                    // যদি অ্যাকাউন্টটি আগে থেকেই তৈরি করা থাকে, তবে সরাসরি লগইন করবে
+                    if (error.code === 'auth/email-already-in-use') {
+                        signInWithEmailAndPassword(auth, finalEmail, pass)
+                            .then(() => {
+                                window.location.href = "admin-dashboard.html";
+                            })
+                            .catch((err) => {
+                                alert("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন। " + err.message);
                             });
-                        })
-                        .catch((err) => {
-                            alert("অ্যাডমিন তৈরিতে সমস্যা: " + err.message);
-                        });
-                } else {
-                    alert("লগইনে সমস্যা: " + error.message);
-                }
-            }
+                    } else {
+                        alert("লগইনে সমস্যা: " + error.message);
+                    }
+                });
         });
     </script>
 </body>
